@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { usePawgressStore } from "../hooks/usePawgressStore";
 import { useWorkoutStore } from "../stores/workoutStore";
-import { PLAN_2ER_SPLIT } from "../data/plan_2er_split";
 import { BRUST_EXERCISES }    from "../data/exercises_brust";
 import { RUECKEN_EXERCISES }  from "../data/exercises_ruecken";
 import { SCHULTERN_EXERCISES } from "../data/exercises_schultern";
@@ -138,9 +137,10 @@ export function ActiveSetScreen() {
   const resetWorkout = useWorkoutStore(s => s.resetWorkout);
 
   const dayIndex = stats.totalWorkouts % 4;
-  const day = PLAN_2ER_SPLIT[dayIndex];
+  const getActiveExercises = useWorkoutStore(s => s.getActiveExercises);
+  const activeExercises = getActiveExercises(dayIndex);
   const exIndex = Number(index) ?? 0;
-  const planEx = day.exercises[exIndex];
+  const planEx = activeExercises[exIndex];
   const totalSets = planEx?.sets.length ?? 3;
   const defaultReps = planEx?.sets[0]?.reps ?? 8;
 
@@ -180,10 +180,10 @@ export function ActiveSetScreen() {
     if (currentSet >= totalSets) {
       completeExercise(exIndex);
       const nextIndex = exIndex + 1;
-      if (nextIndex < day.exercises.length) {
+      if (nextIndex < activeExercises.length) {
         navigate(`/active-set/${nextIndex}`);
       } else {
-        const cats = day.exercises.map(e => e.name);
+        const cats = activeExercises.map(e => e.name);
         finishWorkout(cats, weight, session?.startTime);
         navigate("/workout-done");
       }

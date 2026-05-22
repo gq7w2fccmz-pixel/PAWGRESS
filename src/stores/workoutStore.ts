@@ -1,18 +1,16 @@
 import { create } from "zustand";
 import type { AreaName } from "../types";
-import { PLAN_2ER_SPLIT } from "../data/plan_2er_split";
+import { PLAN_2ER_SPLIT, type PlanExercise } from "../data/plan_2er_split";
 import type { SetRecord, ExerciseRecord } from "./historyStore";
 
 export interface WorkoutSession {
   dayIndex: number;
   startTime: number;
   currentExerciseIndex: number;
-  currentSet: number;
   isActive: boolean;
   exercises: { name: string; done: boolean }[];
 }
 
-// Tracks recorded sets per exercise during active workout (survives navigation)
 export interface LiveExerciseLog {
   [exerciseName: string]: SetRecord[];
 }
@@ -21,10 +19,17 @@ interface WorkoutStore {
   screen: string;
   activeArea: AreaName | null;
   session: WorkoutSession | null;
-  liveLog: LiveExerciseLog;            // persists across route changes
+  liveLog: LiveExerciseLog;
+
+  // Custom exercise list – shared between TrainingScreen & ActiveSetScreen
+  customExercises: PlanExercise[] | null;
+  customDayIndex: number | null;
 
   setScreen: (s: string) => void;
   setActiveArea: (a: AreaName | null) => void;
+  setCustomExercises: (exercises: PlanExercise[], dayIndex: number) => void;
+  getActiveExercises: (dayIndex: number) => PlanExercise[];
+
   startWorkout: (totalWorkouts: number) => void;
   completeExercise: (exIndex: number) => void;
   recordSet: (exerciseName: string, weight: number, reps: number) => void;
@@ -37,22 +42,33 @@ export const useWorkoutStore = create<WorkoutStore>()((set, get) => ({
   activeArea: null,
   session: null,
   liveLog: {},
+  customExercises: null,
+  customDayIndex: null,
 
   setScreen: (screen) => set({ screen }),
   setActiveArea: (activeArea) => set({ activeArea }),
 
+  setCustomExercises: (exercises, dayIndex) => {
+    set({ customExercises: exercises, customDayIndex: dayIndex });
+  },
+
+  getActiveExercises: (dayIndex) => {
+    const { customExercises, customDayIndex } = get();
+    if (customExercises && customDayIndex === dayIndex) return customExercises;
+    return PLAN_2ER_SPLIT[dayIndex].exercises;
+  },
+
   startWorkout: (totalWorkouts) => {
     const dayIndex = totalWorkouts % 4;
-    const day = PLAN_2ER_SPLIT[dayIndex];
+    const exercises = get().getActiveExercises(dayIndex);
     set({
-      liveLog: {},                      // clear previous session log
+      liveLog: {},
       session: {
         dayIndex,
         startTime: Date.now(),
         currentExerciseIndex: 0,
-        currentSet: 1,
         isActive: true,
-        exercises: day.exercises.map(e => ({ name: e.name, done: false })),
+        exercises: exercises.map(e => ({ name: e.name, done: false })),
       },
     });
   },
@@ -67,7 +83,6 @@ export const useWorkoutStore = create<WorkoutStore>()((set, get) => ({
     });
   },
 
-  // BUG #7 fix: recordSet stores into workoutStore, survives route changes
   recordSet: (exerciseName, weight, reps) => {
     set(state => ({
       liveLog: {
@@ -88,5 +103,5 @@ export const useWorkoutStore = create<WorkoutStore>()((set, get) => ({
       });
   },
 
-  resetWorkout: () => set({ session: null, liveLog: {} }),
+  resetWorkout: () => set({ session: null, liveLog: {}, customExercises: null, customDayIndex: null }),
 }));
