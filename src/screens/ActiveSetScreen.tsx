@@ -8,33 +8,55 @@ const F = "'Barlow Condensed', sans-serif";
 const ORANGE = "#f97316";
 
 // ── Timer Ring ───────────────────────────────────────────────────────────────
-function TimerRing({ seconds, total, onAdjust }: { seconds: number; total: number; onAdjust: (d: number) => void }) {
+function TimerRing({ seconds, total, onAdjust, onSet }: {
+  seconds: number; total: number;
+  onAdjust: (d: number) => void;
+  onSet?: (v: number) => void;
+}) {
   const r = 70;
   const circ = 2 * Math.PI * r;
   const pct = Math.max(0, seconds / total);
   const dash = circ * pct;
+  const PRESETS = [30, 60, 90, 120];
 
   return (
-    <div className="flex items-center gap-6">
-      <button onClick={() => onAdjust(-15)}
-        className="w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold"
-        style={{ background: "transparent", border: `2px solid ${ORANGE}`, color: ORANGE }}>−</button>
-
-      <div className="relative" style={{ width: 160, height: 160 }}>
-        <svg width="160" height="160" style={{ transform: "rotate(-90deg)" }}>
-          <circle cx="80" cy="80" r={r} fill="none" stroke="#2a2a2a" strokeWidth="8" />
-          <circle cx="80" cy="80" r={r} fill="none" stroke={ORANGE} strokeWidth="8"
-            strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <p className="font-black text-5xl text-white leading-none" style={{ fontFamily: F }}>{seconds}</p>
-          <p className="text-xs text-gray-500 tracking-widest mt-1">SEK.</p>
-        </div>
+    <div className="flex flex-col items-center gap-3">
+      {/* Quick-select */}
+      <div className="flex gap-2">
+        {PRESETS.map(v => (
+          <button key={v} onClick={() => onSet?.(v)}
+            className="px-3 py-1 rounded-full text-xs font-black"
+            style={{
+              fontFamily: F,
+              background: total === v ? ORANGE : "#2a2a2a",
+              color: total === v ? "#fff" : "#aaa",
+              border: `1px solid ${total === v ? ORANGE : "#3a3a3a"}`,
+            }}>{v}s</button>
+        ))}
       </div>
 
-      <button onClick={() => onAdjust(15)}
-        className="w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold"
-        style={{ background: "transparent", border: `2px solid ${ORANGE}`, color: ORANGE }}>+</button>
+      {/* Ring + ± buttons */}
+      <div className="flex items-center gap-6">
+        <button onClick={() => onAdjust(-15)}
+          className="w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold"
+          style={{ background: "transparent", border: `2px solid ${ORANGE}`, color: ORANGE }}>−</button>
+
+        <div className="relative" style={{ width: 160, height: 160 }}>
+          <svg width="160" height="160" style={{ transform: "rotate(-90deg)" }}>
+            <circle cx="80" cy="80" r={r} fill="none" stroke="#2a2a2a" strokeWidth="8" />
+            <circle cx="80" cy="80" r={r} fill="none" stroke={ORANGE} strokeWidth="8"
+              strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <p className="font-black text-5xl text-white leading-none" style={{ fontFamily: F }}>{seconds}</p>
+            <p className="text-xs text-gray-500 tracking-widest mt-1">SEK.</p>
+          </div>
+        </div>
+
+        <button onClick={() => onAdjust(15)}
+          className="w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold"
+          style={{ background: "transparent", border: `2px solid ${ORANGE}`, color: ORANGE }}>+</button>
+      </div>
     </div>
   );
 }
@@ -190,7 +212,7 @@ export function ActiveSetScreen() {
 
         {/* Timer */}
         <p className="text-xs text-gray-500 tracking-widest font-bold mb-4">REST TIMER</p>
-        <TimerRing seconds={timerSec} total={timerTotal} onAdjust={adjustTimer} />
+        <TimerRing seconds={timerSec} total={timerTotal} onAdjust={adjustTimer} onSet={(v) => { setTimerTotal(v); setTimerSec(v); }} />
         <button onClick={() => setTimerRunning(r => !r)} className="mt-3 text-sm"
           style={{ background: "none", border: "none", color: ORANGE }}>
           {timerRunning ? "⏸ Pause" : "▶ Fortsetzen"}
@@ -265,7 +287,7 @@ export function ActiveSetScreen() {
       <div className="px-6 mb-6">
         <p className="text-xs text-gray-500 tracking-widest font-bold text-center mb-4">REST TIMER</p>
         <div className="flex justify-center">
-          <TimerRing seconds={timerSec} total={timerTotal} onAdjust={adjustTimer} />
+          <TimerRing seconds={timerSec} total={timerTotal} onAdjust={adjustTimer} onSet={(v) => { setTimerTotal(v); setTimerSec(v); }} />
         </div>
         <div className="flex justify-center mt-2">
           <button onClick={() => setTimerRunning(r => !r)}
