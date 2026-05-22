@@ -77,7 +77,7 @@ export const useWorkoutStore = create<WorkoutStore>()((set, get) => ({
     }));
   },
 
-  buildExerciseRecords: () => {
+  buildExerciseRecords: (): Omit<ExerciseRecord, "isPR">[] => {
     const { liveLog } = get();
     return Object.entries(liveLog)
       .filter(([, sets]) => sets.length > 0)

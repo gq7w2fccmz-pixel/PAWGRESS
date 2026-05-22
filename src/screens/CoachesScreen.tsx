@@ -99,9 +99,9 @@ export function CoachesScreen() {
                   {coach.desc}
                 </p>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm">{getFocusIcon(coach.focus)}</span>
+                  <span className="text-sm">{getFocusIcon(coach.focus ?? "")}</span>
                   <span className="text-[11px] font-semibold" style={{ color: coach.color }}>
-                    Fokus: {coach.focus}
+                    Fokus: {coach.focus ?? ""}
                   </span>
                 </div>
               </div>

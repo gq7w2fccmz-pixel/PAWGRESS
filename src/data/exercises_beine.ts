@@ -943,7 +943,7 @@ export const BEINE_EXERCISES: AreaExercise[] = [
   },
 
   // ── BEINBEUGER ───────────────────────────────────────────────────────────
-  ,{
+  {
     num: 34,
     name: "Beinbeuger sitzend Maschine",
     sub: "Hamstrings · sitzende Isolation",
@@ -971,7 +971,7 @@ export const BEINE_EXERCISES: AreaExercise[] = [
     start_position: "Aufrecht an der Maschine sitzen. Kniegelenk mit Rotationsachse ausrichten. Polster über den Fersen.",
     execution: "Beine kontrolliert beugen und langsam bis in die Ausgangsposition zurückführen.",
   }
-  ,{
+  {
     num: 35,
     name: "Beinbeuger liegend Maschine",
     sub: "Hamstrings · liegende Isolation",

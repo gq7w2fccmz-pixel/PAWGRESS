@@ -477,7 +477,7 @@ export const BRUST_EXERCISES: AreaExercise[] = [
     start_position: "Auf die Negativbank legen. Schulterblätter fixieren. Hanteln auf Brusthöhe halten.",
     execution: "Hanteln kontrolliert absenken und kraftvoll nach oben drücken.",
   },
-  ,{
+  {
     num: 18,
     name: "Schräge Brustpresse Maschine",
     sub: "Geführte Schrägpresse · obere Brust",
