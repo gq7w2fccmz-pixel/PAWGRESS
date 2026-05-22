@@ -970,7 +970,7 @@ export const BEINE_EXERCISES: AreaExercise[] = [
     breathing: "Beim Beugen ausatmen, beim Strecken einatmen.",
     start_position: "Aufrecht an der Maschine sitzen. Kniegelenk mit Rotationsachse ausrichten. Polster über den Fersen.",
     execution: "Beine kontrolliert beugen und langsam bis in die Ausgangsposition zurückführen.",
-  }
+  },
   {
     num: 35,
     name: "Beinbeuger liegend Maschine",
