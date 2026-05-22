@@ -13,9 +13,9 @@ import { GymAreaScreen }   from "./screens/GymAreaScreen";
 
 const NO_NAV = ["/active-set", "/workout-done"];
 
-function AppInner() {
+function AppInner({ hideSplash }: { hideSplash: boolean }) {
   const location = useLocation();
-  const showNav = !NO_NAV.some((p) => location.pathname.startsWith(p));
+  const showNav = hideSplash && !NO_NAV.some((p) => location.pathname.startsWith(p));
 
   return (
     <div className="max-w-[430px] mx-auto min-h-screen relative overflow-x-hidden bg-[#0a0a0a] text-white">
@@ -37,7 +37,6 @@ function AppInner() {
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
 
-  // Only show splash on first load, not on hot-reload in dev
   useEffect(() => {
     const seen = sessionStorage.getItem("splashSeen");
     if (seen) setShowSplash(false);
@@ -51,7 +50,7 @@ export default function App() {
   return (
     <BrowserRouter>
       {showSplash && <SplashScreen onDone={handleSplashDone} />}
-      <AppInner />
+      <AppInner hideSplash={!showSplash} />
     </BrowserRouter>
   );
 }

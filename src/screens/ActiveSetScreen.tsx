@@ -3,9 +3,24 @@ import { useNavigate, useParams } from "react-router-dom";
 import { usePawgressStore } from "../hooks/usePawgressStore";
 import { useWorkoutStore } from "../stores/workoutStore";
 import { PLAN_2ER_SPLIT } from "../data/plan_2er_split";
+import { BRUST_EXERCISES }    from "../data/exercises_brust";
+import { RUECKEN_EXERCISES }  from "../data/exercises_ruecken";
+import { SCHULTERN_EXERCISES } from "../data/exercises_schultern";
+import { ARME_EXERCISES }     from "../data/exercises_arme";
+import { BEINE_EXERCISES }    from "../data/exercises_beine";
+import { CORE_EXERCISES }     from "../data/exercises_core";
 
 const F = "'Barlow Condensed', sans-serif";
 const ORANGE = "#f97316";
+
+// Build lookup map for cues/tips from all exercise libraries
+const ALL_EXERCISES = [
+  ...BRUST_EXERCISES, ...RUECKEN_EXERCISES, ...SCHULTERN_EXERCISES,
+  ...ARME_EXERCISES, ...BEINE_EXERCISES, ...CORE_EXERCISES,
+];
+function getExerciseData(name: string) {
+  return ALL_EXERCISES.find(e => e.name.toLowerCase() === name.toLowerCase());
+}
 
 // ── Timer Ring ───────────────────────────────────────────────────────────────
 function TimerRing({ seconds, total, onAdjust, onSet }: {
@@ -21,7 +36,6 @@ function TimerRing({ seconds, total, onAdjust, onSet }: {
 
   return (
     <div className="flex flex-col items-center gap-3">
-      {/* Quick-select */}
       <div className="flex gap-2">
         {PRESETS.map(v => (
           <button key={v} onClick={() => onSet?.(v)}
@@ -34,13 +48,10 @@ function TimerRing({ seconds, total, onAdjust, onSet }: {
             }}>{v}s</button>
         ))}
       </div>
-
-      {/* Ring + ± buttons */}
       <div className="flex items-center gap-6">
         <button onClick={() => onAdjust(-15)}
           className="w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold"
           style={{ background: "transparent", border: `2px solid ${ORANGE}`, color: ORANGE }}>−</button>
-
         <div className="relative" style={{ width: 160, height: 160 }}>
           <svg width="160" height="160" style={{ transform: "rotate(-90deg)" }}>
             <circle cx="80" cy="80" r={r} fill="none" stroke="#2a2a2a" strokeWidth="8" />
@@ -52,7 +63,6 @@ function TimerRing({ seconds, total, onAdjust, onSet }: {
             <p className="text-xs text-gray-500 tracking-widest mt-1">SEK.</p>
           </div>
         </div>
-
         <button onClick={() => onAdjust(15)}
           className="w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold"
           style={{ background: "transparent", border: `2px solid ${ORANGE}`, color: ORANGE }}>+</button>
@@ -61,7 +71,7 @@ function TimerRing({ seconds, total, onAdjust, onSet }: {
   );
 }
 
-// ── NumberInput – tap +/- or tap number to type manually ────────────────────
+// ── Number Input – single tap opens keyboard ─────────────────────────────────
 function NumberInput({ value, onChange, step = 1, unit, label, subLabel }: {
   value: number; onChange: (v: number) => void;
   step?: number; unit?: string; label?: string; subLabel?: string;
@@ -73,12 +83,13 @@ function NumberInput({ value, onChange, step = 1, unit, label, subLabel }: {
   function startEdit() {
     setDraft(String(value));
     setEditing(true);
-    setTimeout(() => inputRef.current?.select(), 50);
+    // Focus immediately on single tap
+    setTimeout(() => { inputRef.current?.focus(); inputRef.current?.select(); }, 10);
   }
 
   function commitEdit() {
     const v = parseFloat(draft.replace(",", "."));
-    if (!isNaN(v) && v >= 0) onChange(v);
+    if (!isNaN(v) && v >= 0) onChange(Math.round(v * 4) / 4); // round to nearest 0.25
     setEditing(false);
   }
 
@@ -87,10 +98,10 @@ function NumberInput({ value, onChange, step = 1, unit, label, subLabel }: {
       {label && <p className="text-xs text-gray-500 tracking-widest mb-3 font-bold">{label}</p>}
       <div className="flex items-center gap-6">
         <button onClick={() => onChange(Math.max(0, value - step))}
-          className="w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold"
+          className="w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold"
           style={{ background: "transparent", border: `2px solid ${ORANGE}`, color: ORANGE }}>−</button>
 
-        <div className="text-center min-w-[110px]">
+        <div className="text-center min-w-[120px]">
           {editing ? (
             <input ref={inputRef} value={draft}
               onChange={e => setDraft(e.target.value)}
@@ -98,7 +109,7 @@ function NumberInput({ value, onChange, step = 1, unit, label, subLabel }: {
               onKeyDown={e => e.key === "Enter" && commitEdit()}
               className="font-black text-center text-white bg-transparent outline-none w-full"
               style={{ fontFamily: F, fontSize: 52, borderBottom: `2px solid ${ORANGE}` }}
-              inputMode="decimal" />
+              inputMode="decimal" autoFocus />
           ) : (
             <p className="font-black text-white leading-none cursor-pointer"
               style={{ fontFamily: F, fontSize: 52 }}
@@ -111,32 +122,29 @@ function NumberInput({ value, onChange, step = 1, unit, label, subLabel }: {
         </div>
 
         <button onClick={() => onChange(value + step)}
-          className="w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold"
+          className="w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold"
           style={{ background: "transparent", border: `2px solid ${ORANGE}`, color: ORANGE }}>+</button>
       </div>
     </div>
   );
 }
 
-// ── Main Screen ──────────────────────────────────────────────────────────────
+// ── Main Screen ───────────────────────────────────────────────────────────────
 export function ActiveSetScreen() {
   const { index } = useParams<{ index: string }>();
   const navigate = useNavigate();
   const { stats, session, completeSet, completeExercise, finishWorkout } = usePawgressStore();
-  const recordSet              = useWorkoutStore(s => s.recordSet);
+  const recordSet  = useWorkoutStore(s => s.recordSet);
+  const resetWorkout = useWorkoutStore(s => s.resetWorkout);
 
   const dayIndex = stats.totalWorkouts % 4;
   const day = PLAN_2ER_SPLIT[dayIndex];
   const exIndex = Number(index) ?? 0;
   const planEx = day.exercises[exIndex];
-  const sessionEx = session?.exercises[exIndex];
-
-  // Defaults
-  const defaultReps = planEx?.sets[0]?.reps ?? 8;
-  const defaultWeight = 0;
   const totalSets = planEx?.sets.length ?? 3;
+  const defaultReps = planEx?.sets[0]?.reps ?? 8;
 
-  const [weight, setWeight] = useState(defaultWeight);
+  const [weight, setWeight] = useState(0);
   const [reps, setReps] = useState(defaultReps);
   const [currentSet, setCurrentSet] = useState(1);
   const [setDone, setSetDone] = useState(false);
@@ -144,8 +152,10 @@ export function ActiveSetScreen() {
   const [timerSec, setTimerSec] = useState(120);
   const [timerRunning, setTimerRunning] = useState(false);
   const [showTip, setShowTip] = useState(false);
+  const [showAbort, setShowAbort] = useState(false);
 
-  // Timer tick
+  const exData = planEx ? getExerciseData(planEx.name) : null;
+
   useEffect(() => {
     if (!timerRunning) return;
     if (timerSec <= 0) { setTimerRunning(false); return; }
@@ -155,13 +165,12 @@ export function ActiveSetScreen() {
 
   function adjustTimer(delta: number) {
     const next = Math.max(15, timerTotal + delta);
-    setTimerTotal(next);
-    setTimerSec(next);
+    setTimerTotal(next); setTimerSec(next);
   }
 
   function handleSetDone() {
     completeSet(exIndex, weight, reps);
-    recordSet(planEx.name, weight, reps);      // ← history tracking
+    recordSet(planEx.name, weight, reps);
     setTimerSec(timerTotal);
     setTimerRunning(true);
     setSetDone(true);
@@ -174,7 +183,6 @@ export function ActiveSetScreen() {
       if (nextIndex < day.exercises.length) {
         navigate(`/active-set/${nextIndex}`);
       } else {
-        // Last exercise – finish workout with full history
         const cats = day.exercises.map(e => e.name);
         finishWorkout(cats, weight, session?.startTime);
         navigate("/workout-done");
@@ -186,40 +194,55 @@ export function ActiveSetScreen() {
     }
   }
 
+  function handleAbort() {
+    resetWorkout();
+    navigate("/training");
+  }
+
   if (!planEx) return null;
 
-  // ── Set-Done Screen ────────────────────────────────────────────────────────
+  // ── Set-Done Screen ──────────────────────────────────────────────────────
   if (setDone && currentSet < totalSets) return (
     <div className="min-h-screen flex flex-col pb-10" style={{ background: "#0a0a0a", color: "#fff" }}>
-      {/* Header */}
       <div className="flex items-center justify-between px-4 pt-5 pb-4" style={{ borderBottom: "1px solid #2a2a2a" }}>
         <button onClick={() => navigate("/training")} style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
         <div className="text-center">
           <p className="font-black text-lg text-white" style={{ fontFamily: F }}>{planEx.name}</p>
           <p className="text-xs text-gray-500">Satz {currentSet} von {totalSets} abgeschlossen</p>
         </div>
-        <div style={{ width: 22 }} />
+        <button onClick={() => setShowAbort(true)} className="text-xs font-bold px-2 py-1 rounded"
+          style={{ background: "#ef444422", color: "#ef4444", border: "1px solid #ef4444" }}>STOP</button>
       </div>
 
+      {showAbort && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-6"
+          style={{ background: "rgba(0,0,0,0.9)" }}>
+          <div className="rounded-2xl p-6 w-full" style={{ background: "#1a1a1a", border: "1px solid #ef4444" }}>
+            <p className="font-black text-xl text-white mb-2" style={{ fontFamily: F }}>TRAINING ABBRECHEN?</p>
+            <p className="text-sm text-gray-400 mb-5">Dein Fortschritt geht verloren.</p>
+            <button onClick={handleAbort} className="w-full py-3 rounded-xl font-black text-white mb-2"
+              style={{ background: "#ef4444", fontFamily: F }}>JA, ABBRECHEN</button>
+            <button onClick={() => setShowAbort(false)} className="w-full py-3 rounded-xl font-black text-white"
+              style={{ background: "#2a2a2a", fontFamily: F }}>WEITERMACHEN</button>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col items-center px-6 pt-8 flex-1">
-        {/* Check */}
         <div className="w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-4"
           style={{ background: "#22c55e22", border: "2px solid #22c55e" }}>✓</div>
         <p className="font-black text-3xl text-white mb-1" style={{ fontFamily: F }}>STARK GEMACHT!</p>
         <p className="text-sm text-gray-400 mb-6">
-          {weight > 0 ? `${weight.toFixed(1).replace(".", ",")} kg × ${reps} Wdh` : `BW × ${reps} Wdh`}
+          {weight > 0 ? `${weight} kg × ${reps} Wdh` : `BW × ${reps} Wdh`}
         </p>
-
-        {/* Timer */}
         <p className="text-xs text-gray-500 tracking-widest font-bold mb-4">REST TIMER</p>
-        <TimerRing seconds={timerSec} total={timerTotal} onAdjust={adjustTimer} onSet={(v) => { setTimerTotal(v); setTimerSec(v); }} />
+        <TimerRing seconds={timerSec} total={timerTotal} onAdjust={adjustTimer}
+          onSet={v => { setTimerTotal(v); setTimerSec(v); }} />
         <button onClick={() => setTimerRunning(r => !r)} className="mt-3 text-sm"
           style={{ background: "none", border: "none", color: ORANGE }}>
           {timerRunning ? "⏸ Pause" : "▶ Fortsetzen"}
         </button>
-
         <div className="flex-1" />
-
         <button onClick={handleContinue}
           className="w-full py-4 rounded-2xl font-black text-xl text-white mt-6"
           style={{ background: ORANGE, border: "none", fontFamily: F }}>
@@ -229,11 +252,25 @@ export function ActiveSetScreen() {
     </div>
   );
 
-  // ── Active Set Screen ──────────────────────────────────────────────────────
+  // ── Active Set Screen ────────────────────────────────────────────────────
   return (
     <div className="min-h-screen pb-8" style={{ background: "#0a0a0a", color: "#fff" }}>
 
-      {/* Header */}
+      {showAbort && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-6"
+          style={{ background: "rgba(0,0,0,0.9)" }}>
+          <div className="rounded-2xl p-6 w-full" style={{ background: "#1a1a1a", border: "1px solid #ef4444" }}>
+            <p className="font-black text-xl text-white mb-2" style={{ fontFamily: F }}>TRAINING ABBRECHEN?</p>
+            <p className="text-sm text-gray-400 mb-5">Dein Fortschritt geht verloren.</p>
+            <button onClick={handleAbort} className="w-full py-3 rounded-xl font-black text-white mb-2"
+              style={{ background: "#ef4444", fontFamily: F }}>JA, ABBRECHEN</button>
+            <button onClick={() => setShowAbort(false)} className="w-full py-3 rounded-xl font-black text-white"
+              style={{ background: "#2a2a2a", fontFamily: F }}>WEITERMACHEN</button>
+          </div>
+        </div>
+      )}
+
+      {/* Header – back does NOT abort */}
       <div className="flex items-center justify-between px-4 pt-5 pb-4" style={{ borderBottom: "1px solid #2a2a2a" }}>
         <button onClick={() => navigate("/training")}
           style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
@@ -243,10 +280,11 @@ export function ActiveSetScreen() {
             {day.tag === "PUSH" ? "Brust · Schultern · Trizeps" : "Rücken · Bizeps · Core"}
           </p>
         </div>
-        <div style={{ width: 22 }} />
+        <button onClick={() => setShowAbort(true)} className="text-xs font-bold px-2 py-1 rounded"
+          style={{ background: "#ef444422", color: "#ef4444", border: "1px solid #ef4444" }}>STOP</button>
       </div>
 
-      {/* Set indicator */}
+      {/* Set dots */}
       <div className="text-center pt-5 pb-4">
         <p className="text-sm font-bold text-white mb-3">Satz {currentSet} von {totalSets}</p>
         <div className="flex justify-center gap-2.5">
@@ -257,59 +295,65 @@ export function ActiveSetScreen() {
         </div>
       </div>
 
-      {/* Divider */}
       <div style={{ height: 1, background: "#1e1e1e", margin: "0 24px 24px" }} />
 
       {/* Weight */}
       <div className="px-6 mb-6">
-        <NumberInput
-          value={weight} onChange={setWeight} step={2.5}
-          unit="kg" label="GEWICHT"
-        />
+        <NumberInput value={weight} onChange={setWeight} step={2.5} unit="kg" label="GEWICHT" />
       </div>
-
-      {/* Divider */}
       <div style={{ height: 1, background: "#1e1e1e", margin: "0 24px 24px" }} />
 
       {/* Reps */}
       <div className="px-6 mb-6">
-        <NumberInput
-          value={reps} onChange={setReps} step={1}
-          label="WIEDERHOLUNGEN"
-          subLabel={`ZIEL: ${planEx.sets[currentSet - 1]?.reps ?? defaultReps} Wdh`}
-        />
+        <NumberInput value={reps} onChange={setReps} step={1} label="WIEDERHOLUNGEN"
+          subLabel={`ZIEL: ${planEx.sets[currentSet - 1]?.reps ?? defaultReps} Wdh`} />
       </div>
-
-      {/* Divider */}
       <div style={{ height: 1, background: "#1e1e1e", margin: "0 24px 24px" }} />
 
       {/* Timer */}
       <div className="px-6 mb-6">
         <p className="text-xs text-gray-500 tracking-widest font-bold text-center mb-4">REST TIMER</p>
         <div className="flex justify-center">
-          <TimerRing seconds={timerSec} total={timerTotal} onAdjust={adjustTimer} onSet={(v) => { setTimerTotal(v); setTimerSec(v); }} />
+          <TimerRing seconds={timerSec} total={timerTotal} onAdjust={adjustTimer}
+            onSet={v => { setTimerTotal(v); setTimerSec(v); }} />
         </div>
         <div className="flex justify-center mt-2">
-          <button onClick={() => setTimerRunning(r => !r)}
-            className="text-sm" style={{ background: "none", border: "none", color: ORANGE }}>
+          <button onClick={() => setTimerRunning(r => !r)} className="text-sm"
+            style={{ background: "none", border: "none", color: ORANGE }}>
             {timerRunning ? "⏸ Pause" : "▶ Start"}
           </button>
         </div>
       </div>
 
-      {/* Tipp → führt zur Übungsanleitung */}
+      {/* Tipp – zeigt Cues aus Übungsbibliothek */}
       <div className="px-6 mb-6">
         <button onClick={() => setShowTip(t => !t)}
           className="w-full flex items-start gap-3 p-4 rounded-2xl text-left"
-          style={{ background: "#161616", border: `1px solid ${ORANGE}33`, padding: 16 }}>
+          style={{ background: "#161616", border: `1px solid ${ORANGE}33` }}>
           <span style={{ color: ORANGE, fontSize: 22, flexShrink: 0 }}>💡</span>
           <div className="flex-1">
             <p className="font-black text-sm" style={{ color: ORANGE, fontFamily: F }}>TIPP</p>
             {!showTip
-              ? <p className="text-xs text-gray-400 mt-0.5">Tippe für Übungsanleitung & Coaching-Cues</p>
-              : <div className="text-xs text-gray-300 mt-1.5 space-y-1">
-                  <p className="font-semibold text-white">{planEx.name}</p>
-                  <p className="text-gray-400 mt-1">Tippe auf "Details ansehen" in der Übungsbibliothek für vollständige Anleitung, Technik-Tipps und häufige Fehler.</p>
+              ? <p className="text-xs text-gray-400 mt-0.5">Tippe für Coaching-Cues & Tipps</p>
+              : <div className="text-xs text-gray-300 mt-1.5">
+                  {exData?.cues && exData.cues.length > 0
+                    ? <>
+                        <p className="font-bold text-white mb-1.5">{planEx.name}</p>
+                        {exData.cues.map((cue, ci) => (
+                          <div key={ci} className="flex gap-2 mb-1.5">
+                            <span style={{ color: ORANGE }}>›</span>
+                            <span>{cue}</span>
+                          </div>
+                        ))}
+                        {exData.breathing && (
+                          <div className="mt-2 pt-2 border-t" style={{ borderColor: "#2a2a2a" }}>
+                            <span className="text-blue-400 font-bold">Atmung: </span>
+                            <span className="text-gray-300">{exData.breathing}</span>
+                          </div>
+                        )}
+                      </>
+                    : <p className="text-gray-400 mt-0.5">Keine Cues verfügbar.</p>
+                  }
                 </div>
             }
           </div>
@@ -321,8 +365,7 @@ export function ActiveSetScreen() {
       <div className="px-6">
         <button onClick={currentSet >= totalSets ? handleContinue : handleSetDone}
           className="w-full py-4 rounded-2xl font-black text-xl text-white"
-          style={{ background: ORANGE, border: "none", fontFamily: F,
-            boxShadow: `0 0 20px ${ORANGE}55` }}>
+          style={{ background: ORANGE, border: "none", fontFamily: F, boxShadow: `0 0 20px ${ORANGE}55` }}>
           {currentSet >= totalSets ? "ÜBUNG ABSCHLIESSEN ✓" : "SATZ ABSCHLIESSEN ✓"}
         </button>
       </div>

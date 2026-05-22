@@ -21,15 +21,11 @@ export function CoachesScreen() {
     setCoach(name);
   }
 
-  // All active coaches are always unlocked
-  const activeCoaches = ACTIVE_COACHES;
-  // Separate locked into unlocked (but not in active list) and still locked
   const unlockedLocked = LOCKED_COACHES.filter(c => isCoachUnlocked(c.name));
   const stillLocked    = LOCKED_COACHES.filter(c => !isCoachUnlocked(c.name));
 
   return (
     <div className="min-h-screen pb-28" style={{ background: "#0a0a0a", color: "#fff" }}>
-
       {/* Header */}
       <div className="px-4 pt-6 pb-4">
         <h1 className="font-black italic text-4xl text-white leading-none" style={{ fontFamily: F }}>
@@ -40,70 +36,68 @@ export function CoachesScreen() {
         </p>
       </div>
 
-      {/* Active + newly unlocked coaches – horizontal scroll */}
-      <div className="flex gap-3 overflow-x-auto px-4 pb-2" style={{ scrollSnapType: "x mandatory" }}>
-        {[...activeCoaches, ...unlockedLocked].map(coach => {
+      {/* Active Coaches – 2-column grid */}
+      <div className="px-4 grid grid-cols-2 gap-3 mb-6">
+        {[...ACTIVE_COACHES, ...unlockedLocked].map(coach => {
           const isSelected = selected === coach.name;
           const isDefault = coach.name === "Bertl" || coach.name === "Lilly";
+          const isNew = unlockedLocked.some(c => c.name === coach.name);
           return (
             <div
               key={coach.name}
               onClick={() => handleSelect(coach.name)}
-              className="rounded-2xl overflow-hidden flex-shrink-0 cursor-pointer relative"
+              className="rounded-2xl overflow-hidden cursor-pointer relative"
               style={{
-                width: 200,
-                scrollSnapAlign: "start",
                 border: `2px solid ${isSelected ? coach.color : "#2a2a2a"}`,
                 background: isSelected ? `${coach.color}18` : "#161616",
-                boxShadow: isSelected ? `0 0 20px ${coach.color}44` : "none",
+                boxShadow: isSelected ? `0 0 20px ${coach.color}55` : "none",
                 transition: "all 0.2s",
               }}
             >
-              <div className="relative h-44 overflow-hidden">
+              {/* Portrait */}
+              <div className="relative overflow-hidden" style={{ height: 180 }}>
                 {coach.heroImage && (
                   <img src={coach.heroImage} alt={coach.name}
-                    className="w-full h-full object-cover object-center"
-                    style={{ filter: isSelected ? "brightness(1)" : "brightness(0.7)" }}
-                  />
+                    className="w-full h-full object-cover object-top"
+                    style={{ filter: isSelected ? "brightness(1)" : "brightness(0.85)" }} />
                 )}
                 <div className="absolute inset-0" style={{
-                  background: "linear-gradient(to top, #161616 0%, rgba(0,0,0,0.1) 60%)",
+                  background: "linear-gradient(to top, #161616 0%, rgba(0,0,0,0) 50%)",
                 }} />
-                {isSelected && (
-                  <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-black"
-                    style={{ background: coach.color, color: "#fff", fontFamily: F }}>
-                    AKTIV
-                  </div>
-                )}
-                {!isSelected && isDefault && (
-                  <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-black"
-                    style={{ background: "#2a2a2a", color: "#f97316", fontFamily: F, border: "1px solid #f97316" }}>
-                    STANDARD
-                  </div>
-                )}
-                {!isSelected && !isDefault && (
-                  <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-black"
-                    style={{ background: "#16a34a22", color: "#4ade80", fontFamily: F, border: "1px solid #4ade80" }}>
-                    NEU
-                  </div>
-                )}
+                {/* Badge */}
+                <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-black"
+                  style={{
+                    background: isSelected ? coach.color : isNew ? "#16a34a" : "#1a1a1a",
+                    color: "#fff",
+                    fontFamily: F,
+                    border: isSelected ? "none" : isNew ? "none" : "1px solid #f97316",
+                    ...((!isSelected && !isNew) ? { color: "#f97316" } : {}),
+                  }}>
+                  {isSelected ? "AKTIV" : isNew ? "NEU" : "STANDARD"}
+                </div>
               </div>
+
+              {/* Info */}
               <div className="p-3">
-                <p className="font-black text-xl leading-none" style={{ fontFamily: F, color: coach.color }}>
+                <p className="font-black text-lg leading-none" style={{ fontFamily: F, color: coach.color }}>
                   {coach.name.toUpperCase()}
                 </p>
-                <p className="text-[10px] font-bold text-white/70 tracking-wider uppercase mt-0.5">
+                <p className="text-[10px] font-bold text-white/60 tracking-wider uppercase mt-0.5">
                   {coach.title}
                 </p>
-                <p className="text-[11px] text-gray-400 leading-relaxed mt-1.5 mb-2">
-                  {coach.desc ?? ""}
-                </p>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm">{getFocusIcon(coach.focus ?? "")}</span>
-                  <span className="text-[11px] font-semibold" style={{ color: coach.color }}>
-                    Fokus: {coach.focus ?? ""}
-                  </span>
-                </div>
+                {coach.desc && (
+                  <p className="text-[10px] text-gray-400 leading-relaxed mt-1 mb-1.5 line-clamp-2">
+                    {coach.desc}
+                  </p>
+                )}
+                {coach.focus && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs">{getFocusIcon(coach.focus ?? "")}</span>
+                    <span className="text-[10px] font-semibold" style={{ color: coach.color }}>
+                      {coach.focus}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -111,7 +105,7 @@ export function CoachesScreen() {
       </div>
 
       {/* Locked Coaches */}
-      <div className="px-4 mt-6">
+      <div className="px-4">
         <div className="flex items-center gap-2 mb-1">
           <span className="text-base">🔒</span>
           <h2 className="font-black italic text-xl text-white" style={{ fontFamily: F }}>
@@ -127,41 +121,44 @@ export function CoachesScreen() {
             const pct = Math.min((prog.current / prog.max) * 100, 100);
             return (
               <div key={coach.name} className="rounded-2xl overflow-hidden relative"
-                style={{ background: "#161616", border: "1px solid #2a2a2a", opacity: 0.85 }}>
-                <div className="relative h-28 overflow-hidden">
+                style={{ background: "#111", border: "1px solid #333" }}>
+                {/* Portrait – clearly darkened */}
+                <div className="relative overflow-hidden" style={{ height: 140 }}>
                   {coach.heroImage && (
                     <img src={coach.heroImage} alt={coach.name}
-                      className="w-full h-full object-cover object-center"
-                      style={{ filter: "brightness(0.35) grayscale(0.5)" }}
-                    />
+                      className="w-full h-full object-cover object-top"
+                      style={{ filter: "brightness(0.28) grayscale(0.6) contrast(0.8)" }} />
                   )}
                   <div className="absolute inset-0" style={{
-                    background: "linear-gradient(to top, #161616 0%, rgba(0,0,0,0.2) 70%)",
+                    background: "linear-gradient(to top, #111 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0.3) 100%)",
                   }} />
-                  <div className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center"
-                    style={{ background: "rgba(0,0,0,0.7)", border: "1px solid #444" }}>
-                    <span style={{ fontSize: 11 }}>🔒</span>
+                  {/* Lock icon centered */}
+                  <div className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center"
+                    style={{ background: "rgba(0,0,0,0.85)", border: "1px solid #555" }}>
+                    <span style={{ fontSize: 13 }}>🔒</span>
                   </div>
                 </div>
+
+                {/* Info */}
                 <div className="p-3">
                   <p className="font-black text-base leading-none" style={{ fontFamily: F, color: coach.color }}>
                     {coach.name.toUpperCase()}
                   </p>
-                  <p className="text-[9px] font-bold text-white/50 tracking-wider uppercase mt-0.5">
+                  <p className="text-[9px] font-bold text-white/40 tracking-wider uppercase mt-0.5">
                     {coach.title}
                   </p>
-                  <div className="mt-2 mb-1">
-                    <span className="font-black text-sm" style={{ color: coach.color, fontFamily: F }}>
+                  <div className="mt-2 mb-1.5">
+                    <span className="font-black text-xs" style={{ color: coach.color, fontFamily: F }}>
                       {coach.req}
                     </span>
-                    <p className="text-[10px] text-gray-500 leading-tight">{coach.sub}</p>
+                    <p className="text-[10px] text-gray-500 leading-tight mt-0.5">{coach.sub}</p>
                   </div>
                   <div className="flex items-center gap-2 mt-1.5">
-                    <div className="flex-1 rounded-full" style={{ height: 3, background: "#2a2a2a" }}>
+                    <div className="flex-1 rounded-full" style={{ height: 4, background: "#2a2a2a" }}>
                       <div className="h-full rounded-full transition-all"
                         style={{ width: `${pct}%`, background: coach.color }} />
                     </div>
-                    <span className="text-[9px] text-gray-600 flex-shrink-0">
+                    <span className="text-[9px] text-gray-500 flex-shrink-0">
                       {prog.current} / {prog.max}
                     </span>
                   </div>
