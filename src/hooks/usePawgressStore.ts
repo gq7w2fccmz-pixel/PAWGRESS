@@ -18,7 +18,7 @@ import { useWorkoutStore } from "../stores/workoutStore";
 import { useHistoryStore } from "../stores/historyStore";
 import type { AreaName }  from "../types";
 import { PLAN_2ER_SPLIT } from "../data/plan_2er_split";
-import type { ExerciseRecord } from "../stores/historyStore";
+import type { WorkoutInput } from "../stores/historyStore";
 
 export function usePawgressStore() {
   // ── Stats ────────────────────────────────────────────────────
@@ -97,7 +97,6 @@ export function usePawgressStore() {
     finishWorkout: (
       exerciseCategories: string[],
       benchPressWeight?: number,
-      exerciseRecords?: Omit<ExerciseRecord, "isPR">[],
       startTime?: number,
     ) => {
       const cats     = categorizeExercises(exerciseCategories);
@@ -105,8 +104,8 @@ export function usePawgressStore() {
       updateAfterWorkout(cats, newTotal, stats.lastWorkoutDate, benchPressWeight);
       finishWorkoutStats();
 
-      // Use records passed in (from workoutStore.buildExerciseRecords)
-      const records = exerciseRecords ?? buildExerciseRecords();
+      // Always use records from workoutStore (survives route changes)
+      const records = buildExerciseRecords();
       if (records.length > 0) {
         const dayIndex    = stats.totalWorkouts % 4;        // pre-increment index
         const day         = PLAN_2ER_SPLIT[dayIndex];
@@ -118,7 +117,7 @@ export function usePawgressStore() {
           ? Math.floor((Date.now() - startTime) / 1000)
           : 0;
 
-        saveWorkout({
+        const workoutInput: WorkoutInput = {
           date: new Date().toISOString().split("T")[0],
           dayLabel: day.label,
           dayTag: day.tag as "PUSH" | "PULL",
@@ -126,8 +125,9 @@ export function usePawgressStore() {
           totalVolume,
           totalSets,
           totalReps,
-          exercises: records,
-        });
+          exercises: records as WorkoutInput["exercises"],
+        };
+        saveWorkout(workoutInput);
       }
 
       resetWorkout();

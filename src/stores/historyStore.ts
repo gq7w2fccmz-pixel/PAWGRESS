@@ -31,14 +31,24 @@ export interface WorkoutRecord {
 // Per-exercise personal records: name → best weight ever
 type PRMap = Record<string, number>;
 
+// Input type for saveWorkout (without auto-generated fields)
+export interface WorkoutInput {
+  date: string;
+  dayLabel: string;
+  dayTag: "PUSH" | "PULL";
+  durationSeconds: number;
+  totalVolume: number;
+  totalSets: number;
+  totalReps: number;
+  exercises: Omit<ExerciseRecord, "isPR">[];
+}
+
 interface HistoryStore {
   workouts: WorkoutRecord[];
   personalRecords: PRMap;
 
   // Called when a workout finishes
-  saveWorkout: (record: Omit<WorkoutRecord, "id"> & {
-    exercises: Omit<ExerciseRecord, "isPR">[];
-  }) => WorkoutRecord;
+  saveWorkout: (record: WorkoutInput) => WorkoutRecord;
 
   // Query helpers
   getWorkoutById: (id: string) => WorkoutRecord | undefined;
@@ -56,7 +66,7 @@ export const useHistoryStore = create<HistoryStore>()(
       workouts: [],
       personalRecords: {},
 
-      saveWorkout: (raw) => {
+      saveWorkout: (raw: WorkoutInput) => {
         const { personalRecords, workouts } = get();
         const updatedPRs = { ...personalRecords };
 

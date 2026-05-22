@@ -96,7 +96,7 @@ export function CoachesScreen() {
                   {coach.title}
                 </p>
                 <p className="text-[11px] text-gray-400 leading-relaxed mt-1.5 mb-2">
-                  {coach.desc}
+                  {coach.desc ?? ""}
                 </p>
                 <div className="flex items-center gap-1.5">
                   <span className="text-sm">{getFocusIcon(coach.focus ?? "")}</span>

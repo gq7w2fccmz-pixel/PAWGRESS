@@ -101,8 +101,7 @@ export function ActiveSetScreen() {
   const { index } = useParams<{ index: string }>();
   const navigate = useNavigate();
   const { stats, session, completeSet, completeExercise, finishWorkout } = usePawgressStore();
-  const recordSet          = useWorkoutStore(s => s.recordSet);
-  const buildExerciseRecords = useWorkoutStore(s => s.buildExerciseRecords);
+  const recordSet              = useWorkoutStore(s => s.recordSet);
 
   const dayIndex = stats.totalWorkouts % 4;
   const day = PLAN_2ER_SPLIT[dayIndex];
@@ -154,9 +153,8 @@ export function ActiveSetScreen() {
         navigate(`/active-set/${nextIndex}`);
       } else {
         // Last exercise – finish workout with full history
-        const records = buildExerciseRecords();
-        const cats = day.exercises.map(e => e.name); // simplified; coachStore handles categorization
-        finishWorkout(cats, weight, records, session?.startTime);
+        const cats = day.exercises.map(e => e.name);
+        finishWorkout(cats, weight, session?.startTime);
         navigate("/workout-done");
       }
     } else {
