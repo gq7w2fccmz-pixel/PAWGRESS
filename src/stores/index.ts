@@ -20,3 +20,7 @@ export type { CoachProgress } from "./coachStore";
 export { useHistoryStore } from "./historyStore";
 export type { WorkoutRecord, ExerciseRecord, SetRecord } from "./historyStore";
 export type { WorkoutSession, LiveExerciseLog } from "./workoutStore";
+export { usePlanStore } from "./planStore";
+export type { CustomPlan, StandaloneWorkout, CustomWorkoutDay } from "./planStore";
+export { useProfileStore } from "./profileStore";
+export type { UserProfile } from "./profileStore";

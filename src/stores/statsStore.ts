@@ -12,6 +12,9 @@ export interface Stats {
 interface StatsStore {
   stats: Stats;
   weekDays: boolean[];
+  weeklyGoal: number;
+  setWeekDays: (days: boolean[]) => void;
+  setWeeklyGoal: (goal: number) => void;
   addVolume: (kg: number) => void;
   finishWorkoutStats: () => void;
   resetWeekly: () => void;
@@ -30,7 +33,10 @@ export const useStatsStore = create<StatsStore>()(
     (set, get) => ({
       stats: DEFAULT_STATS,
       weekDays: [true, true, true, true, true, false, false],
+      weeklyGoal: 4,
 
+      setWeekDays: (days) => set({ weekDays: days }),
+      setWeeklyGoal: (goal) => set({ weeklyGoal: goal }),
       addVolume: (kg) => {
         const { stats } = get();
         set({
@@ -62,7 +68,7 @@ export const useStatsStore = create<StatsStore>()(
     }),
     {
       name: "pawgress-stats",
-      partialize: (s) => ({ stats: s.stats, weekDays: s.weekDays }),
+      partialize: (s) => ({ stats: s.stats, weekDays: s.weekDays, weeklyGoal: s.weeklyGoal }),
     }
   )
 );

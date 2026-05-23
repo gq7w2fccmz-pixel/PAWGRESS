@@ -8,7 +8,7 @@
  * Fixed bugs:
  *  #1 – screen was returned but never read from workoutStore
  *  #2 – stats.streak duplicate removed (lives only in coachStore)
- *  #3 – useWorkoutSession reset on each navigation fixed (moved to workoutStore)
+ *  #3 – Workout session reset on each navigation fixed (moved to workoutStore)
  *  #4 – dayIndex in WorkoutDone was off-by-one (finishWorkout increments first)
  *  #5 – getPR destructured but not used in ActiveSetScreen (kept, cleaned import)
  */
@@ -24,6 +24,9 @@ export function usePawgressStore() {
   // ── Stats ────────────────────────────────────────────────────
   const stats              = useStatsStore(s => s.stats);
   const weekDays           = useStatsStore(s => s.weekDays);
+  const weeklyGoal         = useStatsStore(s => s.weeklyGoal);
+  const setWeekDays        = useStatsStore(s => s.setWeekDays);
+  const setWeeklyGoal      = useStatsStore(s => s.setWeeklyGoal);
   const addVolume          = useStatsStore(s => s.addVolume);
   const finishWorkoutStats = useStatsStore(s => s.finishWorkoutStats);
 
@@ -56,6 +59,9 @@ export function usePawgressStore() {
     // ── State ────────────────────────────────────────────────────
     stats,
     weekDays,
+    weeklyGoal,
+    setWeekDays,
+    setWeeklyGoal,
     selectedCoach,
     coachProgress,
     screen,           // BUG #1: now properly read from workoutStore

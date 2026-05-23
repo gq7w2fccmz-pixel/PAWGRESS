@@ -1,103 +1,371 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { images } from "../assets/images";
-import { GYM_AREAS } from "../data/gymAreas";
+import { PLAN_2ER_SPLIT } from "../data/plan_2er_split";
 import { usePawgressStore } from "../hooks/usePawgressStore";
-import { ProgressBar, SectionHeader } from "../components/UI";
+import { useHistoryStore } from "../stores/historyStore";
+import { useStatsStore } from "../stores/statsStore";
 
 const F = "'Barlow Condensed', sans-serif";
-const DAYS = ["MO","DI","MI","DO","FR","SA","SO"];
+const ORANGE = "#f97316";
+const DAY_LABELS = ["MO", "DI", "MI", "DO", "FR", "SA", "SO"];
 
-export function HomeScreen() {
-  const navigate = useNavigate();
-  const { stats, weekDays } = usePawgressStore();
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 12) return "GUTEN MORGEN,";
+  if (h < 18) return "HALLO,";
+  return "GUTEN ABEND,";
+}
+
+function fmtVolume(v: number) {
+  if (v >= 1000) return `${(v / 1000).toFixed(1).replace(".", ",")}t`;
+  return `${Math.round(v)} kg`;
+}
+
+function fmtDuration(s: number) {
+  const m = Math.floor(s / 60);
+  return `${m} Min`;
+}
+
+// ── Last Workout Detail Modal ─────────────────────────────────────────────────
+import type { WorkoutRecord } from "../stores/historyStore";
+
+function WorkoutDetailModal({ workout, onClose }: {
+  workout: WorkoutRecord;
+  onClose: () => void;
+}) {
+  const deleteWorkout = useHistoryStore(s => s.workouts);
+  const setWorkouts   = useHistoryStore.getState;
+  const [expanded, setExpanded] = useState<number | null>(null);
 
   return (
-    <div className="pb-20">
-      {/* HERO */}
-      <div className="relative overflow-hidden" style={{ height: 360, borderBottom: "1px solid #2a2a2a" }}>
-        <img src={images.bertl} alt="Bertl" className="absolute inset-0 w-full h-full object-cover object-center" />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to right,rgba(10,10,10,0.92) 0%,rgba(10,10,10,0.7) 45%,rgba(10,10,10,0.05) 100%)" }} />
-        <div className="absolute bottom-0 left-0 right-0 h-16" style={{ background: "linear-gradient(to bottom,transparent,#0a0a0a)" }} />
-        <div className="relative z-10 flex flex-col justify-between h-full p-6">
-          <div>
-            <p className="text-xs tracking-widest font-bold text-white/50" style={{ fontFamily: F }}>GUTEN MORGEN,</p>
-            <h1 className="text-5xl font-black italic text-white leading-none" style={{ fontFamily: F, textShadow: "0 2px 16px rgba(0,0,0,0.9)" }}>CHAMPION 👊</h1>
-            <p className="text-orange-500 text-base italic mb-4" style={{ fontFamily: F }}>No Excuses, Just Pawgress</p>
-            {/* Shield Button */}
-            <div onClick={() => navigate("/training")} className="cursor-pointer relative" style={{ width: 155, marginBottom: 8 }}>
-              <svg width="155" height="174" viewBox="0 0 155 174" className="absolute top-0 left-0" style={{ filter: "drop-shadow(0 0 12px rgba(249,115,22,0.95)) drop-shadow(0 0 28px rgba(249,115,22,0.45))" }}>
-                <path d="M9,6 Q9,3 12,3 L143,3 Q146,3 146,6 L146,102 Q146,120 77.5,171 Q9,120 9,102 Z" fill="rgba(8,8,8,0.93)" stroke="#f97316" strokeWidth="2"/>
-                <path d="M16,11 Q16,8 19,8 L136,8 Q139,8 139,11 L139,100 Q139,116 77.5,162 Q16,116 16,100 Z" fill="none" stroke="rgba(249,115,22,0.18)" strokeWidth="1"/>
-              </svg>
-              <div className="relative z-10 flex flex-col items-center" style={{ paddingTop: 16, paddingBottom: 42, gap: 4 }}>
-                <img src={images.paw} alt="paw" className="w-7 h-7 object-contain" />
-                <span className="font-black italic text-white leading-tight tracking-widest text-2xl" style={{ fontFamily: F }}>TRAINING</span>
-                <span className="font-black italic text-orange-500 leading-tight tracking-widest text-2xl" style={{ fontFamily: F }}>STARTEN</span>
-                <span className="text-orange-500 font-black text-lg">»</span>
-              </div>
-            </div>
-          </div>
-          <button onClick={() => navigate("/plan")} className="flex items-center gap-2 text-white/50 text-sm font-semibold tracking-wide pb-2" style={{ fontFamily: F, background: "none", border: "none" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Plan ansehen
-          </button>
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#080808" }}>
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: "#1e1e1e" }}>
+        <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
+        <div className="text-center">
+          <p className="font-black text-lg text-white" style={{ fontFamily: F }}>{workout.dayLabel.toUpperCase()}</p>
+          <p className="text-xs text-gray-500">{workout.date}</p>
         </div>
+        <div style={{ width: 28 }} />
       </div>
 
-      {/* GYM AREAS */}
-      <div className="p-4">
-        <SectionHeader title="PAWGRESS GYM" subtitle="Dein Gym. Deine Bereiche. Dein Fortschritt." action={{ label: "ALLE BEREICHE ANSEHEN", onClick: () => {} }} />
-        <div className="grid grid-cols-2 gap-2.5">
-          {GYM_AREAS.map(area => (
-            <div key={area.name} onClick={() => navigate(`/gym/${area.name}`)} className="relative rounded-xl overflow-hidden cursor-pointer" style={{ height: 72, border: "1px solid #2a2a2a" }}>
-              <img src={area.img} alt={area.name} className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-0" style={{ background: "linear-gradient(to right,rgba(0,0,0,0.78),rgba(0,0,0,0.3))" }} />
-              <div className="relative z-10 flex items-center gap-3 px-3.5 h-full">
-                <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0" style={{ border: `2px solid ${area.color}`, background: "rgba(0,0,0,0.3)", boxShadow: `0 0 12px ${area.color}88` }}>
-                  <img src={images.paw} alt="paw" className="w-6 h-6 object-contain" />
+      <div className="flex-1 overflow-y-auto px-4 pb-10">
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-3 my-4">
+          {[
+            { label: "ZEIT",    value: fmtDuration(workout.durationSeconds), icon: "⏱" },
+            { label: "VOLUMEN", value: fmtVolume(workout.totalVolume),        icon: "📊" },
+            { label: "SÄTZE",   value: String(workout.totalSets),             icon: "🏋️" },
+          ].map(s => (
+            <div key={s.label} className="rounded-2xl p-3 text-center"
+              style={{ background: "#111", border: "1px solid #1e1e1e" }}>
+              <p className="text-lg mb-1">{s.icon}</p>
+              <p className="font-black text-xl text-white" style={{ fontFamily: F }}>{s.value}</p>
+              <p className="text-[9px] text-gray-500 tracking-widest">{s.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Exercises */}
+        <p className="font-black italic text-base text-white mb-3" style={{ fontFamily: F }}>ÜBUNGEN</p>
+        <div className="flex flex-col gap-2">
+          {workout.exercises.map((ex, i) => (
+            <div key={i} className="rounded-2xl overflow-hidden"
+              style={{ background: "#111", border: `1px solid ${expanded === i ? ORANGE+"44" : "#1e1e1e"}` }}>
+              <button className="w-full flex items-center gap-3 px-4 py-3 text-left"
+                style={{ background: "none", border: "none" }}
+                onClick={() => setExpanded(expanded === i ? null : i)}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0"
+                  style={{ background: `${ORANGE}22`, color: ORANGE, fontFamily: F }}>{i+1}</div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-black text-sm text-white truncate" style={{ fontFamily: F }}>{ex.name}</p>
+                  <p className="text-xs text-gray-500">{ex.sets.length} Sätze · {fmtVolume(ex.volume)}</p>
                 </div>
-                <span className="font-extrabold text-base tracking-wide text-white" style={{ fontFamily: F, textShadow: "0 1px 6px rgba(0,0,0,0.8)" }}>{area.name}</span>
-              </div>
+                {ex.isPR && (
+                  <span className="px-2 py-0.5 rounded text-[9px] font-black"
+                    style={{ background: ORANGE, color: "#fff", fontFamily: F }}>PR</span>
+                )}
+                <span className="text-gray-600">{expanded === i ? "∧" : "∨"}</span>
+              </button>
+              {expanded === i && (
+                <div className="px-4 pb-3 border-t" style={{ borderColor: "#1e1e1e" }}>
+                  {ex.sets.map((set, si) => (
+                    <div key={si} className="flex items-center gap-3 py-2 border-b" style={{ borderColor: "#1a1a1a" }}>
+                      <span className="text-xs text-gray-600 w-8">Satz {si+1}</span>
+                      <span className="text-sm text-white font-bold">
+                        {set.weight > 0 ? `${set.weight} kg` : "BW"} × {set.reps} Wdh
+                      </span>
+                    </div>
+                  ))}
+                  {/* Action buttons */}
+                  <div className="flex gap-2 mt-3">
+                    <button className="flex-1 py-2 rounded-xl text-xs font-black"
+                      style={{ background: "#1e1e1e", color: "#888", fontFamily: F }}>
+                      ✎ Ändern
+                    </button>
+                    <button className="flex-1 py-2 rounded-xl text-xs font-black"
+                      style={{ background: "#1e1e1e", color: ORANGE, fontFamily: F }}>
+                      + Hinzufügen
+                    </button>
+                    <button className="flex-1 py-2 rounded-xl text-xs font-black"
+                      style={{ background: "#1a0000", color: "#ef4444", fontFamily: F }}>
+                      🗑 Löschen
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
       </div>
+    </div>
+  );
+}
 
-      {/* STATS */}
-      <div className="px-4 grid grid-cols-2 gap-3">
-        {/* Tagesplan */}
-        <div className="rounded-2xl p-3.5" style={{ background: "#161616", border: "1px solid #2a2a2a" }}>
-          <p className="font-black italic text-sm text-white mb-1" style={{ fontFamily: F }}>DEIN TAGESPLAN</p>
-          <p className="text-orange-500 text-[10px] mb-2">PUSH DAY · Brust · Schultern · Trizeps</p>
-          {["Bankdrücken","Schrägbank KH","Schulterdrücken","Dips"].map((ex, i) => (
-            <div key={i} className="flex justify-between text-[11px] text-gray-400 mb-1">
-              <span>{ex}</span><span>{[4,3,3,3][i]} Sätze</span>
-            </div>
+// ── Weekly Goal Picker ────────────────────────────────────────────────────────
+function GoalPicker({ current, onClose }: { current: number; onClose: () => void }) {
+  const setWeeklyGoal = useStatsStore(s => s.setWeeklyGoal);
+  return (
+    <div className="fixed inset-0 z-50 flex items-end" style={{ background: "rgba(0,0,0,0.88)" }}>
+      <div className="w-full rounded-t-3xl p-6" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
+        <p className="font-black italic text-xl text-white mb-4" style={{ fontFamily: F }}>
+          WOCHENZIEL FESTLEGEN
+        </p>
+        <div className="grid grid-cols-7 gap-2 mb-5">
+          {[1,2,3,4,5,6,7].map(n => (
+            <button key={n} onClick={() => { setWeeklyGoal(n); onClose(); }}
+              className="py-3 rounded-xl font-black text-lg"
+              style={{
+                fontFamily: F,
+                background: current === n ? ORANGE : "#1e1e1e",
+                color: current === n ? "#fff" : "#888",
+                border: `1px solid ${current === n ? ORANGE : "#2a2a2a"}`,
+              }}>{n}</button>
           ))}
-          <button onClick={() => navigate("/training")} className="w-full mt-2 py-2 text-[11px] font-bold tracking-wide text-white rounded-lg" style={{ fontFamily: F, background: "none", border: "1px solid #2a2a2a" }}>PLAN ANSEHEN ›</button>
+        </div>
+        <button onClick={onClose} className="w-full py-3 rounded-xl font-black text-white"
+          style={{ background: "#2a2a2a", fontFamily: F, border: "none" }}>SCHLIESSEN</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Main HomeScreen ───────────────────────────────────────────────────────────
+export function HomeScreen() {
+  const navigate = useNavigate();
+  const { stats, weekDays, weeklyGoal, coachProgress } = usePawgressStore();
+  const recentWorkouts = useHistoryStore(s => s.getRecentWorkouts)(1);
+  const lastWorkout    = recentWorkouts[0] ?? null;
+
+  const [showGoalPicker, setShowGoalPicker] = useState(false);
+  const [showWorkoutDetail, setShowWorkoutDetail] = useState(false);
+
+  const dayIndex  = stats.totalWorkouts % 4;
+  const nextDay   = PLAN_2ER_SPLIT[dayIndex];
+  const streak    = coachProgress.currentStreak;
+  const weekVol   = stats.weeklyVolume;
+  const weekCount = stats.weeklyWorkouts;
+  const goal      = weeklyGoal ?? 4;
+
+  // % vs last week (placeholder since we don't store previous week)
+  const volLabel  = fmtVolume(weekVol);
+
+  const now = new Date();
+  const todayDow = now.getDay(); // 0=Sun
+  const mondayIdx = (todayDow === 0 ? 6 : todayDow - 1); // 0=Mon
+
+  return (
+    <div className="min-h-screen pb-28" style={{ background: "#080808", color: "#fff" }}>
+
+      {showGoalPicker && <GoalPicker current={goal} onClose={() => setShowGoalPicker(false)} />}
+      {showWorkoutDetail && lastWorkout && (
+        <WorkoutDetailModal workout={lastWorkout} onClose={() => setShowWorkoutDetail(false)} />
+      )}
+
+      {/* ── HERO ── */}
+      <div className="relative overflow-hidden" style={{ height: 300 }}>
+        <img src="/images/bertl.webp" alt="Bertl"
+          className="absolute inset-0 w-full h-full object-cover object-center" />
+        <div className="absolute inset-0" style={{
+          background: "linear-gradient(to right, rgba(8,8,8,0.92) 0%, rgba(8,8,8,0.7) 45%, rgba(8,8,8,0.05) 100%)",
+        }} />
+        <div className="absolute inset-0" style={{
+          background: "linear-gradient(to bottom, transparent 60%, rgba(8,8,8,1) 100%)",
+        }} />
+
+        <div className="relative z-10 px-5 pt-5">
+          {/* Top row */}
+          <div className="flex items-start justify-between mb-3">
+            <div>
+              <p className="text-xs tracking-widest font-bold text-white/50" style={{ fontFamily: F }}>
+                {greeting()}
+              </p>
+              <h1 className="font-black italic text-5xl text-white leading-none" style={{ fontFamily: F }}>
+                CHAMPION <span style={{ color: ORANGE }}>🐾</span>
+              </h1>
+              <p className="text-sm italic mt-1" style={{ color: "#aaa" }}>
+                no excuses, just <span style={{ color: ORANGE }}>pawgress</span>
+              </p>
+            </div>
+            {/* Notification bell */}
+            <div className="relative mt-1">
+              <span style={{ fontSize: 24, color: "#888" }}>🔔</span>
+              <div className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full"
+                style={{ background: ORANGE }} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-4 -mt-2 flex flex-col gap-4">
+
+        {/* ── NÄCHSTES TRAINING ── */}
+        <div className="rounded-2xl p-4" style={{
+          background: "#111",
+          border: `1.5px solid ${ORANGE}66`,
+          boxShadow: `0 0 20px ${ORANGE}18`,
+        }}>
+          <p className="font-black text-xs tracking-widest mb-2" style={{ color: ORANGE, fontFamily: F }}>
+            NÄCHSTES TRAINING
+          </p>
+          <div className="flex items-start gap-3">
+            <div className="flex-1">
+              <p className="font-black italic text-4xl text-white leading-none mb-1" style={{ fontFamily: F }}>
+                {nextDay.label.toUpperCase()}
+              </p>
+              <p className="text-sm text-gray-400 mb-3">
+                {nextDay.tag === "PUSH" ? "Brust · Schultern · Trizeps" : "Rücken · Bizeps · Core"}
+              </p>
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-gray-500">⏱ ~60 Min</span>
+                <span className="text-gray-700">·</span>
+                <span className="text-xs text-gray-500">🏋️ {nextDay.exercises.length} Übungen</span>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 flex-shrink-0">
+              {/* Workout starten */}
+              <button onClick={() => navigate("/training")}
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-black text-sm text-white"
+                style={{ background: ORANGE, fontFamily: F, border: "none",
+                  boxShadow: `0 0 16px ${ORANGE}55`, minWidth: 160 }}>
+                ▶ WORKOUT STARTEN
+              </button>
+              {/* Details ansehen */}
+              <button onClick={() => navigate("/plan")}
+                className="flex items-center justify-center gap-1 px-4 py-2 rounded-xl font-black text-xs text-white"
+                style={{ background: "transparent", border: "1px solid #2a2a2a", fontFamily: F }}>
+                Details ansehen ›
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Fortschritt */}
-        <div className="rounded-2xl p-3.5" style={{ background: "#161616", border: "1px solid #2a2a2a" }}>
-          <p className="font-black italic text-sm text-white mb-0.5" style={{ fontFamily: F }}>DEIN FORTSCHRITT</p>
-          <p className="text-[10px] text-gray-600 mb-2.5">DIESE WOCHE</p>
-          <div className="mb-2.5">
-            <div className="flex justify-between text-[11px] text-gray-400 mb-1"><span>Workouts</span><span>{stats.weeklyWorkouts} / 6</span></div>
-            <ProgressBar value={stats.weeklyWorkouts} max={6} color="#a855f7" />
+        {/* ── DEIN WOCHENSTATUS ── */}
+        <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
+          <div className="px-4 pt-4 pb-3">
+            <p className="font-black italic text-base text-white" style={{ fontFamily: F }}>DEIN WOCHENSTATUS</p>
           </div>
-          <div className="mb-3">
-            <div className="flex justify-between text-[11px] text-gray-400 mb-1"><span>Volumen</span><span>{stats.weeklyVolume.toLocaleString()} kg</span></div>
-            <ProgressBar value={stats.weeklyVolume} max={16000} color="#3b82f6" />
+
+          <div className="grid grid-cols-3 divide-x" style={{ borderColor: "#1e1e1e", borderTop: "1px solid #1e1e1e" }}>
+            {/* Wochenziel */}
+            <button onClick={() => setShowGoalPicker(true)}
+              className="flex flex-col items-center py-4 px-2"
+              style={{ background: "none", border: "none", borderRight: "1px solid #1e1e1e" }}>
+              <span className="text-2xl mb-1">🎯</span>
+              <p className="text-[9px] text-gray-500 tracking-widest font-bold mb-1">WOCHENZIEL</p>
+              <p className="font-black text-2xl text-white" style={{ fontFamily: F }}>
+                {weekCount} <span className="text-gray-500">/ {goal}</span>
+              </p>
+              <p className="text-[10px] text-gray-600 mt-0.5">Workouts</p>
+            </button>
+
+            {/* Streak */}
+            <div className="flex flex-col items-center py-4 px-2"
+              style={{ borderRight: "1px solid #1e1e1e" }}>
+              <span className="text-2xl mb-1">🔥</span>
+              <p className="text-[9px] text-gray-500 tracking-widest font-bold mb-1">STREAK</p>
+              <p className="font-black text-2xl text-white" style={{ fontFamily: F, color: ORANGE }}>{streak}</p>
+              <p className="text-[10px] text-gray-600 mt-0.5">Tage</p>
+            </div>
+
+            {/* Volumen */}
+            <div className="flex flex-col items-center py-4 px-2">
+              <span className="text-2xl mb-1">📊</span>
+              <p className="text-[9px] text-gray-500 tracking-widest font-bold mb-1">VOLUMEN</p>
+              <p className="font-black text-2xl text-white" style={{ fontFamily: F }}>{volLabel}</p>
+              <p className="text-[10px] text-gray-600 mt-0.5">vs. letzte Woche</p>
+            </div>
           </div>
-          <div className="flex justify-between">
-            {DAYS.map((d, i) => (
-              <div key={d} className="text-center">
-                <p className="text-[9px] text-gray-600 mb-1">{d}</p>
-                <div className="w-4 h-4 rounded-full flex items-center justify-center text-[8px]" style={{ background: weekDays[i] ? "#f97316" : "#2a2a2a" }}>{weekDays[i] ? "✓" : ""}</div>
-              </div>
-            ))}
+
+          {/* Week day dots */}
+          <div className="flex items-center justify-around px-4 py-3 border-t" style={{ borderColor: "#1e1e1e" }}>
+            {DAY_LABELS.map((d, i) => {
+              const isPast  = i < mondayIdx;
+              const isToday = i === mondayIdx;
+              const isDone  = weekDays[i];
+              return (
+                <div key={d} className="flex flex-col items-center gap-1">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center"
+                    style={{
+                      background: isDone ? ORANGE : isToday ? "#1e1e1e" : "transparent",
+                      border: `1.5px solid ${isDone ? ORANGE : isToday ? ORANGE : "#333"}`,
+                    }}>
+                    {isDone
+                      ? <span className="text-white text-xs font-bold">✓</span>
+                      : <span className="text-[10px] font-bold" style={{ color: isToday ? ORANGE : "#555" }}>{d}</span>
+                    }
+                  </div>
+                  <p className="text-[8px]" style={{ color: isToday ? ORANGE : "#444" }}>{d}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
+
+        {/* ── LETZTES WORKOUT ── */}
+        <div className="rounded-2xl p-4" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
+          <p className="font-black italic text-base text-white mb-3" style={{ fontFamily: F }}>LETZTES WORKOUT</p>
+          {lastWorkout ? (
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-2xl"
+                style={{ background: `${ORANGE}18`, border: `1px solid ${ORANGE}33` }}>
+                {lastWorkout.dayTag === "PUSH" ? "🏋️" : "💪"}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-black text-lg text-white leading-tight" style={{ fontFamily: F }}>
+                  {lastWorkout.dayLabel.toUpperCase()}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {lastWorkout.dayTag === "PUSH" ? "Brust · Schultern · Trizeps" : "Rücken · Bizeps · Core"}
+                </p>
+                <div className="flex items-center gap-3 mt-1">
+                  <span className="text-xs text-gray-600">
+                    ⏱ {fmtDuration(lastWorkout.durationSeconds)}
+                  </span>
+                  <span className="text-gray-700">·</span>
+                  <span className="text-xs text-gray-600">
+                    🏋️ {lastWorkout.exercises.length} Übungen
+                  </span>
+                </div>
+              </div>
+              <button onClick={() => setShowWorkoutDetail(true)}
+                className="px-4 py-2 rounded-xl font-black text-xs text-white flex-shrink-0 flex items-center gap-1"
+                style={{ background: "#1e1e1e", border: "1px solid #2a2a2a", fontFamily: F }}>
+                Analysieren ›
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 py-2">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+                style={{ background: "#1e1e1e" }}>🏁</div>
+              <div>
+                <p className="text-sm text-white font-bold">Noch kein Workout absolviert</p>
+                <p className="text-xs text-gray-500 mt-0.5">Starte dein erstes Training!</p>
+              </div>
+            </div>
+          )}
+        </div>
+
       </div>
     </div>
   );

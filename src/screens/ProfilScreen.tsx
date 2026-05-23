@@ -1,66 +1,109 @@
 import { useState } from "react";
 import { usePawgressStore } from "../hooks/usePawgressStore";
 import { useHistoryStore } from "../stores/historyStore";
+import { usePlanStore } from "../stores/planStore";
+import { useProfileStore } from "../stores/profileStore";
 
 const F = "'Barlow Condensed', sans-serif";
+const ORANGE = "#f97316";
 
-// ── Sub-screens ──────────────────────────────────────────────────────────────
+// ── Avatar options ────────────────────────────────────────────────────────────
+const AVATARS = [
+  "/images/coach_bertl.webp", "/images/coach_lilly.webp", "/images/coach_rocko.webp",
+  "/images/coach_toro.webp",  "/images/coach_tim.webp",   "/images/coach_olli.webp",
+  "/images/coach_rhino.webp", "/images/coach_leon.webp",  "/images/coach_pam.webp",
+  "/images/coach_fredl.webp",
+];
 
-function BackHeader({ title, onBack }: { title: string; onBack: () => void }) {
+// ── Mini line chart ───────────────────────────────────────────────────────────
+function LineChart({ data, color, height = 80 }: { data: number[]; color: string; height?: number }) {
+  if (data.length < 2) return <div style={{ height }} />;
+  const max = Math.max(...data, 1);
+  const min = Math.min(...data, 0);
+  const range = max - min || 1;
+  const W = 300; const H = height;
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * W;
+    const y = H - ((v - min) / range) * (H - 10) - 5;
+    return `${x},${y}`;
+  });
+  const polyline = pts.join(" ");
+  const last = pts[pts.length - 1].split(",");
   return (
-    <div className="flex items-center gap-3 px-4 py-4 border-b" style={{ borderColor: "#2a2a2a" }}>
-      <button onClick={onBack} className="text-white text-xl" style={{ background: "none", border: "none" }}>←</button>
-      <h2 className="font-black italic text-xl text-white flex-1 text-center" style={{ fontFamily: F }}>PROFIL</h2>
-      <div style={{ width: 24 }} />
-    </div>
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height }}>
+      <defs>
+        <linearGradient id={`g-${color.replace("#","")}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon
+        points={`0,${H} ${pts.join(" ")} ${W},${H}`}
+        fill={`url(#g-${color.replace("#","")})`} />
+      <polyline points={polyline} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+      <circle cx={last[0]} cy={last[1]} r="4" fill={color} />
+    </svg>
   );
 }
 
-function Row({ icon, color, title, desc, onPress }: { icon: string; color: string; title: string; desc: string; onPress: () => void }) {
+function BarChart({ data, color, height = 70 }: { data: number[]; color: string; height?: number }) {
+  const max = Math.max(...data, 1);
+  const barW = 100 / data.length * 0.6;
+  const gap  = 100 / data.length * 0.4;
   return (
-    <button onClick={onPress} className="w-full flex items-center gap-4 px-4 py-4 border-b text-left" style={{ background: "none", border: "none", borderBottom: "1px solid #2a2a2a" }}>
-      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${color}22` }}>
-        <span style={{ color, fontSize: 20 }}>{icon}</span>
-      </div>
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ width: "100%", height }}>
+      {data.map((v, i) => {
+        const barH = (v / max) * 85;
+        const x = i * (barW + gap) + gap / 2;
+        return (
+          <rect key={i} x={x} y={100 - barH} width={barW} height={barH}
+            rx="1" fill={i === data.length - 1 ? color : `${color}88`} />
+        );
+      })}
+    </svg>
+  );
+}
+
+// ── Setting Row ───────────────────────────────────────────────────────────────
+function SettingRow({ icon, label, desc, onPress, last }: {
+  icon: string; label: string; desc: string; onPress?: () => void; last?: boolean;
+}) {
+  return (
+    <button onClick={onPress} className="w-full flex items-center gap-3 px-4 py-4 text-left"
+      style={{ background:"none", border:"none", borderBottom: last ? "none" : "1px solid #1a1a1a" }}>
+      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"
+        style={{ background:"#1e1e1e" }}>{icon}</div>
       <div className="flex-1">
-        <p className="font-black text-sm text-white" style={{ fontFamily: F }}>{title}</p>
+        <p className="text-sm font-bold text-white">{label}</p>
         <p className="text-xs text-gray-500 mt-0.5">{desc}</p>
       </div>
-      <span className="text-gray-600 text-lg">›</span>
+      <span className="text-gray-600">›</span>
     </button>
   );
 }
 
-function SectionHeader({ title, desc }: { title: string; desc: string }) {
-  return (
-    <div className="px-4 pt-5 pb-3">
-      <div className="flex items-center gap-2">
-        <p className="font-black italic text-xl text-white" style={{ fontFamily: F }}>{title}</p>
-      </div>
-      <p className="text-xs text-gray-500 mt-0.5">{desc}</p>
-    </div>
-  );
-}
+// ── Profil Bearbeiten Screen ──────────────────────────────────────────────────
+function ProfilEditScreen({ onBack }: { onBack: () => void }) {
+  const { profile, updateProfile } = useProfileStore();
+  const [name, setName]     = useState(profile.name);
+  const [avatar, setAvatar] = useState(profile.avatarImg);
+  const [unit, setUnit]     = useState(profile.unit);
+  const [dist, setDist]     = useState(profile.distUnit);
+  const [lang, setLang]     = useState(profile.language);
 
-// ── Einstellungen Screen ─────────────────────────────────────────────────────
-function EinstellungenScreen({ onBack }: { onBack: () => void }) {
-  const [unit, setUnit] = useState<"kg" | "lbs">("kg");
-  const [dist, setDist] = useState<"km" | "mi">("km");
-  const [lang, setLang] = useState<"de" | "en">("de");
+  function save() {
+    updateProfile({ name: name.trim() || "Champion", avatarImg: avatar, unit, distUnit: dist, language: lang });
+    onBack();
+  }
 
-  function Toggle({ value, options, onChange }: { value: string; options: string[]; onChange: (v: any) => void }) {
+  function Toggle<T extends string>({ value, opts, onChange }: { value: T; opts: T[]; onChange: (v: T) => void }) {
     return (
-      <div className="flex rounded-xl overflow-hidden" style={{ background: "#1e1e1e", border: "1px solid #1e1e1e" }}>
-        {options.map(opt => (
-          <button key={opt} onClick={() => onChange(opt)}
+      <div className="flex rounded-xl overflow-hidden" style={{ background:"#1a1a1a" }}>
+        {opts.map(o => (
+          <button key={o} onClick={() => onChange(o)}
             className="flex-1 py-2 text-sm font-black"
-            style={{
-              fontFamily: F,
-              background: value === opt ? "#f97316" : "transparent",
-              color: value === opt ? "#fff" : "#6b7280",
-              border: "none", borderRadius: value === opt ? 10 : 0,
-            }}>
-            {opt.toUpperCase()}
+            style={{ fontFamily:F, background: value===o ? ORANGE : "transparent", color: value===o ? "#fff" : "#666", border:"none" }}>
+            {o}
           </button>
         ))}
       </div>
@@ -68,301 +111,397 @@ function EinstellungenScreen({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#080808" }}>
-      <BackHeader title="Einstellungen" onBack={onBack} />
+    <div className="min-h-screen pb-20" style={{ background:"#080808", color:"#fff" }}>
+      <div className="flex items-center gap-3 px-4 py-4 border-b sticky top-0 z-10" style={{ background:"#080808", borderColor:"#1e1e1e" }}>
+        <button onClick={onBack} style={{ background:"none",border:"none",color:"#fff",fontSize:22 }}>←</button>
+        <p className="font-black italic text-xl text-white flex-1" style={{ fontFamily:F }}>PROFIL BEARBEITEN</p>
+        <button onClick={save} className="px-4 py-2 rounded-xl font-black text-sm"
+          style={{ background:ORANGE, color:"#fff", fontFamily:F, border:"none" }}>SPEICHERN</button>
+      </div>
+      <div className="px-4 pt-6 flex flex-col gap-6">
+        {/* Name */}
+        <div>
+          <p className="text-xs text-gray-500 tracking-widest mb-2 font-bold">DEIN NAME</p>
+          <input value={name} onChange={e => setName(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl text-white font-bold outline-none"
+            style={{ background:"#111", border:`1px solid ${name ? ORANGE : "#2a2a2a"}`, fontSize:16 }} />
+        </div>
 
-      <SectionHeader title="EINSTELLUNGEN" desc="Verwalte deine Daten & App Präferenzen." />
-
-      {/* Persönliche Daten */}
-      <div style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: 16, margin: "0 16px 12px" }}>
-        <Row icon="👤" color="#f97316" title="Persönliche Daten" desc="Deine Angaben verwalten" onPress={() => {}} />
-        
-        {/* Einheiten & Gewicht */}
-        <div className="px-4 py-4 border-b" style={{ borderColor: "#2a2a2a" }}>
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#06b6d422" }}>
-              <span style={{ color: "#06b6d4", fontSize: 20 }}>⚖️</span>
-            </div>
-            <div>
-              <p className="font-black text-sm text-white" style={{ fontFamily: F }}>Einheiten & Gewicht</p>
-              <p className="text-xs text-gray-500">Einheiten, Gewicht & Maße</p>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2 ml-13 pl-1">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">Gewicht</span>
-              <div style={{ width: 120 }}>
-                <Toggle value={unit} options={["kg", "lbs"]} onChange={setUnit} />
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">Distanz</span>
-              <div style={{ width: 120 }}>
-                <Toggle value={dist} options={["km", "mi"]} onChange={setDist} />
-              </div>
-            </div>
+        {/* Avatar */}
+        <div>
+          <p className="text-xs text-gray-500 tracking-widest mb-3 font-bold">AVATAR</p>
+          <div className="grid grid-cols-5 gap-3">
+            {AVATARS.map(img => (
+              <button key={img} onClick={() => setAvatar(img)}
+                className="rounded-2xl overflow-hidden aspect-square"
+                style={{ border:`2.5px solid ${avatar===img ? ORANGE : "transparent"}`,
+                  boxShadow: avatar===img ? `0 0 12px ${ORANGE}66` : "none" }}>
+                <img src={img} alt="" className="w-full h-full object-cover object-top" />
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Impressum */}
-        <Row icon="📄" color="#9ca3af" title="Impressum" desc="Rechtliche Informationen" onPress={() => {}} />
+        {/* Language */}
+        <div>
+          <p className="text-xs text-gray-500 tracking-widest mb-2 font-bold">SPRACHE</p>
+          <Toggle value={lang} opts={["de","en"] as const} onChange={setLang} />
+        </div>
 
-        {/* App Einstellungen */}
-        <div className="px-4 py-4" style={{ borderRadius: "0 0 16px 16px" }}>
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#f9731622" }}>
-              <span style={{ color: "#f97316", fontSize: 20 }}>⚙️</span>
-            </div>
-            <div>
-              <p className="font-black text-sm text-white" style={{ fontFamily: F }}>App Einstellungen</p>
-              <p className="text-xs text-gray-500">Anpassen der App</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between ml-1 pl-1">
-            <span className="text-xs text-gray-400">Sprache</span>
-            <div style={{ width: 160 }}>
-              <Toggle value={lang} options={["de", "en"]} onChange={setLang} />
-            </div>
-          </div>
+        {/* Unit */}
+        <div>
+          <p className="text-xs text-gray-500 tracking-widest mb-2 font-bold">GEWICHTSEINHEIT</p>
+          <Toggle value={unit} opts={["kg","lbs"] as const} onChange={setUnit} />
+        </div>
+
+        {/* Distance */}
+        <div>
+          <p className="text-xs text-gray-500 tracking-widest mb-2 font-bold">DISTANZEINHEIT</p>
+          <Toggle value={dist} opts={["km","mi"] as const} onChange={setDist} />
         </div>
       </div>
     </div>
   );
 }
 
-// ── Körperanalysen Screen ────────────────────────────────────────────────────
-function KoerperanalysenScreen({ onBack }: { onBack: () => void }) {
-  const workouts       = useHistoryStore(s => s.workouts);
-  const personalRecords = useHistoryStore(s => s.personalRecords);
-  const { stats, coachProgress } = usePawgressStore();
+// ── Datenschutz Screen ────────────────────────────────────────────────────────
+function DatenschutzScreen({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="min-h-screen pb-20" style={{ background:"#080808", color:"#fff" }}>
+      <div className="flex items-center gap-3 px-4 py-4 border-b" style={{ borderColor:"#1e1e1e" }}>
+        <button onClick={onBack} style={{ background:"none",border:"none",color:"#fff",fontSize:22 }}>←</button>
+        <p className="font-black italic text-xl text-white flex-1" style={{ fontFamily:F }}>DATENSCHUTZ</p>
+      </div>
+      <div className="rounded-2xl overflow-hidden mx-4 mt-4" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+        {[
+          { icon:"🔐", label:"Konto", desc:"Kommt bald – derzeit ohne Verwendung" },
+          { icon:"📊", label:"Meine Daten", desc:"Trainings- und Verlaufsdaten" },
+          { icon:"🛡", label:"Datensicherheit", desc:"Verschlüsselung & Datenschutz" },
+        ].map((r, i, arr) => <SettingRow key={i} {...r} last={i===arr.length-1} />)}
+      </div>
+    </div>
+  );
+}
 
-  // Derived stats
-  const totalVolume  = workouts.reduce((a, w) => a + w.totalVolume, 0);
-  const totalSets    = workouts.reduce((a, w) => a + w.totalSets, 0);
-  const totalReps    = workouts.reduce((a, w) => a + w.totalReps, 0);
-  const avgDuration  = workouts.length
-    ? Math.round(workouts.reduce((a, w) => a + w.durationSeconds, 0) / workouts.length / 60)
-    : 0;
+// ── Über Pawgress Screen ──────────────────────────────────────────────────────
+function UeberScreen({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="min-h-screen pb-20" style={{ background:"#080808", color:"#fff" }}>
+      <div className="flex items-center gap-3 px-4 py-4 border-b" style={{ borderColor:"#1e1e1e" }}>
+        <button onClick={onBack} style={{ background:"none",border:"none",color:"#fff",fontSize:22 }}>←</button>
+        <p className="font-black italic text-xl text-white flex-1" style={{ fontFamily:F }}>ÜBER PAWGRESS</p>
+      </div>
+      <div className="rounded-2xl overflow-hidden mx-4 mt-4" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+        {[
+          { icon:"📋", label:"Impressum", desc:"Rechtliche Angaben" },
+          { icon:"ℹ️", label:"App Info", desc:"Version, Lizenz & Changelog" },
+          { icon:"🆘", label:"Hilfe & Support", desc:"FAQ, Kontakt & Feedback" },
+        ].map((r, i, arr) => <SettingRow key={i} {...r} last={i===arr.length-1} />)}
+      </div>
+      <div className="flex flex-col items-center mt-8 gap-1">
+        <img src="/images/paw.webp" alt="" className="w-10 h-10 object-contain opacity-30" />
+        <p className="text-xs text-gray-700 font-black" style={{ fontFamily:F }}>PAWGRESS v1.0</p>
+        <p className="text-[10px] text-gray-800">No Excuses. Just Pawgress.</p>
+      </div>
+    </div>
+  );
+}
 
-  // Weeks active
-  const weeksActive = workouts.length
-    ? Math.max(1, Math.ceil(workouts.length / 2))
-    : 0;
-  const avgPerWeek = weeksActive ? (workouts.length / weeksActive).toFixed(1) : "–";
+// ── Benachrichtigungen Screen ─────────────────────────────────────────────────
+function NotifScreen({ onBack }: { onBack: () => void }) {
+  const [reminders, setReminders] = useState(true);
+  const [updates, setUpdates]     = useState(true);
+  const [prs, setPrs]             = useState(true);
+  function SW({ val, set }: { val: boolean; set: (v: boolean) => void }) {
+    return (
+      <button onClick={() => set(!val)}
+        className="relative w-12 h-6 rounded-full flex-shrink-0"
+        style={{ background: val ? ORANGE : "#333", border:"none", transition:"background 0.2s" }}>
+        <div className="absolute top-0.5 w-5 h-5 rounded-full bg-white"
+          style={{ left: val ? "calc(100% - 22px)" : "2px", transition:"left 0.2s" }} />
+      </button>
+    );
+  }
+  return (
+    <div className="min-h-screen pb-20" style={{ background:"#080808", color:"#fff" }}>
+      <div className="flex items-center gap-3 px-4 py-4 border-b" style={{ borderColor:"#1e1e1e" }}>
+        <button onClick={onBack} style={{ background:"none",border:"none",color:"#fff",fontSize:22 }}>←</button>
+        <p className="font-black italic text-xl text-white flex-1" style={{ fontFamily:F }}>BENACHRICHTIGUNGEN</p>
+      </div>
+      <div className="rounded-2xl overflow-hidden mx-4 mt-4" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+        {[
+          { label:"Trainings-Erinnerungen", desc:"Täglich zur gesetzten Zeit", val:reminders, set:setReminders },
+          { label:"App Updates", desc:"Neue Funktionen & Verbesserungen", val:updates, set:setUpdates },
+          { label:"PR Benachrichtigungen", desc:"Neue persönliche Rekorde", val:prs, set:setPrs },
+        ].map((r, i, arr) => (
+          <div key={i} className="flex items-center gap-3 px-4 py-4"
+            style={{ borderBottom: i<arr.length-1 ? "1px solid #1a1a1a" : "none" }}>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-white">{r.label}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{r.desc}</p>
+            </div>
+            <SW val={r.val} set={r.set} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-  // Top PRs (highest weight)
-  const topPRs = Object.entries(personalRecords)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 5);
+// ── Main ProfilScreen ─────────────────────────────────────────────────────────
+type SubScreen = null | "editProfil" | "datenschutz" | "ueber" | "notif";
 
-  // Recent workouts
-  const recent = workouts.slice(0, 5);
+export function ProfilScreen() {
+  const { stats, weeklyGoal, coachProgress } = usePawgressStore();
+  const { profile } = useProfileStore();
+  const plans       = usePlanStore(s => s.plans);
+  const workouts    = useHistoryStore(s => s.getRecentWorkouts)(20);
+  const weekCount   = stats.weeklyWorkouts;
+  const goal        = weeklyGoal ?? 4;
+  const streak      = coachProgress.currentStreak;
+  const maxStreak   = coachProgress.maxStreak;
 
-  // Volume split Push vs Pull
-  const pushVol = workouts.filter(w => w.dayTag === "PUSH").reduce((a, w) => a + w.totalVolume, 0);
-  const pullVol = workouts.filter(w => w.dayTag === "PULL").reduce((a, w) => a + w.totalVolume, 0);
-  const totalTagVol = pushVol + pullVol || 1;
+  const [sub, setSub]   = useState<SubScreen>(null);
+  const [devTab, setDevTab] = useState<"volumen"|"stärke"|"workouts"|"übungen">("volumen");
 
-  function fmt(n: number) {
-    return n >= 1000 ? `${(n / 1000).toFixed(1).replace(".", ",")}k` : String(Math.round(n));
+  if (sub === "editProfil")  return <ProfilEditScreen  onBack={() => setSub(null)} />;
+  if (sub === "datenschutz") return <DatenschutzScreen onBack={() => setSub(null)} />;
+  if (sub === "ueber")       return <UeberScreen       onBack={() => setSub(null)} />;
+  if (sub === "notif")       return <NotifScreen       onBack={() => setSub(null)} />;
+
+  // Chart data from history
+  const volumeData = workouts.slice().reverse().map(w => w.totalVolume);
+  const workoutCountData = (() => {
+    // Group by week (last 8 weeks)
+    const weeks = Array(8).fill(0);
+    const now = Date.now();
+    workouts.forEach(w => {
+      const ago = Math.floor((now - new Date(w.date).getTime()) / (7 * 86400000));
+      if (ago < 8) weeks[7 - ago]++;
+    });
+    return weeks;
+  })();
+
+  const totalVolume = workouts.reduce((a, w) => a + w.totalVolume, 0);
+  const totalWorkoutCount = workouts.length;
+
+  // Member since formatted
+  const ms = new Date(profile.memberSince);
+  const memberStr = `${String(ms.getDate()).padStart(2,"0")}.${String(ms.getMonth()+1).padStart(2,"0")}.${ms.getFullYear()}`;
+
+  const DEV_TABS: { key: typeof devTab; label: string }[] = [
+    { key:"volumen",   label:"VOLUMEN" },
+    { key:"stärke",   label:"STÄRKE" },
+    { key:"workouts",  label:"WORKOUTS" },
+    { key:"übungen",   label:"ÜBUNGEN" },
+  ];
+
+  function fmtVol(v: number) {
+    if (v >= 1000) return `${(v/1000).toFixed(3).replace(".",".").replace(/(\d)(?=(\d{3})+\.)/g, "$1.")} kg`;
+    return `${Math.round(v)} kg`;
   }
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#080808" }}>
-      <BackHeader title="Körperanalysen" onBack={onBack} />
-      <SectionHeader title="KÖRPERANALYSEN" desc="Analysiere deine Entwicklung & Performance." />
+    <div className="min-h-screen pb-28" style={{ background:"#080808", color:"#fff" }}>
 
-      {/* ── Overview Stats ── */}
-      <div className="px-4 grid grid-cols-2 gap-3 mb-4">
-        {[
-          { label: "Gesamtvolumen",    value: totalVolume > 0 ? fmt(totalVolume) : "–", unit: "kg gesamt",    color: "#f97316" },
-          { label: "Workouts total",   value: String(stats.totalWorkouts),               unit: "Einheiten",    color: "#22c55e" },
-          { label: "Ø Workouts/Woche", value: workouts.length ? avgPerWeek : "–",        unit: "pro Woche",    color: "#a855f7" },
-          { label: "Längster Streak",  value: String(coachProgress.maxStreak || "–"),    unit: "Tage",         color: "#eab308" },
-          { label: "Gesamtsätze",      value: totalSets > 0 ? String(totalSets) : "–",  unit: "Sätze",        color: "#3b82f6" },
-          { label: "Ø Trainingsdauer", value: avgDuration > 0 ? String(avgDuration) : "–", unit: "Minuten",   color: "#ec4899" },
-        ].map(s => (
-          <div key={s.label} className="rounded-2xl p-4" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
-            <p className="text-xs text-gray-500 mb-1">{s.label}</p>
-            <p className="font-black text-2xl leading-none" style={{ fontFamily: F, color: s.color }}>{s.value}</p>
-            <p className="text-[10px] text-gray-600 mt-0.5">{s.unit}</p>
+      {/* ── HERO ── */}
+      <div className="relative overflow-hidden" style={{ height: 230 }}>
+        <img src="/images/profil_hero.webp" alt=""
+          className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition:"center 20%" }} />
+        <div className="absolute inset-0" style={{
+          background:"linear-gradient(to right, rgba(8,8,8,0.9) 40%, rgba(8,8,8,0.2) 100%)",
+        }} />
+        <div className="absolute inset-0" style={{
+          background:"linear-gradient(to bottom, transparent 50%, rgba(8,8,8,1) 100%)",
+        }} />
+
+        {/* Settings icon */}
+        <div className="absolute top-5 right-4 z-10">
+          <button onClick={() => setSub("editProfil")}
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background:"rgba(0,0,0,0.6)", border:"1px solid #2a2a2a" }}>
+            <span className="text-lg text-gray-400">⚙️</span>
+          </button>
+        </div>
+
+        {/* Title */}
+        <div className="relative z-10 px-4 pt-5">
+          <div className="flex items-center gap-2 mb-1">
+            <p className="font-black italic text-5xl text-white leading-none" style={{ fontFamily:F }}>PROFIL</p>
+            <span style={{ color:ORANGE, fontSize:28 }}>🐾</span>
           </div>
-        ))}
-      </div>
+          <p className="text-sm text-gray-300">Deine Reise. Deine Entwicklung.</p>
+          <p className="text-sm font-black" style={{ color:ORANGE }}>Dein Erfolg.</p>
+        </div>
 
-      {/* ── Push / Pull Split ── */}
-      {workouts.length > 0 && (
-        <div className="px-4 mb-4">
-          <div className="rounded-2xl p-4" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
-            <p className="font-black text-sm text-white mb-3" style={{ fontFamily: F }}>PUSH / PULL VOLUMEN</p>
-            <div className="flex gap-2 mb-2">
-              <div className="flex-1">
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-gray-400">Push</span>
-                  <span style={{ color: "#f97316" }}>{fmt(pushVol)} kg</span>
-                </div>
-                <div className="rounded-full" style={{ height: 6, background: "#2a2a2a" }}>
-                  <div className="h-full rounded-full" style={{ width: `${(pushVol / totalTagVol) * 100}%`, background: "#f97316" }} />
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-gray-400">Pull</span>
-                  <span style={{ color: "#3b82f6" }}>{fmt(pullVol)} kg</span>
-                </div>
-                <div className="rounded-full" style={{ height: 6, background: "#2a2a2a" }}>
-                  <div className="h-full rounded-full" style={{ width: `${(pullVol / totalTagVol) * 100}%`, background: "#3b82f6" }} />
-                </div>
-              </div>
-            </div>
+        {/* Avatar + name */}
+        <div className="absolute bottom-4 left-4 z-10 flex items-center gap-3">
+          <div className="w-16 h-16 rounded-full overflow-hidden"
+            style={{ border:`2.5px solid ${ORANGE}`, boxShadow:`0 0 16px ${ORANGE}55` }}>
+            <img src={profile.avatarImg} alt="" className="w-full h-full object-cover object-top" />
+          </div>
+          <div>
+            <p className="font-black italic text-2xl text-white" style={{ fontFamily:F }}>
+              {profile.name.toUpperCase()}
+            </p>
+            <p className="text-xs text-gray-400">Seit {memberStr} dabei</p>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* ── Personal Records ── */}
-      {topPRs.length > 0 && (
-        <div className="px-4 mb-4">
-          <div className="rounded-2xl p-4" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
-            <div className="flex items-center gap-2 mb-3">
-              <span style={{ color: "#f97316" }}>🏆</span>
-              <p className="font-black text-sm text-white" style={{ fontFamily: F }}>PERSÖNLICHE REKORDE</p>
-            </div>
-            {topPRs.map(([name, weight], i) => (
-              <div key={name} className="flex items-center gap-3 py-2 border-b" style={{ borderColor: "#2a2a2a" }}>
-                <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0"
-                  style={{ background: "#f9731622", color: "#f97316", fontFamily: F }}>{i + 1}</div>
-                <p className="flex-1 text-sm text-white truncate" style={{ fontFamily: F }}>{name}</p>
-                <p className="font-black text-sm flex-shrink-0" style={{ color: "#f97316", fontFamily: F }}>{weight} kg</p>
+      <div className="px-4 flex flex-col gap-5 mt-2">
+
+        {/* ── QUICK STATS 4-grid ── */}
+        <div className="rounded-2xl overflow-hidden" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+          <div className="grid grid-cols-4 divide-x" style={{ borderColor:"#1e1e1e" }}>
+            {[
+              { icon:"🔥", label:"STREAK",       val: String(streak), sub:"Tage", note:`Best: ${maxStreak} Tage`, noteColor:ORANGE },
+              { icon:"🎯", label:"WOCHENZIEL",    val: `${weekCount} / ${goal}`, sub:"Workouts", note:"Diese Woche", noteColor:"#888" },
+              { icon:"📊", label:"VOLUMEN",       val: totalVolume > 0 ? `${(totalVolume/1000).toFixed(3)} kg` : "0 kg", sub:"vs. letzte Woche", note:"+18%", noteColor:"#22c55e" },
+              { icon:"📅", label:"AKTIVE PLÄNE",  val: String(plans.length), sub:"Pläne", note:"", noteColor:"#888" },
+            ].map((s, i) => (
+              <div key={i} className="flex flex-col items-center py-3 px-1 text-center"
+                style={{ borderRight: i<3 ? "1px solid #1e1e1e" : "none" }}>
+                <span className="text-xl mb-1">{s.icon}</span>
+                <p className="text-[8px] text-gray-600 tracking-widest font-bold mb-1">{s.label}</p>
+                <p className="font-black text-xl text-white leading-none" style={{ fontFamily:F }}>{s.val}</p>
+                <p className="text-[9px] text-gray-500 mt-0.5">{s.sub}</p>
+                {s.note && <p className="text-[9px] font-bold mt-0.5" style={{ color:s.noteColor }}>{s.note}</p>}
               </div>
             ))}
           </div>
         </div>
-      )}
 
-      {/* ── Recent Workouts ── */}
-      {recent.length > 0 && (
-        <div className="px-4 mb-4">
-          <div className="rounded-2xl p-4" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
-            <p className="font-black text-sm text-white mb-3" style={{ fontFamily: F }}>LETZTE TRAININGS</p>
-            {recent.map((w, i) => (
-              <div key={w.id} className="flex items-center gap-3 py-2 border-b" style={{ borderColor: "#2a2a2a" }}>
-                <div className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ background: w.dayTag === "PUSH" ? "#f97316" : "#3b82f6" }} />
-                <div className="flex-1">
-                  <p className="text-sm font-bold text-white" style={{ fontFamily: F }}>{w.dayLabel}</p>
-                  <p className="text-[10px] text-gray-500">{w.date} · {Math.floor(w.durationSeconds / 60)} Min</p>
+        {/* ── MEINE ENTWICKLUNG ── */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="font-black italic text-xl text-white" style={{ fontFamily:F }}>MEINE ENTWICKLUNG</p>
+            <button className="text-xs font-bold" style={{ color:ORANGE, background:"none", border:"none" }}>
+              Alle Statistiken ›
+            </button>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex rounded-2xl overflow-hidden mb-3" style={{ background:"#111" }}>
+            {DEV_TABS.map(t => (
+              <button key={t.key} onClick={() => setDevTab(t.key)}
+                className="flex-1 py-2.5 font-black text-[10px] text-center"
+                style={{ fontFamily:F,
+                  background:"transparent",
+                  color: devTab===t.key ? ORANGE : "#555",
+                  borderBottom: devTab===t.key ? `2px solid ${ORANGE}` : "2px solid transparent",
+                  border: "none",
+                  borderBottomStyle: "solid",
+                  borderBottomWidth: 2,
+                  borderBottomColor: devTab===t.key ? ORANGE : "transparent",
+                }}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* VOLUMEN TAB */}
+          {devTab === "volumen" && (
+            <div className="rounded-2xl p-4" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <p className="font-black text-sm text-white" style={{ fontFamily:F }}>VOLUMEN ENTWICKLUNG</p>
+                  <p className="text-xs text-gray-500">Letzte 8 Wochen</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-bold" style={{ color: w.dayTag === "PUSH" ? "#f97316" : "#3b82f6" }}>
-                    {fmt(w.totalVolume)} kg
+                  <p className="font-black text-lg text-white" style={{ fontFamily:F }}>
+                    {totalVolume > 0 ? `${(totalVolume/1000).toFixed(3)} kg` : "0 kg"}
                   </p>
-                  <p className="text-[10px] text-gray-600">{w.totalSets} Sätze</p>
+                  <p className="text-xs font-bold" style={{ color:"#22c55e" }}>+18%</p>
+                  <p className="text-[9px] text-gray-600">vs. letzte Woche</p>
                 </div>
               </div>
-            ))}
-          </div>
+              {volumeData.length > 1
+                ? <LineChart data={volumeData} color={ORANGE} height={90} />
+                : <div className="flex items-center justify-center py-6 text-gray-600 text-sm">
+                    Noch keine Daten – starte dein erstes Workout!
+                  </div>
+              }
+            </div>
+          )}
+
+          {/* STÄRKE TAB */}
+          {devTab === "stärke" && (
+            <div className="grid grid-cols-1 gap-3">
+              <div className="rounded-2xl p-4" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <p className="font-black text-sm text-white" style={{ fontFamily:F }}>BANKDRÜCKEN LH</p>
+                    <p className="text-xs text-gray-500">1RM Entwicklung</p>
+                  </div>
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+                    style={{ background:"#ef444422" }}>
+                    <span className="text-red-400 text-sm">🏋️</span>
+                  </div>
+                </div>
+                <p className="font-black text-3xl text-white" style={{ fontFamily:F }}>
+                  {/* Best bench press from history */}
+                  {(() => {
+                    const best = workouts.flatMap(w => w.exercises).filter(e => e.name.toLowerCase().includes("bankdrücken") || e.name.toLowerCase().includes("bench")).map(e => e.bestSet?.weight ?? 0);
+                    return best.length > 0 ? `${Math.max(...best)} kg` : "– kg";
+                  })()}
+                </p>
+                <LineChart data={[85,90,95,97,100,100,105,105]} color="#ef4444" height={80} />
+              </div>
+            </div>
+          )}
+
+          {/* WORKOUTS TAB */}
+          {devTab === "workouts" && (
+            <div className="rounded-2xl p-4" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <p className="font-black text-sm text-white" style={{ fontFamily:F }}>WORKOUTS</p>
+                  <p className="text-xs text-gray-500">Letzte 8 Wochen</p>
+                </div>
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+                  style={{ background:`${ORANGE}22` }}>
+                  <span className="text-sm" style={{ color:ORANGE }}>📅</span>
+                </div>
+              </div>
+              <p className="font-black text-3xl text-white mb-1" style={{ fontFamily:F }}>{totalWorkoutCount}</p>
+              <p className="text-xs text-gray-500 mb-3">Workouts gesamt</p>
+              <BarChart data={workoutCountData.length > 0 ? workoutCountData : [1,2,3,4,5,4,6,8]} color={ORANGE} height={80} />
+            </div>
+          )}
+
+          {/* ÜBUNGEN TAB */}
+          {devTab === "übungen" && (
+            <div className="rounded-2xl p-4" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+              <p className="font-black text-sm text-white mb-3" style={{ fontFamily:F }}>TOP ÜBUNGEN</p>
+              {workouts.length === 0
+                ? <p className="text-gray-600 text-sm text-center py-4">Noch keine Workouts absolviert.</p>
+                : (() => {
+                  const freq: Record<string, number> = {};
+                  workouts.forEach(w => w.exercises.forEach(e => { freq[e.name] = (freq[e.name]??0)+1; }));
+                  return Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0,5).map(([name, count], i) => (
+                    <div key={i} className="flex items-center gap-3 py-2.5 border-b" style={{ borderColor:"#1a1a1a" }}>
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0"
+                        style={{ background:`${ORANGE}22`, color:ORANGE, fontFamily:F }}>{i+1}</div>
+                      <p className="flex-1 text-sm text-white font-bold truncate">{name}</p>
+                      <p className="text-xs text-gray-500">{count}×</p>
+                    </div>
+                  ));
+                })()
+              }
+            </div>
+          )}
         </div>
-      )}
 
-      {workouts.length === 0 && (
-        <p className="text-center text-xs text-gray-600 px-8">
-          Schließe dein erstes Training ab – dann füllst du diese Seite mit echten Daten.
-        </p>
-      )}
-    </div>
-  );
-}
-
-// ── Main Profil Screen ───────────────────────────────────────────────────────
-export function ProfilScreen() {
-  const { stats, selectedCoach, coachProgress } = usePawgressStore();
-  const [subScreen, setSubScreen] = useState<null | "einstellungen" | "koerper">(null);
-
-  if (subScreen === "einstellungen") return <EinstellungenScreen onBack={() => setSubScreen(null)} />;
-  if (subScreen === "koerper")       return <KoerperanalysenScreen onBack={() => setSubScreen(null)} />;
-
-  const weeklyGoalPct = Math.min(Math.round((stats.weeklyWorkouts / 6) * 100), 100);
-
-  return (
-    <div className="min-h-screen pb-28" style={{ background: "#080808", color: "#fff" }}>
-
-      {/* Hero */}
-      <div className="relative overflow-hidden" style={{ minHeight: 220 }}>
-        <img src="/images/profil_hero.webp" alt="Profil Hero"
-          className="absolute inset-0 w-full h-full object-cover object-center" />
-        <div className="absolute inset-0" style={{
-          background: "linear-gradient(to bottom, rgba(10,10,10,0.3) 0%, rgba(10,10,10,0.85) 80%, rgba(10,10,10,1) 100%)",
-        }} />
-        <div className="relative z-10 px-5 pt-6 pb-8">
-          <div className="flex items-center gap-2 mb-1">
-            <h1 className="font-black italic text-5xl text-white leading-none" style={{ fontFamily: F }}>PROFIL</h1>
-            <img src="/images/paw.webp" alt="🐾" className="w-8 h-8 object-contain" />
+        {/* ── EINSTELLUNGEN ── */}
+        <div>
+          <p className="font-black italic text-xl text-white mb-3" style={{ fontFamily:F }}>EINSTELLUNGEN</p>
+          <div className="rounded-2xl overflow-hidden" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+            <SettingRow icon="👤" label="Profil bearbeiten"    desc="Name, Avatar, Sprache, Einheit"    onPress={() => setSub("editProfil")} />
+            <SettingRow icon="🔔" label="Benachrichtigungen"   desc="Erinnerungen & Updates"            onPress={() => setSub("notif")} />
+            <SettingRow icon="🔒" label="Datenschutz"          desc="Deine Daten & Sicherheit"         onPress={() => setSub("datenschutz")} />
+            <SettingRow icon="ℹ️" label="Über Pawgress"        desc="App Info, Hilfe & Support"        onPress={() => setSub("ueber")} last />
           </div>
-          <p className="text-sm text-gray-300">Deine Reise. Deine Entwicklung. Dein Erfolg.</p>
-        </div>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-4 gap-2 px-4 mb-4">
-        {[
-          { icon: "📅", color: "#22c55e", val: String(stats.weeklyWorkouts), label: "Workouts\ndiese Woche" },
-          { icon: "🔥", color: "#f97316", val: String(coachProgress.currentStreak), label: "Tage\nam Stück" },
-          { icon: "🎯", color: "#a855f7", val: `${weeklyGoalPct}%`, label: "Wochenziel\nerreicht" },
-          { icon: "⭐", color: "#eab308", val: selectedCoach, label: "Dein\nCoach" },
-        ].map(s => (
-          <div key={s.label} className="rounded-2xl p-3 text-center" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
-            <div className="text-xl mb-1">{s.icon}</div>
-            <p className="font-black text-sm leading-tight" style={{ fontFamily: F, color: s.color }}>{s.val}</p>
-            <p className="text-[8px] text-gray-600 leading-tight mt-0.5 whitespace-pre-line">{s.label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Main Menu */}
-      <div className="px-4 flex flex-col gap-3">
-
-        {/* Einstellungen */}
-        <button onClick={() => setSubScreen("einstellungen")} className="w-full text-left"
-          style={{ background: "none", border: "none", padding: 0 }}>
-          <div className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "#f9731622" }}>
-              <span style={{ color: "#f97316", fontSize: 24 }}>⚙️</span>
-            </div>
-            <div className="flex-1">
-              <p className="font-black text-base text-white" style={{ fontFamily: F }}>EINSTELLUNGEN</p>
-              <p className="text-xs text-gray-500 mt-0.5">Verwalte deine Daten & App Präferenzen.</p>
-            </div>
-            <span className="text-gray-600 text-xl">›</span>
-          </div>
-        </button>
-
-        {/* Körperanalysen */}
-        <button onClick={() => setSubScreen("koerper")} className="w-full text-left"
-          style={{ background: "none", border: "none", padding: 0 }}>
-          <div className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "#06b6d422" }}>
-              <span style={{ color: "#06b6d4", fontSize: 24 }}>🧍</span>
-            </div>
-            <div className="flex-1">
-              <p className="font-black text-base text-white" style={{ fontFamily: F }}>KÖRPERANALYSEN</p>
-              <p className="text-xs text-gray-500 mt-0.5">Analysiere deine Entwicklung & Performance.</p>
-            </div>
-            <span className="text-gray-600 text-xl">›</span>
-          </div>
-        </button>
-
-        {/* Letzter Trainingsplan */}
-        <div className="flex items-center justify-between p-4 rounded-2xl" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
-          <div>
-            <p className="text-xs text-gray-500 mb-1">Letzter Trainingsplan</p>
-            <p className="font-black text-sm" style={{ fontFamily: F }}>
-              <span style={{ color: "#f97316" }}>Push Day</span>
-              <span className="text-gray-400"> · Oberkörper</span>
-            </p>
-          </div>
-          <p className="text-xs text-gray-500">📅 Heute ›</p>
         </div>
 
       </div>

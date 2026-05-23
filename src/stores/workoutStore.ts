@@ -15,11 +15,22 @@ export interface LiveExerciseLog {
   [exerciseName: string]: SetRecord[];
 }
 
+// Tracks current set progress per exercise index so back-navigation preserves state
+export interface ExSetProgress {
+  currentSet: number;    // 1-based
+  weight: number;
+  reps: number;
+  done: boolean;         // exercise fully completed
+}
+
 interface WorkoutStore {
   screen: string;
   activeArea: AreaName | null;
   session: WorkoutSession | null;
   liveLog: LiveExerciseLog;
+
+  // Set progress per exercise (survives back-navigation)
+  setProgress: Record<number, ExSetProgress>;
 
   // Custom exercise list – shared between TrainingScreen & ActiveSetScreen
   customExercises: PlanExercise[] | null;
@@ -29,6 +40,12 @@ interface WorkoutStore {
   setActiveArea: (a: AreaName | null) => void;
   setCustomExercises: (exercises: PlanExercise[], dayIndex: number) => void;
   getActiveExercises: (dayIndex: number) => PlanExercise[];
+
+  // Set progress actions
+  getSetProgress: (exIndex: number, defaultReps: number) => ExSetProgress;
+  updateSetProgress: (exIndex: number, updates: Partial<ExSetProgress>) => void;
+  advanceSet: (exIndex: number, defaultReps: number) => void;
+  clearSetProgress: () => void;
 
   startWorkout: (totalWorkouts: number) => void;
   completeExercise: (exIndex: number) => void;
@@ -42,6 +59,7 @@ export const useWorkoutStore = create<WorkoutStore>()((set, get) => ({
   activeArea: null,
   session: null,
   liveLog: {},
+  setProgress: {},
   customExercises: null,
   customDayIndex: null,
 
@@ -103,5 +121,30 @@ export const useWorkoutStore = create<WorkoutStore>()((set, get) => ({
       });
   },
 
-  resetWorkout: () => set({ session: null, liveLog: {}, customExercises: null, customDayIndex: null }),
+  getSetProgress: (exIndex, defaultReps) => {
+    return get().setProgress[exIndex] ?? { currentSet: 1, weight: 0, reps: defaultReps, done: false };
+  },
+
+  updateSetProgress: (exIndex, updates) => {
+    set(state => ({
+      setProgress: {
+        ...state.setProgress,
+        [exIndex]: { ...( state.setProgress[exIndex] ?? { currentSet: 1, weight: 0, reps: 8, done: false }), ...updates },
+      },
+    }));
+  },
+
+  advanceSet: (exIndex, defaultReps) => {
+    const current = get().setProgress[exIndex] ?? { currentSet: 1, weight: 0, reps: defaultReps, done: false };
+    set(state => ({
+      setProgress: {
+        ...state.setProgress,
+        [exIndex]: { ...current, currentSet: current.currentSet + 1 },
+      },
+    }));
+  },
+
+  clearSetProgress: () => set({ setProgress: {} }),
+
+  resetWorkout: () => set({ session: null, liveLog: {}, setProgress: {}, customExercises: null, customDayIndex: null }),
 }));
