@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AREA_DATA } from "../data/areaData";
 import type { AreaName, AreaExercise } from "../types";
@@ -403,14 +403,15 @@ export function GymAreaScreen() {
 
   const [selectedEx, setSelectedEx] = useState<AreaExercise | null>(null);
 
-  function openExercise(ex: AreaExercise) {
-    setSelectedEx(ex);
-    window.scrollTo({ top: 0, behavior: "instant" });
-  }
-  function closeExercise() {
-    setSelectedEx(null);
-    window.scrollTo({ top: 0, behavior: "instant" });
-  }
+  // Scroll to top whenever the view changes (list ↔ detail)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [selectedEx]);
+
+  function openExercise(ex: AreaExercise) { setSelectedEx(ex); }
+  function closeExercise() { setSelectedEx(null); }
   const [search, setSearch]         = useState("");
   const [activeFilter, setActiveFilter] = useState<string>("Alle");
 

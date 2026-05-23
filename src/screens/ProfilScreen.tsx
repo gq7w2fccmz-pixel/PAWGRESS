@@ -480,10 +480,7 @@ export function ProfilScreen() {
         {/* Title + avatar block */}
         <div className="relative z-20 px-4 pt-5">
           {/* PROFIL + paw */}
-          <div className="flex items-center gap-2 mb-1">
-            <p className="font-black italic leading-none text-white" style={{ fontFamily:F, fontSize: 48 }}>PROFIL</p>
-            <IconPaw size={30} color={ORANGE} />
-          </div>
+          <p className="font-black italic leading-none text-white" style={{ fontFamily:F, fontSize: 48 }}>PROFIL</p>
           <p className="text-sm text-gray-300">Deine Reise. Deine Entwicklung.</p>
           <p className="text-sm font-black" style={{ color:ORANGE }}>Dein Erfolg.</p>
 

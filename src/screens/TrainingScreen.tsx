@@ -371,27 +371,21 @@ export function TrainingScreen() {
 
       {/* ── HERO ── */}
       <div className="relative overflow-hidden" style={{ height: 300 }}>
-        {/* Background gym image */}
+        {/* Background gym image – shifted down so mascot head isn't clipped */}
         <img src="/images/training_hero.webp" alt=""
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: "center 20%" }} />
+          style={{ objectPosition: "center 60%" }} />
         {/* Dark overlay – heavier at bottom */}
         <div className="absolute inset-0" style={{
           background: "linear-gradient(to bottom, rgba(8,8,8,0.35) 0%, rgba(8,8,8,0.55) 40%, rgba(8,8,8,1) 100%)",
         }} />
-        {/* Text content – left side */}
+        {/* Text content */}
         <div className="relative z-20 px-4 pt-5">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: `${ORANGE}28`, border: `1.5px solid ${ORANGE}77` }}>
-              <img src="/images/paw.webp" alt="" className="w-6 h-6 object-contain" />
-            </div>
-            <p className="font-black italic leading-none drop-shadow-lg"
-              style={{ fontFamily: F, fontSize: 44, color: "#fff" }}>
-              TRAINING
-            </p>
-          </div>
-          <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.8)", maxWidth: "60%" }}>
+          <p className="font-black italic leading-none drop-shadow-lg mb-1"
+            style={{ fontFamily: F, fontSize: 44, color: "#fff" }}>
+            TRAINING
+          </p>
+          <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.8)" }}>
             Dein Hub für{" "}
             <span style={{ color: ORANGE }}>Workouts</span>,{" "}
             <span style={{ color: ORANGE }}>Übungen</span>{" "}
@@ -554,10 +548,10 @@ export function TrainingScreen() {
                 onClick={() => navigate(`/gym/${area.key}`)}
                 className="relative rounded-2xl overflow-hidden text-left"
                 style={{ height: 150, background: "#111", border: "none", padding: 0 }}>
-                {/* Background image – shifted right so neon text stays visible */}
+                {/* Background image – anchored left so neon text labels stay visible */}
                 <img src={area.img} alt={area.label}
                   className="absolute inset-0 w-full h-full object-cover"
-                  style={{ opacity: 0.85, objectPosition: "60% center" }} />
+                  style={{ opacity: 0.85, objectPosition: "left center" }} />
                 {/* Gradient overlay */}
                 <div className="absolute inset-0" style={{
                   background: `linear-gradient(to top, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.45) 50%, rgba(8,8,8,0.1) 100%)`,

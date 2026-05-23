@@ -157,9 +157,9 @@ export function HomeScreen() {
 
       {/* ── HERO ── */}
       <div className="relative overflow-hidden" style={{ height: 300 }}>
-        <img src="/images/home_hero.webp" alt=""
+        <img src="/images/bertl.webp" alt=""
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: "center center" }} />
+          style={{ objectPosition: "center 15%" }} />
         {/* Left-to-right dark gradient so text is readable */}
         <div className="absolute inset-0" style={{
           background: "linear-gradient(to right, rgba(8,8,8,0.92) 40%, rgba(8,8,8,0.55) 70%, rgba(8,8,8,0.1) 100%)",
@@ -185,7 +185,7 @@ export function HomeScreen() {
       <div className="px-4 -mt-2 flex flex-col gap-4">
 
         {/* ── NÄCHSTES TRAINING ── */}
-        <div className="rounded-2xl p-4" style={{
+        <div className="rounded-2xl p-4 pb-5" style={{
           background: "#111",
           border: `1.5px solid ${ORANGE}66`,
           boxShadow: `0 0 20px ${ORANGE}18`,
