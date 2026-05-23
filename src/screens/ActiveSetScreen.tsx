@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { usePawgressStore } from "../hooks/usePawgressStore";
 import { useWorkoutStore } from "../stores/workoutStore";
+import { PLAN_2ER_SPLIT } from "../data/plan_2er_split";
 import { BRUST_EXERCISES }    from "../data/exercises_brust";
 import { RUECKEN_EXERCISES }  from "../data/exercises_ruecken";
 import { SCHULTERN_EXERCISES } from "../data/exercises_schultern";
@@ -277,7 +278,7 @@ export function ActiveSetScreen() {
         <div className="text-center">
           <p className="font-black text-xl text-white" style={{ fontFamily: F }}>{planEx.name}</p>
           <p className="text-xs text-gray-500">
-            {day.tag === "PUSH" ? "Brust · Schultern · Trizeps" : "Rücken · Bizeps · Core"}
+            {PLAN_2ER_SPLIT[dayIndex]?.tag === "PUSH" ? "Brust · Schultern · Trizeps" : "Rücken · Bizeps · Core"}
           </p>
         </div>
         <button onClick={() => setShowAbort(true)} className="text-xs font-bold px-2 py-1 rounded"
