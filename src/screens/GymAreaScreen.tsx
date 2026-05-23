@@ -249,7 +249,7 @@ function ExerciseDetail({ ex, area, areaKey, onBack }: {
   const titleSecondLine = nameParts.slice(Math.max(1, Math.ceil(nameParts.length / 2))).join(" ");
 
   return (
-    <div className="min-h-screen pb-10" style={{ background: "#080808", color: "#fff" }}>
+    <div className="min-h-screen pb-32" style={{ background: "#080808", color: "#fff" }}>
 
       {/* ── HERO ── */}
       <div className="relative overflow-hidden" style={{ height: 260 }}>
