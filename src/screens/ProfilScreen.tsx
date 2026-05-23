@@ -50,7 +50,7 @@ function EinstellungenScreen({ onBack }: { onBack: () => void }) {
 
   function Toggle({ value, options, onChange }: { value: string; options: string[]; onChange: (v: any) => void }) {
     return (
-      <div className="flex rounded-xl overflow-hidden" style={{ background: "#1e1e1e", border: "1px solid #2a2a2a" }}>
+      <div className="flex rounded-xl overflow-hidden" style={{ background: "#1e1e1e", border: "1px solid #1e1e1e" }}>
         {options.map(opt => (
           <button key={opt} onClick={() => onChange(opt)}
             className="flex-1 py-2 text-sm font-black"
@@ -68,7 +68,7 @@ function EinstellungenScreen({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#0a0a0a" }}>
+    <div className="min-h-screen pb-28" style={{ background: "#080808" }}>
       <BackHeader title="Einstellungen" onBack={onBack} />
 
       <SectionHeader title="EINSTELLUNGEN" desc="Verwalte deine Daten & App Präferenzen." />
@@ -168,7 +168,7 @@ function KoerperanalysenScreen({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#0a0a0a" }}>
+    <div className="min-h-screen pb-28" style={{ background: "#080808" }}>
       <BackHeader title="Körperanalysen" onBack={onBack} />
       <SectionHeader title="KÖRPERANALYSEN" desc="Analysiere deine Entwicklung & Performance." />
 
@@ -182,7 +182,7 @@ function KoerperanalysenScreen({ onBack }: { onBack: () => void }) {
           { label: "Gesamtsätze",      value: totalSets > 0 ? String(totalSets) : "–",  unit: "Sätze",        color: "#3b82f6" },
           { label: "Ø Trainingsdauer", value: avgDuration > 0 ? String(avgDuration) : "–", unit: "Minuten",   color: "#ec4899" },
         ].map(s => (
-          <div key={s.label} className="rounded-2xl p-4" style={{ background: "#161616", border: "1px solid #2a2a2a" }}>
+          <div key={s.label} className="rounded-2xl p-4" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
             <p className="text-xs text-gray-500 mb-1">{s.label}</p>
             <p className="font-black text-2xl leading-none" style={{ fontFamily: F, color: s.color }}>{s.value}</p>
             <p className="text-[10px] text-gray-600 mt-0.5">{s.unit}</p>
@@ -193,7 +193,7 @@ function KoerperanalysenScreen({ onBack }: { onBack: () => void }) {
       {/* ── Push / Pull Split ── */}
       {workouts.length > 0 && (
         <div className="px-4 mb-4">
-          <div className="rounded-2xl p-4" style={{ background: "#161616", border: "1px solid #2a2a2a" }}>
+          <div className="rounded-2xl p-4" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
             <p className="font-black text-sm text-white mb-3" style={{ fontFamily: F }}>PUSH / PULL VOLUMEN</p>
             <div className="flex gap-2 mb-2">
               <div className="flex-1">
@@ -224,7 +224,7 @@ function KoerperanalysenScreen({ onBack }: { onBack: () => void }) {
       {/* ── Personal Records ── */}
       {topPRs.length > 0 && (
         <div className="px-4 mb-4">
-          <div className="rounded-2xl p-4" style={{ background: "#161616", border: "1px solid #2a2a2a" }}>
+          <div className="rounded-2xl p-4" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
             <div className="flex items-center gap-2 mb-3">
               <span style={{ color: "#f97316" }}>🏆</span>
               <p className="font-black text-sm text-white" style={{ fontFamily: F }}>PERSÖNLICHE REKORDE</p>
@@ -244,7 +244,7 @@ function KoerperanalysenScreen({ onBack }: { onBack: () => void }) {
       {/* ── Recent Workouts ── */}
       {recent.length > 0 && (
         <div className="px-4 mb-4">
-          <div className="rounded-2xl p-4" style={{ background: "#161616", border: "1px solid #2a2a2a" }}>
+          <div className="rounded-2xl p-4" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
             <p className="font-black text-sm text-white mb-3" style={{ fontFamily: F }}>LETZTE TRAININGS</p>
             {recent.map((w, i) => (
               <div key={w.id} className="flex items-center gap-3 py-2 border-b" style={{ borderColor: "#2a2a2a" }}>
@@ -286,7 +286,7 @@ export function ProfilScreen() {
   const weeklyGoalPct = Math.min(Math.round((stats.weeklyWorkouts / 6) * 100), 100);
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#0a0a0a", color: "#fff" }}>
+    <div className="min-h-screen pb-28" style={{ background: "#080808", color: "#fff" }}>
 
       {/* Hero */}
       <div className="relative overflow-hidden" style={{ minHeight: 220 }}>
@@ -312,7 +312,7 @@ export function ProfilScreen() {
           { icon: "🎯", color: "#a855f7", val: `${weeklyGoalPct}%`, label: "Wochenziel\nerreicht" },
           { icon: "⭐", color: "#eab308", val: selectedCoach, label: "Dein\nCoach" },
         ].map(s => (
-          <div key={s.label} className="rounded-2xl p-3 text-center" style={{ background: "#161616", border: "1px solid #2a2a2a" }}>
+          <div key={s.label} className="rounded-2xl p-3 text-center" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
             <div className="text-xl mb-1">{s.icon}</div>
             <p className="font-black text-sm leading-tight" style={{ fontFamily: F, color: s.color }}>{s.val}</p>
             <p className="text-[8px] text-gray-600 leading-tight mt-0.5 whitespace-pre-line">{s.label}</p>
@@ -326,7 +326,7 @@ export function ProfilScreen() {
         {/* Einstellungen */}
         <button onClick={() => setSubScreen("einstellungen")} className="w-full text-left"
           style={{ background: "none", border: "none", padding: 0 }}>
-          <div className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: "#161616", border: "1px solid #2a2a2a" }}>
+          <div className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
             <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "#f9731622" }}>
               <span style={{ color: "#f97316", fontSize: 24 }}>⚙️</span>
             </div>
@@ -341,7 +341,7 @@ export function ProfilScreen() {
         {/* Körperanalysen */}
         <button onClick={() => setSubScreen("koerper")} className="w-full text-left"
           style={{ background: "none", border: "none", padding: 0 }}>
-          <div className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: "#161616", border: "1px solid #2a2a2a" }}>
+          <div className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
             <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "#06b6d422" }}>
               <span style={{ color: "#06b6d4", fontSize: 24 }}>🧍</span>
             </div>
@@ -354,7 +354,7 @@ export function ProfilScreen() {
         </button>
 
         {/* Letzter Trainingsplan */}
-        <div className="flex items-center justify-between p-4 rounded-2xl" style={{ background: "#161616", border: "1px solid #2a2a2a" }}>
+        <div className="flex items-center justify-between p-4 rounded-2xl" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
           <div>
             <p className="text-xs text-gray-500 mb-1">Letzter Trainingsplan</p>
             <p className="font-black text-sm" style={{ fontFamily: F }}>
