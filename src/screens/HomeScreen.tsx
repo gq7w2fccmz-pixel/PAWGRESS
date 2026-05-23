@@ -26,20 +26,16 @@ function fmtDuration(s: number) {
   return `${m} Min`;
 }
 
-// ── Last Workout Detail Modal ─────────────────────────────────────────────────
 import type { WorkoutRecord } from "../stores/historyStore";
 
 function WorkoutDetailModal({ workout, onClose }: {
   workout: WorkoutRecord;
   onClose: () => void;
 }) {
-  const deleteWorkout = useHistoryStore(s => s.workouts);
-  const setWorkouts   = useHistoryStore.getState;
   const [expanded, setExpanded] = useState<number | null>(null);
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#080808" }}>
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: "#1e1e1e" }}>
         <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
         <div className="text-center">
@@ -48,9 +44,7 @@ function WorkoutDetailModal({ workout, onClose }: {
         </div>
         <div style={{ width: 28 }} />
       </div>
-
       <div className="flex-1 overflow-y-auto px-4 pb-10">
-        {/* Stats */}
         <div className="grid grid-cols-3 gap-3 my-4">
           {[
             { label: "ZEIT",    value: fmtDuration(workout.durationSeconds), icon: "⏱" },
@@ -65,8 +59,6 @@ function WorkoutDetailModal({ workout, onClose }: {
             </div>
           ))}
         </div>
-
-        {/* Exercises */}
         <p className="font-black italic text-base text-white mb-3" style={{ fontFamily: F }}>ÜBUNGEN</p>
         <div className="flex flex-col gap-2">
           {workout.exercises.map((ex, i) => (
@@ -97,21 +89,6 @@ function WorkoutDetailModal({ workout, onClose }: {
                       </span>
                     </div>
                   ))}
-                  {/* Action buttons */}
-                  <div className="flex gap-2 mt-3">
-                    <button className="flex-1 py-2 rounded-xl text-xs font-black"
-                      style={{ background: "#1e1e1e", color: "#888", fontFamily: F }}>
-                      ✎ Ändern
-                    </button>
-                    <button className="flex-1 py-2 rounded-xl text-xs font-black"
-                      style={{ background: "#1e1e1e", color: ORANGE, fontFamily: F }}>
-                      + Hinzufügen
-                    </button>
-                    <button className="flex-1 py-2 rounded-xl text-xs font-black"
-                      style={{ background: "#1a0000", color: "#ef4444", fontFamily: F }}>
-                      🗑 Löschen
-                    </button>
-                  </div>
                 </div>
               )}
             </div>
@@ -122,7 +99,6 @@ function WorkoutDetailModal({ workout, onClose }: {
   );
 }
 
-// ── Weekly Goal Picker ────────────────────────────────────────────────────────
 function GoalPicker({ current, onClose }: { current: number; onClose: () => void }) {
   const setWeeklyGoal = useStatsStore(s => s.setWeeklyGoal);
   return (
@@ -150,7 +126,6 @@ function GoalPicker({ current, onClose }: { current: number; onClose: () => void
   );
 }
 
-// ── Main HomeScreen ───────────────────────────────────────────────────────────
 export function HomeScreen() {
   const navigate = useNavigate();
   const { stats, weekDays, weeklyGoal, coachProgress } = usePawgressStore();
@@ -166,13 +141,11 @@ export function HomeScreen() {
   const weekVol   = stats.weeklyVolume;
   const weekCount = stats.weeklyWorkouts;
   const goal      = weeklyGoal ?? 4;
-
-  // % vs last week (placeholder since we don't store previous week)
   const volLabel  = fmtVolume(weekVol);
 
   const now = new Date();
-  const todayDow = now.getDay(); // 0=Sun
-  const mondayIdx = (todayDow === 0 ? 6 : todayDow - 1); // 0=Mon
+  const todayDow = now.getDay();
+  const mondayIdx = (todayDow === 0 ? 6 : todayDow - 1);
 
   return (
     <div className="min-h-screen pb-28" style={{ background: "#080808", color: "#fff" }}>
@@ -185,31 +158,33 @@ export function HomeScreen() {
       {/* ── HERO ── */}
       <div className="relative overflow-hidden" style={{ height: 300 }}>
         <img src="/images/bertl.webp" alt="Bertl"
-          className="absolute inset-0 w-full h-full object-cover object-center" />
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: "right center" }} />
+        {/* Left-to-right dark gradient so text is readable */}
         <div className="absolute inset-0" style={{
-          background: "linear-gradient(to right, rgba(8,8,8,0.92) 0%, rgba(8,8,8,0.7) 45%, rgba(8,8,8,0.05) 100%)",
+          background: "linear-gradient(to right, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.75) 50%, rgba(8,8,8,0.1) 100%)",
         }} />
+        {/* Bottom fade */}
         <div className="absolute inset-0" style={{
-          background: "linear-gradient(to bottom, transparent 60%, rgba(8,8,8,1) 100%)",
+          background: "linear-gradient(to bottom, transparent 55%, rgba(8,8,8,1) 100%)",
         }} />
 
-        <div className="relative z-10 px-5 pt-5">
-          {/* Top row */}
-          <div className="flex items-start justify-between mb-3">
+        <div className="relative z-10 px-5 pt-6">
+          <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs tracking-widest font-bold text-white/50" style={{ fontFamily: F }}>
+              <p className="text-xs tracking-widest font-bold uppercase" style={{ color: "rgba(255,255,255,0.45)", fontFamily: F }}>
                 {greeting()}
               </p>
-              <h1 className="font-black italic text-5xl text-white leading-none" style={{ fontFamily: F }}>
+              <h1 className="font-black italic leading-none" style={{ fontFamily: F, fontSize: 52, color: "#fff" }}>
                 CHAMPION <span style={{ color: ORANGE }}>🐾</span>
               </h1>
-              <p className="text-sm italic mt-1" style={{ color: "#aaa" }}>
+              <p className="text-sm italic mt-1" style={{ color: "#999" }}>
                 no excuses, just <span style={{ color: ORANGE }}>pawgress</span>
               </p>
             </div>
-            {/* Notification bell */}
-            <div className="relative mt-1">
-              <span style={{ fontSize: 24, color: "#888" }}>🔔</span>
+            {/* Bell */}
+            <div className="relative mt-1 flex-shrink-0">
+              <span style={{ fontSize: 26, color: "#777" }}>🔔</span>
               <div className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full"
                 style={{ background: ORANGE }} />
             </div>
@@ -236,24 +211,35 @@ export function HomeScreen() {
               <p className="text-sm text-gray-400 mb-3">
                 {nextDay.tag === "PUSH" ? "Brust · Schultern · Trizeps" : "Rücken · Bizeps · Core"}
               </p>
-              <div className="flex items-center gap-4">
+              {/* Time & exercises on ONE line with separator dot */}
+              <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-500">⏱ ~60 Min</span>
-                <span className="text-gray-700">·</span>
+                <span className="text-gray-700 text-xs">|</span>
                 <span className="text-xs text-gray-500">🏋️ {nextDay.exercises.length} Übungen</span>
               </div>
             </div>
+            {/* Buttons stacked */}
             <div className="flex flex-col gap-2 flex-shrink-0">
-              {/* Workout starten */}
               <button onClick={() => navigate("/training")}
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-black text-sm text-white"
-                style={{ background: ORANGE, fontFamily: F, border: "none",
-                  boxShadow: `0 0 16px ${ORANGE}55`, minWidth: 160 }}>
+                className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-black text-sm text-white"
+                style={{
+                  background: ORANGE,
+                  fontFamily: F,
+                  border: "none",
+                  boxShadow: `0 0 16px ${ORANGE}55`,
+                  minWidth: 165,
+                  whiteSpace: "nowrap",
+                }}>
                 ▶ WORKOUT STARTEN
               </button>
-              {/* Details ansehen */}
               <button onClick={() => navigate("/plan")}
-                className="flex items-center justify-center gap-1 px-4 py-2 rounded-xl font-black text-xs text-white"
-                style={{ background: "transparent", border: "1px solid #2a2a2a", fontFamily: F }}>
+                className="flex items-center justify-center px-4 py-2 rounded-xl font-black text-xs text-white"
+                style={{
+                  background: "transparent",
+                  border: "1px solid #2a2a2a",
+                  fontFamily: F,
+                  whiteSpace: "nowrap",
+                }}>
                 Details ansehen ›
               </button>
             </div>
@@ -266,7 +252,7 @@ export function HomeScreen() {
             <p className="font-black italic text-base text-white" style={{ fontFamily: F }}>DEIN WOCHENSTATUS</p>
           </div>
 
-          <div className="grid grid-cols-3 divide-x" style={{ borderColor: "#1e1e1e", borderTop: "1px solid #1e1e1e" }}>
+          <div className="grid grid-cols-3" style={{ borderTop: "1px solid #1e1e1e" }}>
             {/* Wochenziel */}
             <button onClick={() => setShowGoalPicker(true)}
               className="flex flex-col items-center py-4 px-2"
@@ -284,7 +270,7 @@ export function HomeScreen() {
               style={{ borderRight: "1px solid #1e1e1e" }}>
               <span className="text-2xl mb-1">🔥</span>
               <p className="text-[9px] text-gray-500 tracking-widest font-bold mb-1">STREAK</p>
-              <p className="font-black text-2xl text-white" style={{ fontFamily: F, color: ORANGE }}>{streak}</p>
+              <p className="font-black text-2xl" style={{ fontFamily: F, color: ORANGE }}>{streak}</p>
               <p className="text-[10px] text-gray-600 mt-0.5">Tage</p>
             </div>
 
@@ -300,7 +286,6 @@ export function HomeScreen() {
           {/* Week day dots */}
           <div className="flex items-center justify-around px-4 py-3 border-t" style={{ borderColor: "#1e1e1e" }}>
             {DAY_LABELS.map((d, i) => {
-              const isPast  = i < mondayIdx;
               const isToday = i === mondayIdx;
               const isDone  = weekDays[i];
               return (
@@ -327,7 +312,7 @@ export function HomeScreen() {
           <p className="font-black italic text-base text-white mb-3" style={{ fontFamily: F }}>LETZTES WORKOUT</p>
           {lastWorkout ? (
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-2xl"
+              <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 text-3xl"
                 style={{ background: `${ORANGE}18`, border: `1px solid ${ORANGE}33` }}>
                 {lastWorkout.dayTag === "PUSH" ? "🏋️" : "💪"}
               </div>
@@ -338,14 +323,12 @@ export function HomeScreen() {
                 <p className="text-xs text-gray-400">
                   {lastWorkout.dayTag === "PUSH" ? "Brust · Schultern · Trizeps" : "Rücken · Bizeps · Core"}
                 </p>
-                <div className="flex items-center gap-3 mt-1">
-                  <span className="text-xs text-gray-600">
-                    ⏱ {fmtDuration(lastWorkout.durationSeconds)}
-                  </span>
-                  <span className="text-gray-700">·</span>
-                  <span className="text-xs text-gray-600">
-                    🏋️ {lastWorkout.exercises.length} Übungen
-                  </span>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-gray-600">Gestern</span>
+                  <span className="text-gray-700 text-xs">·</span>
+                  <span className="text-xs text-gray-600">{fmtDuration(lastWorkout.durationSeconds)}</span>
+                  <span className="text-gray-700 text-xs">·</span>
+                  <span className="text-xs text-gray-600">🏋️ {lastWorkout.exercises.length} Übungen</span>
                 </div>
               </div>
               <button onClick={() => setShowWorkoutDetail(true)}

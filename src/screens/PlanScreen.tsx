@@ -493,29 +493,31 @@ export function PlanScreen() {
       )}
 
       {/* ── HERO ── */}
-      <div className="relative overflow-hidden" style={{ height: 200 }}>
-        <img src="/images/plan_hero.webp" alt=""
+      <div className="relative overflow-hidden" style={{ height: 220 }}>
+        <img src="/images/bertl.webp" alt="Bertl"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition:"center center" }} />
+          style={{ objectPosition:"right center" }} />
         <div className="absolute inset-0" style={{
-          background:"linear-gradient(to right, rgba(8,8,8,0.9) 40%, rgba(8,8,8,0.3) 100%)",
+          background:"linear-gradient(to right, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.8) 50%, rgba(8,8,8,0.05) 100%)",
         }} />
         <div className="absolute inset-0" style={{
-          background:"linear-gradient(to bottom, transparent 50%, rgba(8,8,8,1) 100%)",
+          background:"linear-gradient(to bottom, transparent 55%, rgba(8,8,8,1) 100%)",
         }} />
-        <div className="relative z-10 px-4 pt-5">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2">
-              <p className="font-black italic text-5xl text-white leading-none" style={{ fontFamily:F }}>PLAN</p>
-              <span style={{ color:ORANGE, fontSize:28 }}>🐾</span>
+        <div className="relative z-10 px-4 pt-6">
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <p className="font-black italic text-6xl text-white leading-none" style={{ fontFamily:F }}>PLAN</p>
+                <span style={{ color:ORANGE, fontSize:32 }}>🐾</span>
+              </div>
+              <p className="text-sm text-gray-300">Dein Training. Dein Ziel.</p>
+              <p className="text-sm font-black" style={{ color:ORANGE }}>In Sekunden startbereit.</p>
             </div>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background:"rgba(0,0,0,0.6)", border:"1px solid #2a2a2a" }}>
-              <span className="text-lg">📅</span>
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center mt-1 flex-shrink-0"
+              style={{ background:"rgba(0,0,0,0.55)", border:"1px solid #2a2a2a" }}>
+              <span className="text-xl">📅</span>
             </div>
           </div>
-          <p className="text-sm text-gray-300">Dein Training. Dein Ziel.</p>
-          <p className="text-sm font-black" style={{ color:ORANGE }}>In Sekunden startbereit.</p>
         </div>
       </div>
 
@@ -540,10 +542,10 @@ export function PlanScreen() {
             style={{ background:"#111", border:"1px solid #1e1e1e" }}>
             <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{ background:`${ORANGE}22`, border:`1px solid ${ORANGE}55` }}>
-              <span className="text-2xl" style={{ color:ORANGE }}>🏋️</span>
+              <span className="text-2xl">🏋️</span>
             </div>
             <div>
-              <p className="font-black text-sm text-white leading-tight" style={{ fontFamily:F }}>WORKOUT{"\n"}ERSTELLEN</p>
+              <p className="font-black text-sm text-white leading-tight" style={{ fontFamily:F }}>{"WORKOUT\nERSTELLEN"}</p>
               <p className="text-[10px] text-gray-500 mt-0.5">Erstelle ein individuelles Workout</p>
             </div>
           </button>
@@ -579,15 +581,19 @@ export function PlanScreen() {
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
                       style={{ background:`${color}18`, border:`1px solid ${color}33` }}>{icon}</div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
+                      <div className="flex items-center justify-between gap-2 mb-0.5">
                         <p className="font-black text-base text-white" style={{ fontFamily:F }}>{name}</p>
                         {isActive && (
                           <span className="px-2 py-0.5 rounded text-[9px] font-black"
                             style={{ background:"#22c55e", color:"#fff", fontFamily:F }}>AKTIV</span>
                         )}
                       </div>
-                      <p className="text-xs text-gray-500 mb-1">{desc}</p>
-                      <p className="text-[10px] text-gray-700">{meta}</p>
+                      <p className="text-xs text-gray-400 mb-1">{desc}</p>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[10px] text-gray-600">📅 {isPlan ? (item as CustomPlan).daysPerWeek : ""} Tage / Woche</span>
+                        {isPlan && <span className="text-[10px] text-gray-600">🏋️ {(item as CustomPlan).focus}</span>}
+                        {!isPlan && <span className="text-[10px] text-gray-600">{(item as StandaloneWorkout).exercises.length} Übungen</span>}
+                      </div>
                     </div>
                     <span className="text-gray-600 text-xl flex-shrink-0">›</span>
                   </div>
@@ -623,18 +629,19 @@ export function PlanScreen() {
                   <div className="h-full rounded-full" style={{ width:`${progress*100}%`, background:ORANGE }} />
                 </div>
               </div>
-              <div className="flex flex-col gap-2 flex-shrink-0">
+              <div className="flex flex-col gap-3 flex-shrink-0 items-end">
                 <button onClick={() => setShowGoalEdit(true)}
-                  className="flex items-center gap-1.5 text-xs font-bold text-right"
-                  style={{ background:"none",border:"none",color:"#aaa" }}>
+                  className="flex items-center gap-1 text-xs font-bold"
+                  style={{ background:"none",border:"none",color:"#aaa", whiteSpace:"nowrap" }}>
                   Ziel bearbeiten <span>›</span>
                 </button>
-                <button className="flex items-center gap-1.5 text-xs text-right"
-                  style={{ background:"none",border:"none" }}>
-                  <span className="text-gray-600">Erinnerung</span>
-                  <br />
-                  <span style={{ color:ORANGE }}>Mo, Mi, Fr 18:00 ›</span>
-                </button>
+                <div className="flex flex-col items-end" style={{ lineHeight:1.3 }}>
+                  <span className="text-[10px] text-gray-600">Erinnerung</span>
+                  <button className="text-xs font-bold"
+                    style={{ background:"none",border:"none",color:ORANGE, whiteSpace:"nowrap" }}>
+                    Mo, Mi, Fr 18:00 ›
+                  </button>
+                </div>
               </div>
             </div>
           </div>

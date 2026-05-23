@@ -370,24 +370,32 @@ export function TrainingScreen() {
       )}
 
       {/* ── HERO ── */}
-      <div className="relative overflow-hidden" style={{ height: 240 }}>
+      <div className="relative overflow-hidden" style={{ height: 300 }}>
+        {/* Background gym image */}
         <img src="/images/training_hero.webp" alt=""
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: "center 15%" }} />
+          style={{ objectPosition: "center 20%" }} />
+        {/* Dark overlay – heavier at bottom */}
         <div className="absolute inset-0" style={{
-          background: "linear-gradient(to bottom, rgba(8,8,8,0.2) 0%, rgba(8,8,8,0.6) 50%, rgba(8,8,8,1) 100%)",
+          background: "linear-gradient(to bottom, rgba(8,8,8,0.35) 0%, rgba(8,8,8,0.55) 40%, rgba(8,8,8,1) 100%)",
         }} />
-        <div className="relative z-10 px-4 pt-5">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: `${ORANGE}22`, border: `1.5px solid ${ORANGE}66` }}>
+        {/* Mascot – right side, bottom-anchored, large */}
+        <img src="/images/bertl.webp" alt="Bertl"
+          className="absolute bottom-0 right-0 z-10 pointer-events-none select-none"
+          style={{ height: 280, width: "auto", objectFit: "contain", objectPosition: "bottom right" }} />
+        {/* Text content – left side */}
+        <div className="relative z-20 px-4 pt-5">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: `${ORANGE}28`, border: `1.5px solid ${ORANGE}77` }}>
               <img src="/images/paw.webp" alt="" className="w-6 h-6 object-contain" />
             </div>
-            <p className="font-black italic text-5xl text-white leading-none drop-shadow-lg" style={{ fontFamily: F }}>
+            <p className="font-black italic leading-none drop-shadow-lg"
+              style={{ fontFamily: F, fontSize: 44, color: "#fff" }}>
               TRAINING
             </p>
           </div>
-          <p className="text-sm text-gray-300 leading-relaxed">
+          <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.8)", maxWidth: "60%" }}>
             Dein Hub für{" "}
             <span style={{ color: ORANGE }}>Workouts</span>,{" "}
             <span style={{ color: ORANGE }}>Übungen</span>{" "}
@@ -397,48 +405,76 @@ export function TrainingScreen() {
       </div>
 
       {/* ── SCHNELL STARTEN ── */}
-      <div className="px-4 mt-4 mb-5">
+      <div className="px-4 mt-5 mb-5">
         <p className="font-black italic text-xl text-white mb-3" style={{ fontFamily: F }}>
           SCHNELL STARTEN
         </p>
         <div className="rounded-2xl p-4" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-4 gap-2">
             {[
               {
-                icon: "▶",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+                    <circle cx="12" cy="12" r="11" stroke={ORANGE} strokeWidth="1.5"/>
+                    <polygon points="10,8 18,12 10,16" fill={ORANGE}/>
+                  </svg>
+                ),
                 label: "WORKOUT\nSTARTEN",
-                sub: "Starte dein nächstes Workout",
+                sub: "Starte dein\nnächstes Workout",
                 action: () => setModal("workout"),
               },
               {
-                icon: "⊞",
-                label: "FREIES\nTRAINING",
-                sub: "Eigene Übungen und Pläne",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+                    <rect x="3" y="10" width="4" height="4" rx="1" stroke={ORANGE} strokeWidth="1.5"/>
+                    <line x1="7" y1="12" x2="17" y2="12" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+                    <rect x="17" y="10" width="4" height="4" rx="1" stroke={ORANGE} strokeWidth="1.5"/>
+                    <line x1="12" y1="5" x2="12" y2="8" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+                    <line x1="12" y1="16" x2="12" y2="19" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                ),
+                label: "FREIES\nTRAINING\nSTARTEN",
+                sub: "Eigene Übungen\nund Pläne",
                 action: startFreeWorkout,
               },
               {
-                icon: "✓",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+                    <rect x="3" y="4" width="18" height="16" rx="2" stroke={ORANGE} strokeWidth="1.5"/>
+                    <line x1="3" y1="9" x2="21" y2="9" stroke={ORANGE} strokeWidth="1.5"/>
+                    <line x1="8" y1="2" x2="8" y2="6" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+                    <line x1="16" y1="2" x2="16" y2="6" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+                    <polyline points="8,14 11,17 16,12" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                ),
                 label: "PLAN\nFORTSETZEN",
-                sub: "Weiter mit deinem aktuellen Plan",
+                sub: "Weiter mit deinem\naktuellen Plan",
                 action: handlePlanContinue,
               },
               {
-                icon: "☰",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+                    <rect x="3" y="4" width="18" height="16" rx="2" stroke={ORANGE} strokeWidth="1.5"/>
+                    <line x1="7" y1="9" x2="17" y2="9" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+                    <line x1="7" y1="13" x2="17" y2="13" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+                    <line x1="7" y1="17" x2="13" y2="17" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                ),
                 label: "PLAN\nAUSWÄHLEN",
-                sub: "Wähle einen Plan oder ein Workout",
+                sub: "Wähle einen Plan\noder ein Workout",
                 action: () => setModal("plan"),
               },
             ].map((item, i) => (
               <button key={i} onClick={item.action}
                 className="flex flex-col items-center gap-2 text-center"
-                style={{ background: "none", border: "none" }}>
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl"
-                  style={{ background: `${ORANGE}18`, color: ORANGE }}>
+                style={{ background: "none", border: "none", padding: 0 }}>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                  style={{ background: `${ORANGE}18` }}>
                   {item.icon}
                 </div>
                 <p className="font-black text-[10px] text-white leading-tight whitespace-pre-line"
                   style={{ fontFamily: F }}>{item.label}</p>
-                <p className="text-[8px] text-gray-500 leading-tight">{item.sub}</p>
+                <p className="text-[8px] text-gray-500 leading-tight whitespace-pre-line">{item.sub}</p>
               </button>
             ))}
           </div>
@@ -449,35 +485,57 @@ export function TrainingScreen() {
       <div className="mx-4 mb-5 rounded-2xl p-4" style={{
         background: "#111",
         border: `1px solid ${nextDay.color}55`,
-        boxShadow: `0 0 16px ${nextDay.color}18`,
+        boxShadow: `0 0 20px ${nextDay.color}18`,
       }}>
-        <p className="font-black text-xs tracking-widest mb-1" style={{ color: nextDay.color, fontFamily: F }}>
+        <p className="font-black text-xs tracking-widest mb-2" style={{ color: nextDay.color, fontFamily: F }}>
           NÄCHSTES WORKOUT
         </p>
         <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <p className="font-black italic text-4xl text-white leading-none mb-1" style={{ fontFamily: F }}>
+          {/* Left: info */}
+          <div className="flex-1 min-w-0">
+            <p className="font-black italic leading-none mb-1" style={{ fontFamily: F, fontSize: 40, color: "#fff" }}>
               {nextDay.label.toUpperCase()}
             </p>
-            <p className="text-sm text-gray-400 mb-3">
-              {nextDay.tag === "PUSH" ? "Brust · Schultern · Trizeps" : "Rücken · Bizeps · Core"}
+            <p className="text-sm mb-3" style={{ color: "rgba(255,255,255,0.6)" }}>
+              {nextDay.tag === "PUSH" ? "Brust • Schultern • Trizeps" : "Rücken • Bizeps • Core"}
             </p>
             <div className="flex items-center gap-4">
-              <span className="text-xs text-gray-500">⏱ ~60 Min</span>
-              <span className="text-xs text-gray-500">🏋️ {nextDay.exercises.length} Übungen</span>
+              <div className="flex items-center gap-1.5">
+                <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 13 }}>⏱</span>
+                <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>~60 Min</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span style={{ color: nextDay.color, fontSize: 13 }}>🏆</span>
+                <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>{nextDay.exercises.length} Übungen</span>
+              </div>
             </div>
           </div>
-          <div className="flex flex-col gap-2 flex-shrink-0">
+          {/* Right: buttons stacked */}
+          <div className="flex flex-col gap-2 flex-shrink-0" style={{ minWidth: 145 }}>
             <button onClick={() => setEditDayIndex(dayIndex)}
-              className="px-4 py-3 rounded-xl font-black text-sm text-white flex items-center gap-1.5"
-              style={{ background: nextDay.color, fontFamily: F, border: "none",
-                boxShadow: `0 0 14px ${nextDay.color}44` }}>
-              ▶ WORKOUT<br />STARTEN
+              className="flex items-center justify-center gap-2 rounded-2xl font-black text-sm text-white"
+              style={{
+                background: nextDay.color,
+                border: "none",
+                fontFamily: F,
+                boxShadow: `0 0 16px ${nextDay.color}55`,
+                padding: "14px 12px",
+                lineHeight: 1.2,
+              }}>
+              <svg viewBox="0 0 20 20" fill="white" width="16" height="16" style={{ flexShrink: 0 }}>
+                <polygon points="5,3 18,10 5,17"/>
+              </svg>
+              WORKOUT<br/>STARTEN
             </button>
             <button onClick={() => setEditDayIndex(dayIndex)}
-              className="px-4 py-2 rounded-xl font-black text-xs text-white text-center"
-              style={{ background: "transparent", border: "1px solid #2a2a2a", fontFamily: F }}>
-              Details ansehen ›
+              className="rounded-2xl font-black text-xs text-white text-center"
+              style={{
+                background: "transparent",
+                border: "1px solid #2a2a2a",
+                fontFamily: F,
+                padding: "10px 12px",
+              }}>
+              Details ansehen &rsaquo;
             </button>
           </div>
         </div>
@@ -499,23 +557,23 @@ export function TrainingScreen() {
               <button key={area.key}
                 onClick={() => navigate(`/gym/${area.key}`)}
                 className="relative rounded-2xl overflow-hidden text-left"
-                style={{ height: 120, background: "#111", border: "none", padding: 0 }}>
-                {/* Background image */}
+                style={{ height: 150, background: "#111", border: "none", padding: 0 }}>
+                {/* Background image – centered so neon text isn't clipped */}
                 <img src={area.img} alt={area.label}
                   className="absolute inset-0 w-full h-full object-cover"
-                  style={{ opacity: 0.7 }} />
+                  style={{ opacity: 0.75, objectPosition: "center center" }} />
                 {/* Gradient overlay */}
                 <div className="absolute inset-0" style={{
-                  background: `linear-gradient(to top, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.3) 60%, transparent 100%)`,
+                  background: `linear-gradient(to top, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.45) 50%, rgba(8,8,8,0.1) 100%)`,
                 }} />
                 {/* Content */}
-                <div className="absolute bottom-0 left-0 right-0 p-2.5">
-                  <p className="font-black text-sm text-white leading-none" style={{ fontFamily: F, color: data?.color ?? "#fff" }}>
+                <div className="absolute bottom-0 left-0 right-0 p-3">
+                  <p className="font-black text-base leading-none" style={{ fontFamily: F, color: data?.color ?? "#fff" }}>
                     {area.label.toUpperCase()}
                   </p>
-                  <div className="flex items-center justify-between mt-0.5">
-                    <p className="text-[9px] text-gray-400">{count} Übungen</p>
-                    <span className="text-[10px]" style={{ color: data?.color ?? ORANGE }}>›</span>
+                  <div className="flex items-center justify-between mt-1">
+                    <p className="text-[10px] text-gray-400">{count} Übungen</p>
+                    <span className="text-sm" style={{ color: data?.color ?? ORANGE }}>›</span>
                   </div>
                 </div>
               </button>
