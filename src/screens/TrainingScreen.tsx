@@ -374,7 +374,7 @@ export function TrainingScreen() {
         {/* Background gym image – shifted down so mascot head isn't clipped */}
         <img src="/images/training_hero.webp" alt=""
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: "center 60%" }} />
+          style={{ objectPosition: "center top" }} />
         {/* Dark overlay – heavier at bottom */}
         <div className="absolute inset-0" style={{
           background: "linear-gradient(to bottom, rgba(8,8,8,0.35) 0%, rgba(8,8,8,0.55) 40%, rgba(8,8,8,1) 100%)",
@@ -548,10 +548,10 @@ export function TrainingScreen() {
                 onClick={() => navigate(`/gym/${area.key}`)}
                 className="relative rounded-2xl overflow-hidden text-left"
                 style={{ height: 150, background: "#111", border: "none", padding: 0 }}>
-                {/* Background image – anchored left so neon text labels stay visible */}
+                {/* Background image – contain so neon text is never cropped */}
                 <img src={area.img} alt={area.label}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{ opacity: 0.85, objectPosition: "left center" }} />
+                  className="absolute inset-0 w-full h-full"
+                  style={{ opacity: 0.9, objectFit: "contain", objectPosition: "center top" }} />
                 {/* Gradient overlay */}
                 <div className="absolute inset-0" style={{
                   background: `linear-gradient(to top, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.45) 50%, rgba(8,8,8,0.1) 100%)`,
