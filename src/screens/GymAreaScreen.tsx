@@ -8,13 +8,13 @@ const ORANGE = "#f97316";
 
 // ── Helper maps ───────────────────────────────────────────────────────────────
 const GYM_IMG: Record<string, string> = {
-  BRUST: "/images/gym_brust.webp", RÜCKEN: "/images/gym_ruecken.webp",
+  BRUST: "/images/gym_brust.webp", RUECKEN: "/images/gym_ruecken.webp",
   BEINE: "/images/gym_beine.webp", SCHULTERN: "/images/gym_schultern.webp",
   ARME: "/images/gym_arme.webp",  CORE: "/images/gym_core.webp",
   CARDIO: "/images/gym_cardio.webp", STRETCH: "/images/gym_stretch.webp",
 };
 const HERO_IMG: Record<string, string> = {
-  BRUST: "/images/hero_BRUST.webp", RÜCKEN: "/images/hero_RUECKEN.webp",
+  BRUST: "/images/hero_BRUST.webp", RUECKEN: "/images/hero_RUECKEN.webp",
   BEINE: "/images/hero_BEINE.webp", SCHULTERN: "/images/hero_SCHULTERN.webp",
   ARME: "/images/hero_ARME.webp",  CORE: "/images/hero_CORE.webp",
   CARDIO: "/images/hero_CARDIO.webp", STRETCH: "/images/hero_STRETCH.webp",

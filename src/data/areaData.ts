@@ -21,7 +21,7 @@ export const AREA_DATA: Record<AreaName, AreaData> = {
       "Regeneration ist genauso wichtig wie das Training!",
     ],
   },
-  RÜCKEN: {
+  RUECKEN: {
     color: "#3b82f6",
     desc: "Toro zeigt dir die besten Übungen für einen starken, breiten Rücken. Wähle eine Übung und lerne alles über Ausführung, Wirkung und Tipps.",
     coach: { emoji: "🐂", name: "Toro", role: "Lehrmeister des Rückens", tip: "Ein starker Rücken ist die Basis für jede Bewegung! Zieh mit Kontrolle, spür die Spannung und bleib konstant!" },

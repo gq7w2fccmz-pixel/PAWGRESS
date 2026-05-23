@@ -1,6 +1,6 @@
 export type AreaName =
   | "BRUST"
-  | "RÜCKEN"
+  | "RUECKEN"
   | "BEINE"
   | "SCHULTERN"
   | "ARME"

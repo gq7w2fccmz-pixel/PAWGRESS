@@ -15,7 +15,7 @@ export const images = {
 
   heroes: {
     BRUST:     "/images/hero_BRUST.webp",
-    RÜCKEN:    "/images/hero_RUECKEN.webp",
+    RUECKEN:    "/images/hero_RUECKEN.webp",
     BEINE:     "/images/hero_BEINE.webp",
     SCHULTERN: "/images/hero_SCHULTERN.webp",
     ARME:      "/images/hero_ARME.webp",
