@@ -493,31 +493,20 @@ export function PlanScreen() {
       )}
 
       {/* ── HERO ── */}
-      <div className="relative overflow-hidden" style={{ height: 220 }}>
-        <img src="/images/bertl.webp" alt="Bertl"
+      <div className="relative overflow-hidden" style={{ height: 260 }}>
+        <img src="/images/plan_hero.webp" alt=""
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition:"right center" }} />
+          style={{ objectPosition: "center 20%" }} />
         <div className="absolute inset-0" style={{
-          background:"linear-gradient(to right, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.8) 50%, rgba(8,8,8,0.05) 100%)",
+          background: "linear-gradient(to right, rgba(8,8,8,0.92) 40%, rgba(8,8,8,0.5) 70%, rgba(8,8,8,0.1) 100%)",
         }} />
         <div className="absolute inset-0" style={{
-          background:"linear-gradient(to bottom, transparent 55%, rgba(8,8,8,1) 100%)",
+          background: "linear-gradient(to bottom, transparent 50%, rgba(8,8,8,1) 100%)",
         }} />
         <div className="relative z-10 px-4 pt-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <p className="font-black italic text-6xl text-white leading-none" style={{ fontFamily:F }}>PLAN</p>
-                <span style={{ color:ORANGE, fontSize:32 }}>🐾</span>
-              </div>
-              <p className="text-sm text-gray-300">Dein Training. Dein Ziel.</p>
-              <p className="text-sm font-black" style={{ color:ORANGE }}>In Sekunden startbereit.</p>
-            </div>
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center mt-1 flex-shrink-0"
-              style={{ background:"rgba(0,0,0,0.55)", border:"1px solid #2a2a2a" }}>
-              <span className="text-xl">📅</span>
-            </div>
-          </div>
+          <p className="font-black italic leading-none text-white" style={{ fontFamily: F, fontSize: 56 }}>PLAN</p>
+          <p className="text-sm text-gray-300 mt-1">Dein Training. Dein Ziel.</p>
+          <p className="text-sm font-black" style={{ color: ORANGE }}>In Sekunden startbereit.</p>
         </div>
       </div>
 
@@ -527,26 +516,38 @@ export function PlanScreen() {
         <div className="grid grid-cols-2 gap-3">
           <button onClick={() => setSub("createPlan")}
             className="flex items-center gap-3 p-4 rounded-2xl text-left"
-            style={{ background:"#111", border:"1px solid #1e1e1e" }}>
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background:`${ORANGE}22`, border:`1px solid ${ORANGE}55` }}>
-              <span className="text-2xl font-bold" style={{ color:ORANGE }}>+</span>
+            style={{ background: "#111", border: "1px solid #1e1e1e", position: "relative", overflow: "hidden" }}>
+            <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl" style={{ background: ORANGE }} />
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 ml-2"
+              style={{ background: `${ORANGE}18` }}>
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <rect x="3" y="3" width="16" height="16" rx="3" stroke={ORANGE} strokeWidth="1.5"/>
+                <line x1="11" y1="7" x2="11" y2="15" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+                <line x1="7" y1="11" x2="15" y2="11" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
             </div>
             <div>
-              <p className="font-black text-sm text-white leading-tight" style={{ fontFamily:F }}>TRAININGSPLAN{"\n"}ERSTELLEN</p>
-              <p className="text-[10px] text-gray-500 mt-0.5">Erstelle deinen eigenen Plan</p>
+              <p className="font-black text-sm text-white leading-tight" style={{ fontFamily: F }}>TRAININGSPLAN{"\n"}ERSTELLEN</p>
+              <p className="text-[10px] text-gray-500 mt-0.5">Eigenen Plan anlegen</p>
             </div>
           </button>
           <button onClick={() => setSub("createWorkout")}
             className="flex items-center gap-3 p-4 rounded-2xl text-left"
-            style={{ background:"#111", border:"1px solid #1e1e1e" }}>
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background:`${ORANGE}22`, border:`1px solid ${ORANGE}55` }}>
-              <span className="text-2xl">🏋️</span>
+            style={{ background: "#111", border: "1px solid #1e1e1e", position: "relative", overflow: "hidden" }}>
+            <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl" style={{ background: ORANGE }} />
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 ml-2"
+              style={{ background: `${ORANGE}18` }}>
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <rect x="1" y="9" width="3" height="4" rx="1" fill={ORANGE}/>
+                <rect x="4" y="7" width="2" height="8" rx="1" fill={ORANGE}/>
+                <rect x="6" y="10" width="10" height="2" rx="1" fill={ORANGE}/>
+                <rect x="16" y="7" width="2" height="8" rx="1" fill={ORANGE}/>
+                <rect x="18" y="9" width="3" height="4" rx="1" fill={ORANGE}/>
+              </svg>
             </div>
             <div>
-              <p className="font-black text-sm text-white leading-tight" style={{ fontFamily:F }}>{"WORKOUT\nERSTELLEN"}</p>
-              <p className="text-[10px] text-gray-500 mt-0.5">Erstelle ein individuelles Workout</p>
+              <p className="font-black text-sm text-white leading-tight" style={{ fontFamily: F }}>WORKOUT{"\n"}ERSTELLEN</p>
+              <p className="text-[10px] text-gray-500 mt-0.5">Individuelles Workout</p>
             </div>
           </button>
         </div>
@@ -588,11 +589,34 @@ export function PlanScreen() {
                             style={{ background:"#22c55e", color:"#fff", fontFamily:F }}>AKTIV</span>
                         )}
                       </div>
-                      <p className="text-xs text-gray-400 mb-1">{desc}</p>
+                      <p className="text-xs text-gray-400 mb-2">{desc}</p>
                       <div className="flex items-center gap-3">
-                        <span className="text-[10px] text-gray-600">📅 {isPlan ? (item as CustomPlan).daysPerWeek : ""} Tage / Woche</span>
-                        {isPlan && <span className="text-[10px] text-gray-600">🏋️ {(item as CustomPlan).focus}</span>}
-                        {!isPlan && <span className="text-[10px] text-gray-600">{(item as StandaloneWorkout).exercises.length} Übungen</span>}
+                        {isPlan && (
+                          <>
+                            <div className="flex items-center gap-1">
+                              <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                                <rect x="1" y="2" width="9" height="8" rx="1.5" stroke="#555" strokeWidth="1"/>
+                                <line x1="1" y1="4.5" x2="10" y2="4.5" stroke="#555" strokeWidth="1"/>
+                                <line x1="3.5" y1="1" x2="3.5" y2="3" stroke="#555" strokeWidth="1" strokeLinecap="round"/>
+                                <line x1="7.5" y1="1" x2="7.5" y2="3" stroke="#555" strokeWidth="1" strokeLinecap="round"/>
+                              </svg>
+                              <span className="text-[10px] text-gray-600">{(item as CustomPlan).daysPerWeek} Tage/Woche</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                                <rect x="0.5" y="4.5" width="1.5" height="2" rx="0.5" fill="#555"/>
+                                <rect x="2" y="3.5" width="1" height="4" rx="0.5" fill="#555"/>
+                                <rect x="3" y="5" width="5" height="1" rx="0.5" fill="#555"/>
+                                <rect x="8" y="3.5" width="1" height="4" rx="0.5" fill="#555"/>
+                                <rect x="9" y="4.5" width="1.5" height="2" rx="0.5" fill="#555"/>
+                              </svg>
+                              <span className="text-[10px] text-gray-600">{(item as CustomPlan).focus}</span>
+                            </div>
+                          </>
+                        )}
+                        {!isPlan && (
+                          <span className="text-[10px] text-gray-600">{(item as StandaloneWorkout).exercises.length} Übungen</span>
+                        )}
                       </div>
                     </div>
                     <span className="text-gray-600 text-xl flex-shrink-0">›</span>
@@ -616,8 +640,16 @@ export function PlanScreen() {
           <p className="font-black italic text-xl text-white mb-3" style={{ fontFamily:F }}>WOCHENZIEL</p>
           <div className="rounded-2xl overflow-hidden" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
             <div className="flex items-center gap-4 p-4">
-              <div className="w-14 h-14 rounded-xl flex items-center justify-center text-3xl flex-shrink-0"
-                style={{ background:"#1e1e1e" }}>🎯</div>
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: `${ORANGE}18`, border: `1px solid ${ORANGE}33` }}>
+                <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                  <circle cx="13" cy="13" r="11" stroke={ORANGE} strokeWidth="1.5"/>
+                  <circle cx="13" cy="13" r="6.5" stroke={ORANGE} strokeWidth="1.5"/>
+                  <circle cx="13" cy="13" r="2.5" fill={ORANGE}/>
+                  <line x1="19" y1="7" x2="23" y2="3" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+                  <polyline points="21,3 23,3 23,5" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
               <div className="flex-1">
                 <p className="text-xs text-gray-500 mb-0.5">Aktuelles Ziel</p>
                 <p className="font-black text-2xl text-white" style={{ fontFamily:F }}>

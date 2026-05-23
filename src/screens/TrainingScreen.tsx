@@ -379,10 +379,6 @@ export function TrainingScreen() {
         <div className="absolute inset-0" style={{
           background: "linear-gradient(to bottom, rgba(8,8,8,0.35) 0%, rgba(8,8,8,0.55) 40%, rgba(8,8,8,1) 100%)",
         }} />
-        {/* Mascot – right side, bottom-anchored, large */}
-        <img src="/images/bertl.webp" alt="Bertl"
-          className="absolute bottom-0 right-0 z-10 pointer-events-none select-none"
-          style={{ height: 280, width: "auto", objectFit: "contain", objectPosition: "bottom right" }} />
         {/* Text content – left side */}
         <div className="relative z-20 px-4 pt-5">
           <div className="flex items-center gap-3 mb-1">
@@ -558,10 +554,10 @@ export function TrainingScreen() {
                 onClick={() => navigate(`/gym/${area.key}`)}
                 className="relative rounded-2xl overflow-hidden text-left"
                 style={{ height: 150, background: "#111", border: "none", padding: 0 }}>
-                {/* Background image – centered so neon text isn't clipped */}
+                {/* Background image – shifted right so neon text stays visible */}
                 <img src={area.img} alt={area.label}
                   className="absolute inset-0 w-full h-full object-cover"
-                  style={{ opacity: 0.75, objectPosition: "center center" }} />
+                  style={{ opacity: 0.85, objectPosition: "60% center" }} />
                 {/* Gradient overlay */}
                 <div className="absolute inset-0" style={{
                   background: `linear-gradient(to top, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.45) 50%, rgba(8,8,8,0.1) 100%)`,

@@ -402,6 +402,15 @@ export function GymAreaScreen() {
   const coachImg = COACH_IMG[area.coach.name];
 
   const [selectedEx, setSelectedEx] = useState<AreaExercise | null>(null);
+
+  function openExercise(ex: AreaExercise) {
+    setSelectedEx(ex);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
+  function closeExercise() {
+    setSelectedEx(null);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
   const [search, setSearch]         = useState("");
   const [activeFilter, setActiveFilter] = useState<string>("Alle");
 
@@ -439,7 +448,7 @@ export function GymAreaScreen() {
   }, [area, search, activeFilter]);
 
   if (selectedEx) {
-    return <ExerciseDetail ex={selectedEx} area={area} areaKey={areaKey} onBack={() => setSelectedEx(null)} />;
+    return <ExerciseDetail ex={selectedEx} area={area} areaKey={areaKey} onBack={closeExercise} />;
   }
 
   return (
@@ -541,7 +550,7 @@ export function GymAreaScreen() {
               : (ex.equipment ?? "–");
 
             return (
-              <button key={i} onClick={() => setSelectedEx(ex)}
+              <button key={i} onClick={() => openExercise(ex)}
                 className="w-full text-left rounded-2xl overflow-hidden"
                 style={{ background: "#111", border: "1px solid #1e1e1e", padding: 0 }}>
                 <div className="flex items-center gap-0">

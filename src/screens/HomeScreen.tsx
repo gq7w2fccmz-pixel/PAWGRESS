@@ -157,12 +157,12 @@ export function HomeScreen() {
 
       {/* ── HERO ── */}
       <div className="relative overflow-hidden" style={{ height: 300 }}>
-        <img src="/images/bertl.webp" alt="Bertl"
+        <img src="/images/home_hero.webp" alt=""
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: "right center" }} />
+          style={{ objectPosition: "center center" }} />
         {/* Left-to-right dark gradient so text is readable */}
         <div className="absolute inset-0" style={{
-          background: "linear-gradient(to right, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.75) 50%, rgba(8,8,8,0.1) 100%)",
+          background: "linear-gradient(to right, rgba(8,8,8,0.92) 40%, rgba(8,8,8,0.55) 70%, rgba(8,8,8,0.1) 100%)",
         }} />
         {/* Bottom fade */}
         <div className="absolute inset-0" style={{
@@ -170,25 +170,15 @@ export function HomeScreen() {
         }} />
 
         <div className="relative z-10 px-5 pt-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs tracking-widest font-bold uppercase" style={{ color: "rgba(255,255,255,0.45)", fontFamily: F }}>
-                {greeting()}
-              </p>
-              <h1 className="font-black italic leading-none" style={{ fontFamily: F, fontSize: 52, color: "#fff" }}>
-                CHAMPION <span style={{ color: ORANGE }}>🐾</span>
-              </h1>
-              <p className="text-sm italic mt-1" style={{ color: "#999" }}>
-                no excuses, just <span style={{ color: ORANGE }}>pawgress</span>
-              </p>
-            </div>
-            {/* Bell */}
-            <div className="relative mt-1 flex-shrink-0">
-              <span style={{ fontSize: 26, color: "#777" }}>🔔</span>
-              <div className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full"
-                style={{ background: ORANGE }} />
-            </div>
-          </div>
+          <p className="text-xs tracking-widest font-bold uppercase" style={{ color: "rgba(255,255,255,0.45)", fontFamily: F }}>
+            {greeting()}
+          </p>
+          <h1 className="font-black italic leading-none" style={{ fontFamily: F, fontSize: 52, color: "#fff" }}>
+            CHAMPION
+          </h1>
+          <p className="text-sm italic mt-1" style={{ color: "#999" }}>
+            no excuses, just <span style={{ color: ORANGE }}>pawgress</span>
+          </p>
         </div>
       </div>
 
@@ -204,41 +194,49 @@ export function HomeScreen() {
             NÄCHSTES TRAINING
           </p>
           <div className="flex items-start gap-3">
-            <div className="flex-1">
-              <p className="font-black italic text-4xl text-white leading-none mb-1" style={{ fontFamily: F }}>
+            {/* Left: title + subtitle + meta */}
+            <div className="flex-1 min-w-0">
+              <p className="font-black italic leading-none mb-1" style={{ fontFamily: F, fontSize: 40, color: "#fff" }}>
                 {nextDay.label.toUpperCase()}
               </p>
-              <p className="text-sm text-gray-400 mb-3">
-                {nextDay.tag === "PUSH" ? "Brust · Schultern · Trizeps" : "Rücken · Bizeps · Core"}
+              <p className="text-sm mb-3" style={{ color: "rgba(255,255,255,0.6)" }}>
+                {nextDay.tag === "PUSH" ? "Brust • Schultern • Trizeps" : "Rücken • Bizeps • Core"}
               </p>
-              {/* Time & exercises on ONE line with separator dot */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">⏱ ~60 Min</span>
-                <span className="text-gray-700 text-xs">|</span>
-                <span className="text-xs text-gray-500">🏋️ {nextDay.exercises.length} Übungen</span>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1.5">
+                  <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 13 }}>⏱</span>
+                  <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>~60 Min</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span style={{ color: ORANGE, fontSize: 13 }}>🏆</span>
+                  <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>{nextDay.exercises.length} Übungen</span>
+                </div>
               </div>
             </div>
-            {/* Buttons stacked */}
-            <div className="flex flex-col gap-2 flex-shrink-0">
+            {/* Right: buttons stacked */}
+            <div className="flex flex-col gap-2 flex-shrink-0" style={{ minWidth: 148 }}>
               <button onClick={() => navigate("/training")}
-                className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-black text-sm text-white"
+                className="flex items-center justify-center gap-2 rounded-2xl font-black text-sm text-white"
                 style={{
                   background: ORANGE,
                   fontFamily: F,
                   border: "none",
                   boxShadow: `0 0 16px ${ORANGE}55`,
-                  minWidth: 165,
-                  whiteSpace: "nowrap",
+                  padding: "14px 12px",
+                  lineHeight: 1.2,
                 }}>
-                ▶ WORKOUT STARTEN
+                <svg viewBox="0 0 20 20" fill="white" width="16" height="16" style={{ flexShrink: 0 }}>
+                  <polygon points="5,3 18,10 5,17"/>
+                </svg>
+                WORKOUT<br/>STARTEN
               </button>
               <button onClick={() => navigate("/plan")}
-                className="flex items-center justify-center px-4 py-2 rounded-xl font-black text-xs text-white"
+                className="rounded-2xl font-black text-xs text-white text-center"
                 style={{
                   background: "transparent",
                   border: "1px solid #2a2a2a",
                   fontFamily: F,
-                  whiteSpace: "nowrap",
+                  padding: "10px 12px",
                 }}>
                 Details ansehen ›
               </button>
