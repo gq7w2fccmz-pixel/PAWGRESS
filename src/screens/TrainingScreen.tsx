@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { PLAN_2ER_SPLIT, type PlanExercise } from "../data/plan_2er_split";
-import { areaData } from "../data/areaData";
+import { AREA_DATA } from "../data/areaData";
 import { usePawgressStore } from "../hooks/usePawgressStore";
 import { useWorkoutStore } from "../stores/workoutStore";
 import type { AreaName } from "../types";
@@ -493,7 +493,7 @@ export function TrainingScreen() {
         </div>
         <div className="grid grid-cols-3 gap-2">
           {AREAS.map(area => {
-            const data = areaData[area.key];
+            const data = AREA_DATA[area.key];
             const count = data?.exercises?.length ?? 0;
             return (
               <button key={area.key}
