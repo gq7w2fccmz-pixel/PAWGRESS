@@ -74,7 +74,7 @@ export const useWorkoutStore = create<WorkoutStore>()((set, get) => ({
   },
 
   completeExercise: (exIndex) => {
-    set(state => {
+    set((state: WorkoutStore) => {
       if (!state.session) return state;
       const exercises = state.session.exercises.map((ex, i) =>
         i === exIndex ? { ...ex, done: true } : ex
@@ -84,7 +84,7 @@ export const useWorkoutStore = create<WorkoutStore>()((set, get) => ({
   },
 
   recordSet: (exerciseName, weight, reps) => {
-    set(state => ({
+    set((state: WorkoutStore) => ({
       liveLog: {
         ...state.liveLog,
         [exerciseName]: [...(state.liveLog[exerciseName] ?? []), { weight, reps }],
@@ -93,7 +93,7 @@ export const useWorkoutStore = create<WorkoutStore>()((set, get) => ({
   },
 
   buildExerciseRecords: (): Omit<ExerciseRecord, "isPR">[] => {
-    const { liveLog } = get();
+    const liveLog = get().liveLog as Record<string, SetRecord[]>;
     return Object.entries(liveLog)
       .filter(([, sets]) => sets.length > 0)
       .map(([name, sets]) => {

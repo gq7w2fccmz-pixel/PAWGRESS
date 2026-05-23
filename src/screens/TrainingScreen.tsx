@@ -264,7 +264,7 @@ export function TrainingScreen() {
                     onDragStart={() => onDragStart(i)}
                     onDragEnter={() => onDragEnter(i)}
                     onDragEnd={onDragEnd}
-                    onDragOver={e => e.preventDefault()}
+                    onDragOver={(e: React.DragEvent) => e.preventDefault()}
                     onTouchStart={e => onTouchStart(e, i)}
                     onTouchMove={onTouchMove}
                     onTouchEnd={onTouchEnd}

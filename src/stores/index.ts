@@ -19,3 +19,4 @@ export type { Stats }       from "./statsStore";
 export type { CoachProgress } from "./coachStore";
 export { useHistoryStore } from "./historyStore";
 export type { WorkoutRecord, ExerciseRecord, SetRecord } from "./historyStore";
+export type { WorkoutSession, LiveExerciseLog } from "./workoutStore";

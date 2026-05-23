@@ -68,10 +68,10 @@ export const useHistoryStore = create<HistoryStore>()(
 
       saveWorkout: (raw: WorkoutInput) => {
         const { personalRecords, workouts } = get();
-        const updatedPRs = { ...personalRecords };
+        const updatedPRs: Record<string, number> = { ...personalRecords };
 
         // Mark PRs and update PR map
-        const exercises: ExerciseRecord[] = raw.exercises.map(ex => {
+        const exercises: ExerciseRecord[] = raw.exercises.map((ex: Omit<ExerciseRecord, "isPR">) => {
           const prevBest = updatedPRs[ex.name] ?? 0;
           const isPR = ex.bestSet.weight > prevBest;
           if (isPR) updatedPRs[ex.name] = ex.bestSet.weight;
