@@ -377,15 +377,18 @@ export function TrainingScreen() {
           style={{ objectPosition: "center top" }} />
         {/* Dark overlay – heavier at bottom */}
         <div className="absolute inset-0" style={{
-          background: "linear-gradient(to bottom, rgba(8,8,8,0.35) 0%, rgba(8,8,8,0.55) 40%, rgba(8,8,8,1) 100%)",
+          background: "linear-gradient(to bottom, rgba(8,8,8,0.2) 0%, rgba(8,8,8,0.4) 50%, rgba(8,8,8,1) 100%)",
         }} />
-        {/* Text content */}
+        {/* TRAINING title – top left */}
         <div className="relative z-20 px-4 pt-5">
-          <p className="font-black italic leading-none drop-shadow-lg mb-1"
+          <p className="font-black italic leading-none drop-shadow-lg"
             style={{ fontFamily: F, fontSize: 44, color: "#fff" }}>
             TRAINING
           </p>
-          <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.8)" }}>
+        </div>
+        {/* Subtitle – bottom of hero */}
+        <div className="absolute bottom-4 left-0 right-0 z-20 px-4">
+          <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.85)" }}>
             Dein Hub für{" "}
             <span style={{ color: ORANGE }}>Workouts</span>,{" "}
             <span style={{ color: ORANGE }}>Übungen</span>{" "}

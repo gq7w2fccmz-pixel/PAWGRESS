@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { PLAN_2ER_SPLIT } from "../data/plan_2er_split";
 import { usePawgressStore } from "../hooks/usePawgressStore";
 import { useHistoryStore } from "../stores/historyStore";
-import { useStatsStore } from "../stores/statsStore";
+import { useProfileStore } from "../stores/profileStore";
 
 const F = "'Barlow Condensed', sans-serif";
 const ORANGE = "#f97316";
@@ -129,6 +129,7 @@ function GoalPicker({ current, onClose }: { current: number; onClose: () => void
 export function HomeScreen() {
   const navigate = useNavigate();
   const { stats, weekDays, weeklyGoal, coachProgress } = usePawgressStore();
+  const { profile } = useProfileStore();
   const recentWorkouts = useHistoryStore(s => s.getRecentWorkouts)(1);
   const lastWorkout    = recentWorkouts[0] ?? null;
 
@@ -174,9 +175,12 @@ export function HomeScreen() {
             {greeting()}
           </p>
           <h1 className="font-black italic leading-none" style={{ fontFamily: F, fontSize: 52, color: "#fff" }}>
-            CHAMPION
+            {profile.name.toUpperCase()}
           </h1>
-          <p className="text-sm italic mt-1" style={{ color: "#999" }}>
+        </div>
+        {/* Subtitle – bottom of hero */}
+        <div className="absolute bottom-4 left-0 right-0 z-10 px-5">
+          <p className="text-sm italic" style={{ color: "#999" }}>
             no excuses, just <span style={{ color: ORANGE }}>pawgress</span>
           </p>
         </div>

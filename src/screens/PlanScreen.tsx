@@ -505,7 +505,10 @@ export function PlanScreen() {
         }} />
         <div className="relative z-10 px-4 pt-6">
           <p className="font-black italic leading-none text-white" style={{ fontFamily: F, fontSize: 56 }}>PLAN</p>
-          <p className="text-sm text-gray-300 mt-1">Dein Training. Dein Ziel.</p>
+        </div>
+        {/* Subtitle – bottom of hero */}
+        <div className="absolute bottom-4 left-0 right-0 z-10 px-4">
+          <p className="text-sm text-gray-300">Dein Training. Dein Ziel.</p>
           <p className="text-sm font-black" style={{ color: ORANGE }}>In Sekunden startbereit.</p>
         </div>
       </div>

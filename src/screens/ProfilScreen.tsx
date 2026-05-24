@@ -460,7 +460,7 @@ export function ProfilScreen() {
     <div className="min-h-screen pb-28" style={{ background:"#080808", color:"#fff" }}>
 
       {/* ── HERO ── */}
-      <div className="relative overflow-hidden" style={{ height: 260 }}>
+      <div className="relative overflow-hidden" style={{ height: 310 }}>
         <img src="/images/profil_hero.webp" alt=""
           className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition:"center 20%" }} />
         {/* Left dark gradient */}
@@ -472,20 +472,17 @@ export function ProfilScreen() {
           background:"linear-gradient(to bottom, transparent 45%, rgba(8,8,8,1) 100%)",
         }} />
 
-        {/* Bertl mascot – right side, large */}
-        <img src="/images/bertl.webp" alt=""
-          className="absolute bottom-0 right-0 pointer-events-none select-none z-10"
-          style={{ height: 250, width: "auto", objectFit: "contain", objectPosition: "bottom right" }} />
-
-        {/* Title + avatar block */}
+        {/* Title – top left */}
         <div className="relative z-20 px-4 pt-5">
-          {/* PROFIL + paw */}
           <p className="font-black italic leading-none text-white" style={{ fontFamily:F, fontSize: 48 }}>PROFIL</p>
-          <p className="text-sm text-gray-300">Deine Reise. Deine Entwicklung.</p>
-          <p className="text-sm font-black" style={{ color:ORANGE }}>Dein Erfolg.</p>
+        </div>
 
+        {/* Subtitle + Avatar – bottom of hero */}
+        <div className="absolute bottom-4 left-0 right-0 z-20 px-4">
+          <p className="text-sm text-gray-300">Deine Reise. Deine Entwicklung.</p>
+          <p className="text-sm font-black mb-3" style={{ color:ORANGE }}>Dein Erfolg.</p>
           {/* Avatar + name */}
-          <div className="flex items-center gap-3 mt-5">
+          <div className="flex items-center gap-3">
             <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0"
               style={{ border:`2.5px solid ${ORANGE}`, boxShadow:`0 0 16px ${ORANGE}55` }}>
               <img src={profile.avatarImg} alt="" className="w-full h-full object-cover object-top" />
