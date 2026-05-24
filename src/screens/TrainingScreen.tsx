@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { PLAN_2ER_SPLIT, type PlanExercise } from "../data/plan_2er_split";
 import { AREA_DATA } from "../data/areaData";
 import { usePawgressStore } from "../hooks/usePawgressStore";
-import { useWorkoutStore } from "../stores/workoutStore";
+import { useWorkoutStore }  from "../stores/workoutStore";
+import { useStatsStore }    from "../stores/statsStore";
+import { usePlanStore }     from "../stores/planStore";
+import type { CustomWorkoutDay } from "../stores/planStore";
 import type { AreaName } from "../types";
 
 const F = "'Barlow Condensed', sans-serif";
@@ -22,107 +25,156 @@ const AREAS: { key: AreaName; label: string; img: string }[] = [
 ];
 
 // ── Workout-Select Modal ──────────────────────────────────────────────────────
-function WorkoutSelectModal({ onClose, onSelect }: {
-  onClose: () => void;
-  onSelect: (dayIndex: number) => void;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "rgba(0,0,0,0.96)" }}>
-      <div className="flex items-center gap-3 px-4 py-4 border-b" style={{ borderColor: "#1e1e1e" }}>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
-        <p className="font-black italic text-xl text-white" style={{ fontFamily: F }}>WORKOUT AUSWÄHLEN</p>
-      </div>
-      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-10 flex flex-col gap-3">
-        {PLAN_2ER_SPLIT.map((day, i) => {
-          const sets = day.exercises.reduce((a,e) => a + e.sets.length, 0);
-          return (
-            <button key={i} onClick={() => onSelect(i)}
-              className="w-full text-left rounded-2xl p-4"
-              style={{ background: "#111", border: `1px solid ${day.color}44` }}>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-xl flex-shrink-0"
-                  style={{ background: `${day.color}22`, color: day.color, fontFamily: F }}>{i+1}</div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="px-2 py-0.5 rounded text-[9px] font-black"
-                      style={{ background: day.color, color: "#fff", fontFamily: F }}>{day.tag}</span>
-                    <p className="font-black text-lg text-white" style={{ fontFamily: F }}>{day.label.toUpperCase()}</p>
-                  </div>
-                  <p className="text-xs text-gray-500">{day.exercises.length} Übungen · {sets} Sätze</p>
-                </div>
-                <span className="text-gray-600 text-xl">›</span>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
+// ── Unified Workout Picker ────────────────────────────────────────────────────
+// Zeigt den aktiven Custom-Plan UND den Default 2er-Split.
+// Gibt { exercises, label } zurück statt eines dayIndex.
+interface WorkoutSelection {
+  exercises: PlanExercise[];
+  label:     string;
+  color:     string;
 }
 
-// ── Plan-Select Modal ─────────────────────────────────────────────────────────
-function PlanSelectModal({ onClose, onSelect }: {
-  onClose: () => void;
-  onSelect: (dayIndex: number) => void;
+function WorkoutPickerModal({
+  onClose,
+  onSelect,
+}: {
+  onClose:  () => void;
+  onSelect: (sel: WorkoutSelection) => void;
 }) {
-  const plans = [
-    { name: "2er Split", desc: "Push · Pull · 4 Tage/Woche", icon: "🏋️", color: ORANGE },
-  ];
+  const plans      = usePlanStore(s => s.plans);
+  const activePlanId = usePlanStore(s => s.activePlanId);
+  const activePlan = plans.find(p => p.id === activePlanId) ?? plans[0];
+
+  // Ob der aktive Plan der Default 2er-Split ist
+  const isDefault = activePlan?.id === "builtin-2er-split";
+
+  const PLAN_COLORS = ["#f97316","#3b82f6","#22c55e","#a855f7","#ef4444","#eab308","#06b6d4"];
+
+  function dayColor(i: number) {
+    return PLAN_COLORS[i % PLAN_COLORS.length];
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "rgba(0,0,0,0.96)" }}>
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "rgba(0,0,0,0.97)" }}>
       <div className="flex items-center gap-3 px-4 py-4 border-b" style={{ borderColor: "#1e1e1e" }}>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
-        <p className="font-black italic text-xl text-white" style={{ fontFamily: F }}>PLAN AUSWÄHLEN</p>
+        <button onClick={onClose} style={{ background:"none", border:"none", color:"#fff", fontSize:22 }}>←</button>
+        <p className="font-black italic text-xl text-white" style={{ fontFamily:F }}>WORKOUT AUSWÄHLEN</p>
       </div>
-      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-10 flex flex-col gap-3">
-        {plans.map((plan, i) => (
-          <div key={i} className="rounded-2xl overflow-hidden"
-            style={{ background: "#111", border: `1px solid ${plan.color}44` }}>
-            <div className="p-4 flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
-                style={{ background: `${plan.color}22` }}>{plan.icon}</div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <p className="font-black text-lg text-white" style={{ fontFamily: F }}>{plan.name}</p>
-                  <span className="px-2 py-0.5 rounded text-[9px] font-black"
-                    style={{ background: "#22c55e", color: "#fff", fontFamily: F }}>AKTIV</span>
-                </div>
-                <p className="text-xs text-gray-500">{plan.desc}</p>
-              </div>
+
+      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-10 flex flex-col gap-4">
+
+        {/* ── Aktiver Plan ── */}
+        {activePlan && (
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <p className="font-black text-xs tracking-widest text-gray-500" style={{ fontFamily:F }}>
+                {activePlan.icon} {activePlan.name.toUpperCase()}
+              </p>
+              <span className="px-2 py-0.5 rounded text-[9px] font-black"
+                style={{ background:"#22c55e22", color:"#22c55e", fontFamily:F }}>AKTIV</span>
             </div>
-            <div className="border-t" style={{ borderColor: "#1e1e1e" }}>
-              {PLAN_2ER_SPLIT.map((day, di) => (
-                <button key={di} onClick={() => onSelect(di)}
-                  className="w-full flex items-center gap-3 px-4 py-3 border-b text-left"
-                  style={{ background: "none", border: "none", borderBottom: di < PLAN_2ER_SPLIT.length-1 ? "1px solid #1e1e1e" : "none" }}>
-                  <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0"
-                    style={{ background: `${day.color}22`, color: day.color }}>{di+1}</span>
-                  <p className="font-bold text-sm text-white flex-1" style={{ fontFamily: F }}>{day.label}</p>
-                  <span className="text-xs text-gray-600">{day.exercises.length} Übungen ›</span>
-                </button>
-              ))}
+
+            <div className="flex flex-col gap-2">
+              {isDefault
+                ? // Default: 2er-Split Tage
+                  PLAN_2ER_SPLIT.map((day, i) => {
+                    const sets = day.exercises.reduce((a,e) => a + e.sets.length, 0);
+                    return (
+                      <button key={i}
+                        onClick={() => onSelect({ exercises: day.exercises, label: day.label, color: day.color })}
+                        className="w-full text-left rounded-2xl p-4"
+                        style={{ background:"#111", border:`1px solid ${day.color}44` }}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-base flex-shrink-0"
+                            style={{ background:`${day.color}22`, color:day.color, fontFamily:F }}>{i+1}</div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <span className="px-2 py-0.5 rounded text-[9px] font-black"
+                                style={{ background:day.color, color:"#fff", fontFamily:F }}>{day.tag}</span>
+                              <p className="font-black text-base text-white" style={{ fontFamily:F }}>{day.label}</p>
+                            </div>
+                            <p className="text-xs text-gray-500">{day.exercises.length} Übungen · {sets} Sätze</p>
+                          </div>
+                          <span className="text-gray-600">›</span>
+                        </div>
+                      </button>
+                    );
+                  })
+                : // Custom Plan Tage
+                  activePlan.days.map((day: CustomWorkoutDay, i: number) => {
+                    const color = dayColor(i);
+                    const sets  = day.exercises.reduce((a,e) => a + e.sets.length, 0);
+                    return (
+                      <button key={day.id}
+                        onClick={() => onSelect({ exercises: day.exercises, label: day.label, color })}
+                        className="w-full text-left rounded-2xl p-4"
+                        style={{ background:"#111", border:`1px solid ${color}44` }}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-base flex-shrink-0"
+                            style={{ background:`${color}22`, color, fontFamily:F }}>{i+1}</div>
+                          <div className="flex-1">
+                            <p className="font-black text-base text-white" style={{ fontFamily:F }}>{day.label}</p>
+                            <p className="text-xs text-gray-500">{day.exercises.length} Übungen · {sets} Sätze</p>
+                          </div>
+                          <span className="text-gray-600">›</span>
+                        </div>
+                      </button>
+                    );
+                  })
+              }
+            </div>
+          </div>
+        )}
+
+        {/* ── Andere Pläne ── */}
+        {plans.filter(p => p.id !== activePlan?.id).map(plan => (
+          <div key={plan.id}>
+            <p className="font-black text-xs tracking-widest text-gray-600 mb-2" style={{ fontFamily:F }}>
+              {plan.icon} {plan.name.toUpperCase()}
+            </p>
+            <div className="flex flex-col gap-2">
+              {plan.days.map((day: CustomWorkoutDay, i: number) => {
+                const color = dayColor(i);
+                const sets  = day.exercises.reduce((a,e) => a + e.sets.length, 0);
+                return (
+                  <button key={day.id}
+                    onClick={() => onSelect({ exercises: day.exercises, label: day.label, color })}
+                    className="w-full text-left rounded-2xl p-4"
+                    style={{ background:"#111", border:`1px solid #2a2a2a` }}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-base flex-shrink-0"
+                        style={{ background:`${color}22`, color, fontFamily:F }}>{i+1}</div>
+                      <div className="flex-1">
+                        <p className="font-black text-base text-white" style={{ fontFamily:F }}>{day.label}</p>
+                        <p className="text-xs text-gray-500">{day.exercises.length} Übungen · {sets} Sätze</p>
+                      </div>
+                      <span className="text-gray-600">›</span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         ))}
+
       </div>
     </div>
   );
-}
+}}
 
 // ── Training Edit Screen (reused from old TrainingScreen logic) ────────────────
 function TrainingEditScreen({
-  dayIndex,
+  selection,
   onBack,
-}: { dayIndex: number; onBack: () => void }) {
+}: { selection: WorkoutSelection; onBack: () => void }) {
   const navigate = useNavigate();
   const { startWorkout } = usePawgressStore();
   const session = useWorkoutStore(s => s.session);
   const resetWorkout = useWorkoutStore(s => s.resetWorkout);
   const setCustomExercises = useWorkoutStore(s => s.setCustomExercises);
-  const getActiveExercises = useWorkoutStore(s => s.getActiveExercises);
 
-  const baseDay = PLAN_2ER_SPLIT[dayIndex];
-  const [exercises, setExercises] = useState<PlanExercise[]>(getActiveExercises(dayIndex));
+  // Übungen aus der WorkoutSelection laden (Custom-Plan oder 2er-Split)
+  const [exercises, setExercises] = useState<PlanExercise[]>(selection.exercises);
   const [editSets, setEditSets] = useState<number | null>(null);
   const [showAbortConfirm, setShowAbortConfirm] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -131,9 +183,12 @@ function TrainingEditScreen({
   const touchDragIdx = useRef<number | null>(null);
   const coachImg = "/images/coach_bertl.webp";
 
+  // dayIndex=0 als Fallback – workoutStore braucht einen Index für setCustomExercises
+  const FAKE_DAY_IDX = 0;
+
   function persist(list: PlanExercise[]) {
     setExercises(list);
-    setCustomExercises(list, dayIndex);
+    setCustomExercises(list, FAKE_DAY_IDX);
   }
 
   function onDragStart(i: number) { setDraggingIdx(i); }
@@ -236,9 +291,9 @@ function TrainingEditScreen({
         </div>
         <div className="relative z-10 px-4 pt-2">
           <h1 className="font-black italic text-5xl text-white leading-none drop-shadow-lg" style={{ fontFamily: F }}>
-            {baseDay.label.toUpperCase()}
+            {selection.label.toUpperCase()}
           </h1>
-          <p className="text-sm text-gray-300 mb-3">{baseDay.tag === "PUSH" ? "Brust · Schultern · Trizeps" : "Rücken · Bizeps · Core"}</p>
+          <p className="text-sm text-gray-300 mb-3" style={{ color: selection.color }}>{exercises.length} Übungen</p>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl"
             style={{ background: "rgba(0,0,0,0.6)", border: "1px solid rgba(255,255,255,0.1)" }}>
             <span>🎯</span><p className="text-xs text-white font-semibold">Volumen · {totalSets} Arbeitssätze</p>
@@ -324,49 +379,43 @@ function TrainingEditScreen({
 
 // ── Main Training Screen ──────────────────────────────────────────────────────
 export function TrainingScreen() {
-  const navigate = useNavigate();
-  const { stats, startWorkout } = usePawgressStore();
+  const navigate      = useNavigate();
+  const totalWorkouts = useStatsStore(s => s.stats.totalWorkouts);
+  const { startWorkout } = usePawgressStore();
   const setCustomExercises = useWorkoutStore(s => s.setCustomExercises);
 
-  const [modal, setModal] = useState<null | "workout" | "plan">(null);
-  const [editDayIndex, setEditDayIndex] = useState<number | null>(null);
+  const [showPicker, setShowPicker]         = useState(false);
+  const [selection, setSelection]           = useState<WorkoutSelection | null>(null);
 
-  const dayIndex = stats.totalWorkouts % 4;
+  const dayIndex = totalWorkouts % 4;
   const nextDay  = PLAN_2ER_SPLIT[dayIndex];
 
   function startFreeWorkout() {
-    // Empty exercise list
-    setCustomExercises([], dayIndex);
-    setEditDayIndex(dayIndex);
-  }
-
-  function handleWorkoutSelect(di: number) {
-    setModal(null);
-    setEditDayIndex(di);
-  }
-
-  function handlePlanSelect(di: number) {
-    setModal(null);
-    setEditDayIndex(di);
+    setSelection({ exercises: [], label: "Freies Training", color: ORANGE });
   }
 
   function handlePlanContinue() {
-    setEditDayIndex(dayIndex);
+    // Nächsten Tag aus dem aktiven Plan nehmen
+    setSelection({
+      exercises: nextDay.exercises,
+      label:     nextDay.label,
+      color:     nextDay.color,
+    });
   }
 
-  // If editing a workout, show edit screen
-  if (editDayIndex !== null) {
-    return <TrainingEditScreen dayIndex={editDayIndex} onBack={() => setEditDayIndex(null)} />;
+  // Wenn eine Auswahl getroffen wurde → Edit Screen
+  if (selection !== null) {
+    return <TrainingEditScreen selection={selection} onBack={() => setSelection(null)} />;
   }
 
   return (
     <div className="min-h-screen pb-28" style={{ background: "#080808", color: "#fff" }}>
 
-      {modal === "workout" && (
-        <WorkoutSelectModal onClose={() => setModal(null)} onSelect={handleWorkoutSelect} />
-      )}
-      {modal === "plan" && (
-        <PlanSelectModal onClose={() => setModal(null)} onSelect={handlePlanSelect} />
+      {showPicker && (
+        <WorkoutPickerModal
+          onClose={() => setShowPicker(false)}
+          onSelect={(sel) => { setShowPicker(false); setSelection(sel); }}
+        />
       )}
 
       {/* ── HERO ── */}
@@ -414,7 +463,7 @@ export function TrainingScreen() {
                 ),
                 label: "WORKOUT\nSTARTEN",
                 sub: "Starte dein\nnächstes Workout",
-                action: () => setModal("workout"),
+                action: () => setShowPicker(true),
               },
               {
                 icon: (
@@ -455,7 +504,7 @@ export function TrainingScreen() {
                 ),
                 label: "PLAN\nAUSWÄHLEN",
                 sub: "Wähle einen Plan\noder ein Workout",
-                action: () => setModal("plan"),
+                action: () => setShowPicker(true),
               },
             ].map((item, i) => (
               <button key={i} onClick={item.action}
@@ -505,7 +554,7 @@ export function TrainingScreen() {
           </div>
           {/* Right: buttons stacked */}
           <div className="flex flex-col gap-2 flex-shrink-0" style={{ minWidth: 145 }}>
-            <button onClick={() => setEditDayIndex(dayIndex)}
+            <button onClick={() => setSelection({ exercises: nextDay.exercises, label: nextDay.label, color: nextDay.color })}
               className="flex items-center justify-center gap-2 rounded-2xl font-black text-sm text-white"
               style={{
                 background: nextDay.color,
@@ -520,7 +569,7 @@ export function TrainingScreen() {
               </svg>
               WORKOUT<br/>STARTEN
             </button>
-            <button onClick={() => setEditDayIndex(dayIndex)}
+            <button onClick={() => setSelection({ exercises: nextDay.exercises, label: nextDay.label, color: nextDay.color })}
               className="rounded-2xl font-black text-xs text-white text-center"
               style={{
                 background: "transparent",

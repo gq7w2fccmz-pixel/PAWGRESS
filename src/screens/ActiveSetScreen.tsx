@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { usePawgressStore } from "../hooks/usePawgressStore";
-import { useWorkoutStore } from "../stores/workoutStore";
+import { useWorkoutStore }  from "../stores/workoutStore";
+import { useStatsStore }    from "../stores/statsStore";
 import { PLAN_2ER_SPLIT } from "../data/plan_2er_split";
 import { BRUST_EXERCISES }    from "../data/exercises_brust";
 import { RUECKEN_EXERCISES }  from "../data/exercises_ruecken";
@@ -128,7 +129,11 @@ function NumberInput({ value, onChange, step = 1, unit, label, subLabel }: {
 export function ActiveSetScreen() {
   const { index } = useParams<{ index: string }>();
   const navigate = useNavigate();
-  const { stats, session, completeSet, completeExercise, finishWorkout } = usePawgressStore();
+  // State direkt aus den jeweiligen Stores
+  const stats   = useStatsStore(s => s.stats);
+  const session = useWorkoutStore(s => s.session);
+  // Actions weiterhin über Bridge (finishWorkout hat Supabase-Sync eingebaut)
+  const { completeSet, completeExercise, finishWorkout } = usePawgressStore();
   const recordSet          = useWorkoutStore(s => s.recordSet);
   const resetWorkout       = useWorkoutStore(s => s.resetWorkout);
   const getActiveExercises = useWorkoutStore(s => s.getActiveExercises);

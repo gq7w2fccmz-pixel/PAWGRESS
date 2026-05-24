@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { NavBar }          from "./components/NavBar";
 import { SplashScreen }    from "./screens/SplashScreen";
+import { LoginScreen }     from "./screens/LoginScreen";
 import { HomeScreen }      from "./screens/HomeScreen";
 import { PlanScreen }      from "./screens/PlanScreen";
 import { CoachesScreen }   from "./screens/CoachesScreen";
@@ -10,8 +11,11 @@ import { ActiveSetScreen } from "./screens/ActiveSetScreen";
 import { WorkoutDone }     from "./screens/WorkoutDone";
 import { ProfilScreen }    from "./screens/ProfilScreen";
 import { GymAreaScreen }   from "./screens/GymAreaScreen";
+import { useAuthStore }    from "./stores/authStore";
 
 const NO_NAV = ["/active-set", "/workout-done"];
+const F = "'Barlow Condensed', sans-serif";
+const ORANGE = "#f97316";
 
 function AppInner({ hideSplash }: { hideSplash: boolean }) {
   const location = useLocation();
@@ -36,7 +40,15 @@ function AppInner({ hideSplash }: { hideSplash: boolean }) {
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
+  const { user, loading, syncing, initAuth } = useAuthStore();
 
+  // Auth initialisieren (einmalig)
+  useEffect(() => {
+    const unsubscribe = initAuth();
+    return unsubscribe;
+  }, []);
+
+  // Splash nur einmal pro Session
   useEffect(() => {
     const seen = sessionStorage.getItem("splashSeen");
     if (seen) setShowSplash(false);
@@ -47,6 +59,44 @@ export default function App() {
     setShowSplash(false);
   };
 
+  // ── Auth wird noch geprüft ──────────────────────────────────
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
+        <p className="font-black text-gray-600 text-lg" style={{ fontFamily: F }}>
+          PAWGRESS …
+        </p>
+      </div>
+    );
+  }
+
+  // ── Nicht eingeloggt ────────────────────────────────────────
+  if (!user) {
+    return (
+      <BrowserRouter>
+        <LoginScreen />
+      </BrowserRouter>
+    );
+  }
+
+  // ── Daten werden von Supabase geladen ───────────────────────
+  if (syncing) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-[#0a0a0a]">
+        <img
+          src="/images/bertl_splash.webp"
+          alt="Bertl"
+          className="w-20 h-20 rounded-full object-cover"
+          style={{ border: `2px solid ${ORANGE}` }}
+        />
+        <p className="font-black text-gray-500 text-base" style={{ fontFamily: F }}>
+          DATEN WERDEN GELADEN …
+        </p>
+      </div>
+    );
+  }
+
+  // ── Eingeloggt ──────────────────────────────────────────────
   return (
     <BrowserRouter>
       {showSplash && <SplashScreen onDone={handleSplashDone} />}

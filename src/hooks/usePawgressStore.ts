@@ -1,16 +1,8 @@
 /**
- * usePawgressStore – Legacy bridge
+ * usePawgressStore – Legacy bridge + Supabase Sync
  *
- * Composes the three modular stores into the original API.
- * Existing screens import this unchanged; new screens can
- * directly use useStatsStore / useCoachStore / useWorkoutStore.
- *
- * Fixed bugs:
- *  #1 – screen was returned but never read from workoutStore
- *  #2 – stats.streak duplicate removed (lives only in coachStore)
- *  #3 – Workout session reset on each navigation fixed (moved to workoutStore)
- *  #4 – dayIndex in WorkoutDone was off-by-one (finishWorkout increments first)
- *  #5 – getPR destructured but not used in ActiveSetScreen (kept, cleaned import)
+ * Neu: Nach jeder relevanten Aktion wird automatisch in Supabase gespeichert.
+ * Die localStorage-Persistenz bleibt als Offline-Fallback erhalten.
  */
 import { useStatsStore }  from "../stores/statsStore";
 import { useCoachStore, categorizeExercises } from "../stores/coachStore";
@@ -19,6 +11,11 @@ import { useHistoryStore } from "../stores/historyStore";
 import type { AreaName }  from "../types";
 import { PLAN_2ER_SPLIT } from "../data/plan_2er_split";
 import type { WorkoutInput } from "../stores/historyStore";
+import {
+  saveStats,
+  saveCoaches,
+  saveHistory,
+} from "../lib/syncService";
 
 export function usePawgressStore() {
   // ── Stats ────────────────────────────────────────────────────
@@ -60,11 +57,19 @@ export function usePawgressStore() {
     stats,
     weekDays,
     weeklyGoal,
-    setWeekDays,
-    setWeeklyGoal,
+    setWeekDays: async (days: boolean[]) => {
+      setWeekDays(days);
+      const s = useStatsStore.getState();
+      await saveStats(s.stats, days, s.weeklyGoal);
+    },
+    setWeeklyGoal: async (goal: number) => {
+      setWeeklyGoal(goal);
+      const s = useStatsStore.getState();
+      await saveStats(s.stats, s.weekDays, goal);
+    },
     selectedCoach,
     coachProgress,
-    screen,           // BUG #1: now properly read from workoutStore
+    screen,
     activeArea,
     session,
 
@@ -73,11 +78,14 @@ export function usePawgressStore() {
     setActiveArea: (area: AreaName | null) => setActiveArea(area),
 
     // ── Coach ────────────────────────────────────────────────────
-    setCoach,
+    setCoach: async (name: string) => {
+      setCoach(name);
+      const c = useCoachStore.getState();
+      await saveCoaches(name, c.coachProgress);
+    },
     isCoachUnlocked,
     getCoachProgress: (name: string) => {
       const t = stats.totalWorkouts;
-      // Override total-based coaches since coachStore doesn't have totalWorkouts directly
       const overrides: Record<string, { current: number; max: number }> = {
         Pam:  { current: Math.min(t, 1),  max: 1  },
         Otto: { current: Math.min(t, 20), max: 20 },
@@ -88,7 +96,7 @@ export function usePawgressStore() {
 
     // ── Workout ──────────────────────────────────────────────────
     startWorkout: () => {
-      resetWorkout(); // BUG #3: clear any stale session before starting new one
+      resetWorkout();
       startWorkoutSession(stats.totalWorkouts);
     },
 
@@ -100,7 +108,7 @@ export function usePawgressStore() {
       completeExerciseWS(exIndex);
     },
 
-    finishWorkout: (
+    finishWorkout: async (
       exerciseCategories: string[],
       benchPressWeight?: number,
       startTime?: number,
@@ -110,10 +118,9 @@ export function usePawgressStore() {
       updateAfterWorkout(cats, newTotal, stats.lastWorkoutDate, benchPressWeight);
       finishWorkoutStats();
 
-      // Always use records from workoutStore (survives route changes)
       const records = buildExerciseRecords();
       if (records.length > 0) {
-        const dayIndex    = stats.totalWorkouts % 4;        // pre-increment index
+        const dayIndex    = stats.totalWorkouts % 4;
         const day         = PLAN_2ER_SPLIT[dayIndex];
         const totalVolume = records.reduce((a, e) => a + e.volume, 0);
         const totalSets   = records.reduce((a, e) => a + e.sets.length, 0);
@@ -137,6 +144,19 @@ export function usePawgressStore() {
       }
 
       resetWorkout();
+
+      // ── Supabase Sync nach Workout-Ende ─────────────────────
+      // Kurz warten damit Zustand-Updates propagiert sind
+      setTimeout(async () => {
+        const s = useStatsStore.getState();
+        const c = useCoachStore.getState();
+        const h = useHistoryStore.getState();
+        await Promise.all([
+          saveStats(s.stats, s.weekDays, s.weeklyGoal),
+          saveCoaches(c.selectedCoach, c.coachProgress),
+          saveHistory(h.workouts, h.personalRecords),
+        ]);
+      }, 300);
     },
 
     // ── History ──────────────────────────────────────────────────

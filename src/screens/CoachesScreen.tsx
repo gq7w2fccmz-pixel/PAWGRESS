@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { ACTIVE_COACHES, LOCKED_COACHES } from "../data/plans";
-import { usePawgressStore } from "../hooks/usePawgressStore";
+import { useCoachStore } from "../stores/coachStore";
+import { useStatsStore }  from "../stores/statsStore";
+import { saveCoaches }    from "../lib/syncService";
 
 const F = "'Barlow Condensed', sans-serif";
 
@@ -13,12 +15,28 @@ function getFocusIcon(focus: string) {
 }
 
 export function CoachesScreen() {
-  const { selectedCoach, setCoach, isCoachUnlocked, getCoachProgress } = usePawgressStore();
+  const selectedCoach  = useCoachStore(s => s.selectedCoach);
+  const coachProgress  = useCoachStore(s => s.coachProgress);
+  const isCoachUnlocked = useCoachStore(s => s.isCoachUnlocked);
+  const getCoachProgressBase = useCoachStore(s => s.getCoachProgress);
+  const setCoachBase   = useCoachStore(s => s.setCoach);
+  const totalWorkouts  = useStatsStore(s => s.stats.totalWorkouts);
   const [selected, setSelected] = useState<string>(selectedCoach ?? "Bertl");
 
-  function handleSelect(name: string) {
+  // Override-Logik für totalWorkouts-basierte Coaches (Pam, Otto, Wolfi)
+  function getCoachProgress(name: string) {
+    const overrides: Record<string, { current: number; max: number }> = {
+      Pam:  { current: Math.min(totalWorkouts, 1),  max: 1  },
+      Otto: { current: Math.min(totalWorkouts, 20), max: 20 },
+      Wolfi:{ current: Math.min(totalWorkouts, 40), max: 40 },
+    };
+    return overrides[name] ?? getCoachProgressBase(name);
+  }
+
+  async function handleSelect(name: string) {
     setSelected(name);
-    setCoach(name);
+    setCoachBase(name);
+    await saveCoaches(name, coachProgress);
   }
 
   const unlockedLocked = LOCKED_COACHES.filter(c => isCoachUnlocked(c.name));

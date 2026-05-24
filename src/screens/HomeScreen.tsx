@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PLAN_2ER_SPLIT } from "../data/plan_2er_split";
-import { usePawgressStore } from "../hooks/usePawgressStore";
+import { useStatsStore }   from "../stores/statsStore";
+import { useCoachStore }   from "../stores/coachStore";
 import { useHistoryStore } from "../stores/historyStore";
 import { useProfileStore } from "../stores/profileStore";
 
@@ -127,9 +128,15 @@ function GoalPicker({ current, onClose }: { current: number; onClose: () => void
 }
 
 export function HomeScreen() {
-  const navigate = useNavigate();
-  const { stats, weekDays, weeklyGoal, coachProgress } = usePawgressStore();
-  const { profile } = useProfileStore();
+  const navigate      = useNavigate();
+  // Direkte Store-Subscriptions – nur re-render wenn sich der eigene Slice ändert
+  const stats         = useStatsStore(s => s.stats);
+  const weekDays      = useStatsStore(s => s.weekDays);
+  const weeklyGoal    = useStatsStore(s => s.weeklyGoal);
+  const setWeekDays   = useStatsStore(s => s.setWeekDays);
+  const setWeeklyGoal = useStatsStore(s => s.setWeeklyGoal);
+  const coachProgress = useCoachStore(s => s.coachProgress);
+  const { profile }   = useProfileStore();
   const recentWorkouts = useHistoryStore(s => s.getRecentWorkouts)(1);
   const lastWorkout    = recentWorkouts[0] ?? null;
 

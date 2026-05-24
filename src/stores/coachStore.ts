@@ -132,13 +132,23 @@ export const useCoachStore = create<CoachStore>()(
           benchPressWeightHistory = [...benchPressWeightHistory, benchPressWeight];
         }
 
-        // Streak
+        // ── Streak (3 Bugs gefixt) ───────────────────────────────────────────
+        // lastWorkoutDate = Stand VOR diesem Workout (finishWorkoutStats noch nicht aufgerufen)
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         const yStr = yesterday.toISOString().split("T")[0];
-        let newStreak = p.currentStreak;
-        if (lastWorkoutDate === yStr)      newStreak = p.currentStreak + 1;
-        else if (lastWorkoutDate !== today) newStreak = 1;
+
+        let newStreak: number;
+        if (lastWorkoutDate === today) {
+          // Bug #2: 2. Workout heute → Streak beibehalten
+          newStreak = p.currentStreak;
+        } else if (lastWorkoutDate === yStr) {
+          // Gestern trainiert → Streak verlängern
+          newStreak = p.currentStreak + 1;
+        } else {
+          // Lücke > 1 Tag → Streak zurücksetzen
+          newStreak = 1;
+        }
         const newMaxStreak = Math.max(newStreak, p.maxStreak);
 
         const updated: CoachProgress = {

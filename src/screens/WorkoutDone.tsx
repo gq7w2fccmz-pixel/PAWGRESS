@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { usePawgressStore } from "../hooks/usePawgressStore";
+import { useStatsStore }   from "../stores/statsStore";
+import { useWorkoutStore } from "../stores/workoutStore";
 import { useHistoryStore } from "../stores/historyStore";
 import { PLAN_2ER_SPLIT } from "../data/plan_2er_split";
 
@@ -7,10 +8,11 @@ const F = "'Barlow Condensed', sans-serif";
 const ORANGE = "#f97316";
 
 export function WorkoutDone() {
-  const navigate = useNavigate();
-  const { stats, session } = usePawgressStore();
+  const navigate       = useNavigate();
+  const stats          = useStatsStore(s => s.stats);
+  const session        = useWorkoutStore(s => s.session);
   const recentWorkouts = useHistoryStore(s => s.getRecentWorkouts)(1);
-  const lastWorkout = recentWorkouts[0];
+  const lastWorkout    = recentWorkouts[0];
 
   const dayIndex = Math.max(0, (stats.totalWorkouts - 1)) % 4;
   const day = PLAN_2ER_SPLIT[dayIndex];
