@@ -160,7 +160,7 @@ function WorkoutPickerModal({
       </div>
     </div>
   );
-}}
+}
 
 // ── Training Edit Screen (reused from old TrainingScreen logic) ────────────────
 function TrainingEditScreen({
