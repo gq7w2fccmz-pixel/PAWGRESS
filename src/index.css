@@ -8,3 +8,10 @@ body { background: #0a0a0a; color: #fff; font-family: 'Barlow', sans-serif; }
 button { cursor: pointer; }
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
+
+/* ── iOS Auto-Zoom Fix ───────────────────────────────────────────────────────
+   Safari zoomt bei Input-Feldern mit font-size < 16px automatisch rein.
+   Diese Regel verhindert das für alle Inputs, Textareas und Selects.        */
+input, textarea, select {
+  font-size: 16px !important;
+}
