@@ -266,7 +266,15 @@ export function HomeScreen() {
             <button onClick={() => setShowGoalPicker(true)}
               className="flex flex-col items-center py-4 px-2"
               style={{ background: "none", border: "none", borderRight: "1px solid #1e1e1e" }}>
-              <span className="text-2xl mb-1">🎯</span>
+              <div className="mb-1">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <circle cx="11" cy="11" r="9" stroke={ORANGE} strokeWidth="1.5"/>
+                  <circle cx="11" cy="11" r="5.5" stroke={ORANGE} strokeWidth="1.5"/>
+                  <circle cx="11" cy="11" r="2" fill={ORANGE}/>
+                  <line x1="16" y1="6" x2="19" y2="3" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+                  <polyline points="17,3 19,3 19,5" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
               <p className="text-[9px] text-gray-500 tracking-widest font-bold mb-1">WOCHENZIEL</p>
               <p className="font-black text-2xl text-white" style={{ fontFamily: F }}>
                 {weekCount} <span className="text-gray-500">/ {goal}</span>
@@ -277,7 +285,12 @@ export function HomeScreen() {
             {/* Streak */}
             <div className="flex flex-col items-center py-4 px-2"
               style={{ borderRight: "1px solid #1e1e1e" }}>
-              <span className="text-2xl mb-1">🔥</span>
+              <div className="mb-1">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <path d="M11 2C11 2 6 7.5 6 12C6 14.8 8.2 17 11 17C13.8 17 16 14.8 16 12C16 9.5 14 7.5 12.5 6.5C12.5 8 11.5 9.5 11 9.5C9.5 9.5 8.5 8 8.5 6.5C8.5 4.5 11 2 11 2Z" fill={ORANGE}/>
+                  <path d="M11 17C9.5 17 8.5 16 8.5 14.5C8.5 13.2 9.5 12.3 11 12C12.5 12.3 13.5 13.2 13.5 14.5C13.5 16 12.5 17 11 17Z" fill="#fff" fillOpacity="0.25"/>
+                </svg>
+              </div>
               <p className="text-[9px] text-gray-500 tracking-widest font-bold mb-1">STREAK</p>
               <p className="font-black text-2xl" style={{ fontFamily: F, color: ORANGE }}>{streak}</p>
               <p className="text-[10px] text-gray-600 mt-0.5">Tage</p>
@@ -285,7 +298,13 @@ export function HomeScreen() {
 
             {/* Volumen */}
             <div className="flex flex-col items-center py-4 px-2">
-              <span className="text-2xl mb-1">📊</span>
+              <div className="mb-1">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <rect x="2" y="13" width="4" height="7" rx="1" fill={ORANGE} fillOpacity="0.4"/>
+                  <rect x="9" y="8" width="4" height="12" rx="1" fill={ORANGE} fillOpacity="0.7"/>
+                  <rect x="16" y="3" width="4" height="17" rx="1" fill={ORANGE}/>
+                </svg>
+              </div>
               <p className="text-[9px] text-gray-500 tracking-widest font-bold mb-1">VOLUMEN</p>
               <p className="font-black text-2xl text-white" style={{ fontFamily: F }}>{volLabel}</p>
               <p className="text-[10px] text-gray-600 mt-0.5">vs. letzte Woche</p>

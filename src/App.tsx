@@ -1,38 +1,57 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { NavBar }             from "./components/NavBar";
-import { SplashScreen }       from "./screens/SplashScreen";
-import { LoginScreen }        from "./screens/LoginScreen";
-import { OnboardingScreen }   from "./screens/OnboardingScreen";
-import { HomeScreen }         from "./screens/HomeScreen";
-import { PlanScreen }         from "./screens/PlanScreen";
-import { CoachesScreen }      from "./screens/CoachesScreen";
-import { TrainingScreen }     from "./screens/TrainingScreen";
-import { ActiveSetScreen }    from "./screens/ActiveSetScreen";
-import { WorkoutDone }        from "./screens/WorkoutDone";
-import { ProfilScreen }       from "./screens/ProfilScreen";
-import { GymAreaScreen }      from "./screens/GymAreaScreen";
-import { useAuthStore }       from "./stores/authStore";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { NavBar }         from "./components/NavBar";
+import { useAuthStore }   from "./stores/authStore";
+
+// ── Lazy Loading – alle Screens werden erst bei Bedarf geladen ────────────────
+// Reduziert den initialen Bundle von ~786KB auf ~300KB
+const SplashScreen        = lazy(() => import("./screens/SplashScreen").then(m => ({ default: m.SplashScreen })));
+const LoginScreen         = lazy(() => import("./screens/LoginScreen").then(m => ({ default: m.LoginScreen })));
+const OnboardingScreen    = lazy(() => import("./screens/OnboardingScreen").then(m => ({ default: m.OnboardingScreen })));
+const ResetPasswordScreen = lazy(() => import("./screens/ResetPasswordScreen").then(m => ({ default: m.ResetPasswordScreen })));
+const HomeScreen          = lazy(() => import("./screens/HomeScreen").then(m => ({ default: m.HomeScreen })));
+const PlanScreen          = lazy(() => import("./screens/PlanScreen").then(m => ({ default: m.PlanScreen })));
+const CoachesScreen       = lazy(() => import("./screens/CoachesScreen").then(m => ({ default: m.CoachesScreen })));
+const TrainingScreen      = lazy(() => import("./screens/TrainingScreen").then(m => ({ default: m.TrainingScreen })));
+const ActiveSetScreen     = lazy(() => import("./screens/ActiveSetScreen").then(m => ({ default: m.ActiveSetScreen })));
+const WorkoutDone         = lazy(() => import("./screens/WorkoutDone").then(m => ({ default: m.WorkoutDone })));
+const ProfilScreen        = lazy(() => import("./screens/ProfilScreen").then(m => ({ default: m.ProfilScreen })));
+const GymAreaScreen       = lazy(() => import("./screens/GymAreaScreen").then(m => ({ default: m.GymAreaScreen })));
 
 const NO_NAV = ["/active-set", "/workout-done"];
 const F      = "'Barlow Condensed', sans-serif";
 const ORANGE = "#f97316";
 
+// Minimaler Fallback während Screens laden
+function ScreenLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
+      <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
+        style={{ borderColor: `${ORANGE} transparent transparent transparent` }} />
+    </div>
+  );
+}
+
 function AppInner({ hideSplash }: { hideSplash: boolean }) {
   const location = useLocation();
   const showNav  = hideSplash && !NO_NAV.some(p => location.pathname.startsWith(p));
+
   return (
     <div className="max-w-[430px] mx-auto min-h-screen relative overflow-x-hidden bg-[#0a0a0a] text-white">
-      <Routes>
-        <Route path="/"                  element={<HomeScreen />} />
-        <Route path="/plan"              element={<PlanScreen />} />
-        <Route path="/coaches"           element={<CoachesScreen />} />
-        <Route path="/training"          element={<TrainingScreen />} />
-        <Route path="/active-set/:index" element={<ActiveSetScreen />} />
-        <Route path="/workout-done"      element={<WorkoutDone />} />
-        <Route path="/profil"            element={<ProfilScreen />} />
-        <Route path="/gym/:area"         element={<GymAreaScreen />} />
-      </Routes>
+      <Suspense fallback={<ScreenLoader />}>
+        <Routes>
+          <Route path="/"                  element={<HomeScreen />} />
+          <Route path="/plan"              element={<PlanScreen />} />
+          <Route path="/coaches"           element={<CoachesScreen />} />
+          <Route path="/training"          element={<TrainingScreen />} />
+          <Route path="/active-set/:index" element={<ActiveSetScreen />} />
+          <Route path="/workout-done"      element={<WorkoutDone />} />
+          <Route path="/profil"            element={<ProfilScreen />} />
+          <Route path="/gym/:area"         element={<GymAreaScreen />} />
+          <Route path="/reset-password"    element={<ResetPasswordScreen />} />
+        </Routes>
+      </Suspense>
       {showNav && <NavBar />}
     </div>
   );
@@ -70,9 +89,13 @@ export default function App() {
   if (!user) {
     return (
       <BrowserRouter>
-        <div className="max-w-[430px] mx-auto min-h-screen bg-[#0a0a0a]">
-          <LoginScreen />
-        </div>
+        <ErrorBoundary>
+          <div className="max-w-[430px] mx-auto min-h-screen bg-[#0a0a0a]">
+            <Suspense fallback={<ScreenLoader />}>
+              <LoginScreen />
+            </Suspense>
+          </div>
+        </ErrorBoundary>
       </BrowserRouter>
     );
   }
@@ -81,9 +104,13 @@ export default function App() {
   if (needsOnboarding) {
     return (
       <BrowserRouter>
-        <div className="max-w-[430px] mx-auto min-h-screen bg-[#0a0a0a]">
-          <OnboardingScreen />
-        </div>
+        <ErrorBoundary>
+          <div className="max-w-[430px] mx-auto min-h-screen bg-[#0a0a0a]">
+            <Suspense fallback={<ScreenLoader />}>
+              <OnboardingScreen />
+            </Suspense>
+          </div>
+        </ErrorBoundary>
       </BrowserRouter>
     );
   }
@@ -105,8 +132,12 @@ export default function App() {
   // Eingeloggt → App
   return (
     <BrowserRouter>
-      {showSplash && <SplashScreen onDone={handleSplashDone} />}
-      <AppInner hideSplash={!showSplash} />
+      <ErrorBoundary>
+        <Suspense fallback={<ScreenLoader />}>
+          {showSplash && <SplashScreen onDone={handleSplashDone} />}
+        </Suspense>
+        <AppInner hideSplash={!showSplash} />
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }

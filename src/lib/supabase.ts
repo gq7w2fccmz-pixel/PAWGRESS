@@ -1,8 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 
-// ── Platzhalter – ersetze mit deinen Werten aus:
-// Supabase Dashboard → Project Settings → API
-const SUPABASE_URL  = "https://bkteygggqwlvvzmbopbs.supabase.co";
-const SUPABASE_ANON = "sb_publishable_Fh0AT1i7Yz6-fAXSCBpmzg_5AWNp-t5";
+const SUPABASE_URL  = import.meta.env.VITE_SUPABASE_URL  as string;
+const SUPABASE_ANON = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+
+if (!SUPABASE_URL || !SUPABASE_ANON) {
+  console.error("[supabase] Fehlende Environment Variables! Prüfe .env Datei.");
+}
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);

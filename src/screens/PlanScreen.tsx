@@ -215,54 +215,51 @@ export function PlanScreen() {
           </button>
         </div>
 
-        {/* Wochenziel */}
-        <div>
-          <p className="font-black italic text-xl text-white mb-3" style={{ fontFamily:F }}>WOCHENZIEL</p>
-          <div className="rounded-2xl overflow-hidden" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
-            <div className="flex items-center gap-4 p-4">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-                style={{ background:`${ORANGE}18`, border:`1px solid ${ORANGE}33` }}>
-                <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-                  <circle cx="13" cy="13" r="11" stroke={ORANGE} strokeWidth="1.5"/>
-                  <circle cx="13" cy="13" r="6.5" stroke={ORANGE} strokeWidth="1.5"/>
-                  <circle cx="13" cy="13" r="2.5" fill={ORANGE}/>
-                </svg>
-              </div>
-              <div className="flex-1">
-                <p className="text-xs text-gray-500 mb-0.5">Aktuelles Ziel</p>
-                <p className="font-black text-2xl text-white" style={{ fontFamily:F }}>
-                  {weeklyWorkouts} <span className="text-gray-500 text-lg">/ {goal}</span>
-                  <span className="text-base text-gray-400 font-normal ml-1">Workouts</span>
-                </p>
-                <p className="text-xs text-gray-600 mb-2">Diese Woche</p>
-                <div className="rounded-full overflow-hidden" style={{ height:5, background:"#1e1e1e" }}>
-                  <div className="h-full rounded-full" style={{ width:`${progress*100}%`, background:ORANGE }} />
-                </div>
-              </div>
-              <button onClick={() => setShowGoalEdit(true)}
-                className="text-xs font-bold flex-shrink-0"
-                style={{ background:"none", border:"none", color:"#aaa" }}>
-                Ziel ›
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* Schnellaktionen */}
         <div>
           <p className="font-black italic text-xl text-white mb-3" style={{ fontFamily:F }}>Schnellaktionen</p>
           <div className="grid grid-cols-4 gap-2">
             {[
-              { icon:"📝", label:"PLAN\nBEARBEITEN",   action: () => setSub("createPlan"),                             color:"#3b82f6" },
-              { icon:"📋", label:"PLAN\nDUPLIZIEREN",  action: () => { if (activePlan) duplicatePlan(activePlan.id); }, color:ORANGE },
-              { icon:"🗑", label:"PLAN\nLÖSCHEN",      action: () => setShowDeleteConfirm(true),                       color:"#ef4444" },
-              { icon:"📊", label:"PLAN\nSTATISTIKEN",  action: () => navigate("/profil"),                              color:"#22c55e" },
+              {
+                svg: <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <path d="M4 17.5V14L13.5 4.5L17 8L7.5 17.5H4Z" stroke="#3b82f6" strokeWidth="1.5" strokeLinejoin="round"/>
+                  <line x1="11" y1="7" x2="15" y2="11" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>,
+                label: "PLAN\nBEARBEITEN", action: () => setSub("createPlan"), color: "#3b82f6",
+              },
+              {
+                svg: <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <rect x="3" y="5" width="13" height="15" rx="2" stroke={ORANGE} strokeWidth="1.5"/>
+                  <rect x="6" y="2" width="13" height="15" rx="2" stroke={ORANGE} strokeWidth="1.5" strokeDasharray="3 2"/>
+                  <line x1="7" y1="10" x2="13" y2="10" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+                  <line x1="7" y1="13" x2="11" y2="13" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>,
+                label: "PLAN\nDUPLIZIEREN", action: () => { if (activePlan) duplicatePlan(activePlan.id); }, color: ORANGE,
+              },
+              {
+                svg: <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <polyline points="4,6 18,6" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round"/>
+                  <path d="M8 6V4h6v2" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <rect x="6" y="8" width="10" height="11" rx="1.5" stroke="#ef4444" strokeWidth="1.5"/>
+                  <line x1="9" y1="11" x2="9" y2="16" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round"/>
+                  <line x1="13" y1="11" x2="13" y2="16" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>,
+                label: "PLAN\nLÖSCHEN", action: () => setShowDeleteConfirm(true), color: "#ef4444",
+              },
+              {
+                svg: <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <rect x="2" y="13" width="4" height="7" rx="1" fill="#22c55e" fillOpacity="0.4"/>
+                  <rect x="9" y="8" width="4" height="12" rx="1" fill="#22c55e" fillOpacity="0.7"/>
+                  <rect x="16" y="3" width="4" height="17" rx="1" fill="#22c55e"/>
+                </svg>,
+                label: "PLAN\nSTATISTIKEN", action: () => navigate("/profil"), color: "#22c55e",
+              },
             ].map((a, i) => (
               <button key={i} onClick={a.action}
                 className="flex flex-col items-center gap-2 py-4 rounded-2xl"
                 style={{ background:"#111", border:"1px solid #1e1e1e" }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
-                  style={{ background:`${a.color}18` }}>{a.icon}</div>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ background:`${a.color}18` }}>{a.svg}</div>
                 <p className="font-black text-[9px] text-center text-white whitespace-pre-line leading-tight"
                   style={{ fontFamily:F }}>{a.label}</p>
               </button>
