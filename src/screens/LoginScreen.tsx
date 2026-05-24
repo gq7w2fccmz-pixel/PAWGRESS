@@ -1,132 +1,164 @@
 /**
- * LoginScreen – Magic Link Auth
- *
- * Zwei Zustände:
- *  1. E-Mail eingeben → Magic Link senden
- *  2. Bestätigung: "Schau in dein Postfach"
+ * LoginScreen – E-Mail + Passwort Auth
+ * Zwei Modi: Anmelden / Registrieren
  */
 
 import { useState } from "react";
 import { useAuthStore } from "../stores/authStore";
 
-const F = "'Barlow Condensed', sans-serif";
+const F      = "'Barlow Condensed', sans-serif";
 const ORANGE = "#f97316";
 
-export function LoginScreen() {
-  const [email, setEmail]   = useState("");
-  const [sent, setSent]     = useState(false);
-  const [loading, setLoading] = useState(false);
+type Mode = "login" | "register" | "forgot";
 
-  const { sendMagicLink, authError } = useAuthStore();
+export function LoginScreen() {
+  const [mode,     setMode]     = useState<Mode>("login");
+  const [email,    setEmail]    = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm,  setConfirm]  = useState("");
+  const [loading,  setLoading]  = useState(false);
+  const [success,  setSuccess]  = useState("");
+
+  const { signIn, signUp, resetPassword, authError, clearError } = useAuthStore();
+
+  function switchMode(m: Mode) {
+    setMode(m);
+    setEmail("");
+    setPassword("");
+    setConfirm("");
+    setSuccess("");
+    clearError();
+  }
 
   async function handleSubmit() {
     if (!email.trim()) return;
     setLoading(true);
-    await sendMagicLink(email.trim().toLowerCase());
+    setSuccess("");
+
+    if (mode === "login") {
+      await signIn(email.trim(), password);
+    } else if (mode === "register") {
+      if (password !== confirm) {
+        useAuthStore.setState({ authError: "Passwörter stimmen nicht überein." });
+        setLoading(false);
+        return;
+      }
+      if (password.length < 6) {
+        useAuthStore.setState({ authError: "Passwort muss mindestens 6 Zeichen haben." });
+        setLoading(false);
+        return;
+      }
+      await signUp(email.trim(), password);
+    } else {
+      await resetPassword(email.trim());
+      if (!useAuthStore.getState().authError) {
+        setSuccess("E-Mail gesendet! Prüfe dein Postfach.");
+      }
+    }
     setLoading(false);
-    if (!useAuthStore.getState().authError) setSent(true);
   }
 
+  const titles: Record<Mode, string> = {
+    login:    "ANMELDEN",
+    register: "REGISTRIEREN",
+    forgot:   "PASSWORT ZURÜCKSETZEN",
+  };
+
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-6"
-      style={{ background: "#0a0a0a", color: "#fff" }}
-    >
-      {/* Logo / Splash */}
+    <div className="min-h-screen flex flex-col items-center justify-center px-6"
+      style={{ background: "#0a0a0a", color: "#fff" }}>
+
+      {/* Logo */}
       <div className="flex flex-col items-center mb-10">
-        <img
-          src="/images/bertl_splash.webp"
-          alt="Bertl"
+        <img src="/images/bertl_splash.webp" alt="Bertl"
           className="w-28 h-28 rounded-full object-cover mb-4"
-          style={{ border: `3px solid ${ORANGE}` }}
-        />
-        <p
-          className="font-black italic text-4xl tracking-tight"
-          style={{ fontFamily: F, color: ORANGE }}
-        >
-          PAWGRESS
-        </p>
+          style={{ border: `3px solid ${ORANGE}` }} />
+        <p className="font-black italic text-4xl tracking-tight"
+          style={{ fontFamily: F, color: ORANGE }}>PAWGRESS</p>
         <p className="text-gray-500 text-sm mt-1">Fitness mit Tier-Coaches 🐾</p>
       </div>
 
-      {sent ? (
-        /* ── Bestätigung ── */
-        <div className="w-full max-w-sm text-center flex flex-col gap-4">
-          <div
-            className="rounded-2xl p-6"
-            style={{ background: "#111", border: "1px solid #1e1e1e" }}
-          >
-            <p className="text-4xl mb-3">📬</p>
-            <p
-              className="font-black text-xl text-white mb-2"
-              style={{ fontFamily: F }}
-            >
-              MAGIC LINK GESENDET
-            </p>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              Schau in dein Postfach für{" "}
-              <span style={{ color: ORANGE }}>{email}</span>.
-              <br />
-              Klicke den Link – du wirst automatisch eingeloggt.
-            </p>
-          </div>
-          <button
-            onClick={() => setSent(false)}
-            className="text-sm text-gray-600 underline"
-          >
-            Andere E-Mail verwenden
-          </button>
-        </div>
-      ) : (
-        /* ── Login-Form ── */
-        <div className="w-full max-w-sm flex flex-col gap-3">
-          <p
-            className="font-black italic text-2xl text-white text-center mb-2"
-            style={{ fontFamily: F }}
-          >
-            ANMELDEN
-          </p>
+      <div className="w-full max-w-sm flex flex-col gap-3">
+        <p className="font-black italic text-2xl text-white text-center mb-2"
+          style={{ fontFamily: F }}>{titles[mode]}</p>
 
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            placeholder="deine@email.de"
-            autoComplete="email"
+        {/* E-Mail */}
+        <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+          placeholder="deine@email.de" autoComplete="email"
+          className="w-full px-4 py-3.5 rounded-2xl text-white outline-none text-base"
+          style={{ background: "#111", border: "1px solid #2a2a2a" }} />
+
+        {/* Passwort */}
+        {mode !== "forgot" && (
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+            placeholder="Passwort" autoComplete={mode === "register" ? "new-password" : "current-password"}
+            onKeyDown={e => e.key === "Enter" && handleSubmit()}
             className="w-full px-4 py-3.5 rounded-2xl text-white outline-none text-base"
-            style={{
-              background: "#111",
-              border: `1px solid ${authError ? "#ef4444" : "#2a2a2a"}`,
-              fontFamily: F,
-              letterSpacing: "0.02em",
-            }}
-          />
+            style={{ background: "#111", border: "1px solid #2a2a2a" }} />
+        )}
 
-          {authError && (
-            <p className="text-red-400 text-xs px-1">{authError}</p>
-          )}
+        {/* Passwort bestätigen */}
+        {mode === "register" && (
+          <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)}
+            placeholder="Passwort bestätigen" autoComplete="new-password"
+            onKeyDown={e => e.key === "Enter" && handleSubmit()}
+            className="w-full px-4 py-3.5 rounded-2xl text-white outline-none text-base"
+            style={{ background: "#111", border: "1px solid #2a2a2a" }} />
+        )}
 
-          <button
-            onClick={handleSubmit}
-            disabled={loading || !email.trim()}
-            className="w-full py-4 rounded-2xl font-black text-xl text-white mt-1"
-            style={{
-              background: loading || !email.trim() ? "#333" : ORANGE,
-              border: "none",
-              fontFamily: F,
-              boxShadow: loading || !email.trim() ? "none" : `0 0 20px ${ORANGE}44`,
-              transition: "all 0.2s",
-            }}
-          >
-            {loading ? "SENDE LINK …" : "MAGIC LINK SENDEN 🐾"}
+        {/* Fehler */}
+        {authError && (
+          <p className="text-red-400 text-xs px-1">{authError}</p>
+        )}
+
+        {/* Erfolg */}
+        {success && (
+          <p className="text-green-400 text-xs px-1">{success}</p>
+        )}
+
+        {/* Submit */}
+        <button onClick={handleSubmit} disabled={loading || !email.trim()}
+          className="w-full py-4 rounded-2xl font-black text-xl text-white mt-1"
+          style={{
+            background: loading || !email.trim() ? "#333" : ORANGE,
+            border: "none", fontFamily: F,
+            boxShadow: loading || !email.trim() ? "none" : `0 0 20px ${ORANGE}44`,
+          }}>
+          {loading ? "LADEN …" : titles[mode]}
+        </button>
+
+        {/* Links */}
+        {mode === "login" && (
+          <>
+            <button onClick={() => switchMode("register")}
+              className="text-sm text-center mt-1"
+              style={{ background: "none", border: "none", color: ORANGE, fontFamily: F }}>
+              NEU HIER? REGISTRIEREN →
+            </button>
+            <button onClick={() => switchMode("forgot")}
+              className="text-xs text-center text-gray-600"
+              style={{ background: "none", border: "none" }}>
+              Passwort vergessen?
+            </button>
+          </>
+        )}
+
+        {mode === "register" && (
+          <button onClick={() => switchMode("login")}
+            className="text-sm text-center mt-1"
+            style={{ background: "none", border: "none", color: "#888" }}>
+            Bereits ein Konto? Anmelden
           </button>
+        )}
 
-          <p className="text-center text-xs text-gray-600 mt-2">
-            Kein Passwort nötig – wir schicken dir einen Login-Link.
-          </p>
-        </div>
-      )}
+        {mode === "forgot" && (
+          <button onClick={() => switchMode("login")}
+            className="text-sm text-center mt-1"
+            style={{ background: "none", border: "none", color: "#888" }}>
+            ← Zurück zum Login
+          </button>
+        )}
+      </div>
     </div>
   );
 }
