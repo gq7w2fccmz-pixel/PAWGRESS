@@ -4,14 +4,56 @@
 @tailwind utilities;
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #0a0a0a; color: #fff; font-family: 'Barlow', sans-serif; }
-button { cursor: pointer; }
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
 
-/* ── iOS Auto-Zoom Fix ───────────────────────────────────────────────────────
-   Safari zoomt bei Input-Feldern mit font-size < 16px automatisch rein.
-   Diese Regel verhindert das für alle Inputs, Textareas und Selects.        */
-input, textarea, select {
-  font-size: 16px !important;
+/* ── Globale Design-Tokens: Gebürstetes Metall ───────────────────────────────*/
+:root {
+  --copper:        #cd7f32;
+  --copper-light:  #e8a050;
+  --copper-dark:   #8b5a1f;
+  --copper-glow:   rgba(180, 100, 20, 0.35);
+  --surface:       #111009;
+  --surface-raised:#1a1610;
+  --surface-card:  #161208;
+  --border-metal:  rgba(205, 127, 50, 0.2);
+  --border-subtle: rgba(205, 127, 50, 0.08);
 }
+
+body {
+  background: #0a0807;
+  color: #fff;
+  font-family: 'Barlow', sans-serif;
+  /* Subtile gebürstete Metalltextur als Hintergrund */
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(205,127,50,0.015) 2px,
+      rgba(205,127,50,0.015) 3px
+    );
+}
+
+button { cursor: pointer; }
+
+/* ── iOS Auto-Zoom Fix ───────────────────────────────────────────────────────*/
+input, textarea, select { font-size: 16px !important; }
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────────*/
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--copper-dark), var(--copper));
+  border-radius: 4px;
+}
+
+/* ── Karten mit Metallic-Feeling ─────────────────────────────────────────────*/
+.card-metal {
+  background: var(--surface-card);
+  border: 1px solid var(--border-metal);
+  box-shadow: inset 0 1px 0 rgba(205,127,50,0.1), 0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* ── Ambient Glow für aktive Elemente ────────────────────────────────────────*/
+.glow-copper {
+  box-shadow: 0 0 16px var(--copper-glow), 0 0 32px rgba(180,100,20,0.15);
+}
+
