@@ -249,7 +249,7 @@ export function ActiveSetScreen() {
     <div className="min-h-screen flex flex-col pb-10" style={{ background: "#080808", color: "#fff" }}>
       {showAbort && <AbortModal />}
       <div className="flex items-center justify-between px-4 pt-5 pb-4" style={{ borderBottom: "1px solid #1e1e1e" }}>
-        <button onClick={() => navigate("/training")}
+        <button onClick={() => navigate(-1)}
           style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
         <div className="text-center">
           <p className="font-black text-lg text-white" style={{ fontFamily: F }}>{planEx.name}</p>
@@ -292,7 +292,7 @@ export function ActiveSetScreen() {
 
       {/* Header – back does NOT abort, progress is saved */}
       <div className="flex items-center justify-between px-4 pt-5 pb-4" style={{ borderBottom: "1px solid #1e1e1e" }}>
-        <button onClick={() => navigate("/training")}
+        <button onClick={() => navigate(-1)}
           style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
         <div className="text-center">
           <p className="font-black text-xl text-white" style={{ fontFamily: F }}>{planEx.name}</p>
@@ -341,7 +341,8 @@ export function ActiveSetScreen() {
       </div>
       <div style={{ height: 1, background: "#1e1e1e", margin: "0 24px 24px" }} />
 
-      {/* Timer */}
+      {/* Timer – nur nach erstem Satz anzeigen */}
+      {currentSet > 1 && (
       <div className="px-6 mb-6">
         <p className="text-xs text-gray-500 tracking-widest font-bold text-center mb-4">REST TIMER</p>
         <div className="flex justify-center">
@@ -357,6 +358,7 @@ export function ActiveSetScreen() {
           </div>
         )}
       </div>
+      )}
 
       {/* Tipp */}
       <div className="px-6 mb-6">
