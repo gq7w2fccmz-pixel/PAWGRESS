@@ -100,9 +100,9 @@ export function ResetPasswordScreen() {
       style={{ background: "#0a0a0a", color: "#fff" }}>
 
       <div className="flex flex-col items-center mb-10">
-        <img src="/images/bertl_splash.webp" alt="Bertl"
-          className="w-24 h-24 rounded-full object-cover mb-4"
-          style={{ border: `3px solid ${ORANGE}` }} />
+        <img src="/images/icon.webp" alt="Pawgress"
+          className="w-24 h-24 rounded-3xl object-cover mb-4"
+          style={{ boxShadow: `0 0 24px rgba(180,100,20,0.4)` }} />
         <p className="font-black italic text-4xl" style={{ fontFamily: F, color: ORANGE }}>
           PAWGRESS
         </p>

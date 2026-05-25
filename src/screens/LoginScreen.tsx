@@ -70,12 +70,12 @@ export function LoginScreen() {
 
       {/* Logo */}
       <div className="flex flex-col items-center mb-10">
-        <img src="/images/bertl_splash.webp" alt="Bertl"
-          className="w-28 h-28 rounded-full object-cover mb-4"
-          style={{ border: `3px solid ${ORANGE}` }} />
+        <img src="/images/icon.webp" alt="Pawgress"
+          className="w-28 h-28 rounded-3xl object-cover mb-4"
+          style={{ boxShadow: "0 0 30px rgba(180,100,20,0.4)" }} />
         <p className="font-black italic text-4xl tracking-tight"
-          style={{ fontFamily: F, color: ORANGE }}>PAWGRESS</p>
-        <p className="text-gray-500 text-sm mt-1">Fitness mit Tier-Coaches 🐾</p>
+          style={{ fontFamily: F, background: "linear-gradient(135deg, #cd7f32, #f4a460, #b8660a, #e8a050)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>PAWGRESS</p>
+        <p className="text-gray-500 text-sm mt-1">No Excuses, Just Pawgress.</p>
       </div>
 
       <div className="w-full max-w-sm flex flex-col gap-3">

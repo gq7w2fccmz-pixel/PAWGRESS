@@ -119,9 +119,9 @@ export default function App() {
   if (syncing) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-[#0a0a0a]">
-        <img src="/images/bertl_splash.webp" alt="Bertl"
-          className="w-20 h-20 rounded-full object-cover"
-          style={{ border: `2px solid ${ORANGE}` }} />
+        <img src="/images/icon.webp" alt="Pawgress"
+          className="w-20 h-20 rounded-2xl object-cover"
+          style={{ boxShadow: `0 0 20px rgba(180,100,20,0.4)` }} />
         <p className="font-black text-gray-500 text-base" style={{ fontFamily: F }}>
           DATEN WERDEN GELADEN …
         </p>

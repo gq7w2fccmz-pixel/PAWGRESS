@@ -419,14 +419,15 @@ export function TrainingScreen() {
       )}
 
       {/* ── HERO ── */}
-      <div className="relative overflow-hidden" style={{ height: 300 }}>
-        {/* Background gym image – shifted down so mascot head isn't clipped */}
+      <div className="relative overflow-hidden" style={{ height: 200 }}>
         <img src="/images/training_hero.webp" alt=""
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: "center top" }} />
-        {/* Dark overlay – heavier at bottom */}
+          style={{ objectPosition: "right center" }} />
         <div className="absolute inset-0" style={{
-          background: "linear-gradient(to bottom, rgba(8,8,8,0.2) 0%, rgba(8,8,8,0.4) 50%, rgba(8,8,8,1) 100%)",
+          background: "linear-gradient(to right, rgba(8,8,8,0.95) 45%, rgba(8,8,8,0.6) 70%, rgba(8,8,8,0.1) 100%)",
+        }} />
+        <div className="absolute inset-0" style={{
+          background: "linear-gradient(to bottom, transparent 40%, rgba(8,8,8,1) 100%)",
         }} />
         {/* TRAINING title – top left */}
         <div className="relative z-20 px-4 pt-5">
