@@ -6,6 +6,7 @@
  */
 
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import type { PlanExercise } from "../data/plan_2er_split";
 import { useStatsStore } from "../stores/statsStore";
@@ -17,10 +18,16 @@ import {
   DayDetailScreen,
 } from "./plan/PlanSubScreens";
 
-const F      = "'Barlow Condensed', sans-serif";
-const ORANGE = "#f97316";
-const BLUE   = "#3b82f6";
-const GREEN  = "#22c55e";
+const F        = "'Barlow Condensed', sans-serif";
+const ORANGE   = "#f97316";
+const BLUE     = "#3b82f6";
+const GREEN    = "#22c55e";
+const COPPER   = "#cd7f32";
+const COPPER_L = "#e8a050";
+const COPPER_G = "rgba(180,100,20,0.22)";
+const SURF     = "#131008";
+const SURF2    = "#1a1610";
+const BORDER   = "rgba(205,127,50,0.18)";
 
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
 function IconTarget({ color = ORANGE }: { color?: string }) {
@@ -132,14 +139,14 @@ function PlanCard({
   titleLine1:  string;
   titleLine2:  string;
   titleColor:  string;
-  features:    { icon: React.ReactNode; label: string }[];
+  features:    { icon: ReactNode; label: string }[];
   featureColor:string;
   btnLabel:    string;
   btnBg:       string;
   btnColor:    string;
   onPress:     () => void;
   disabled?:   boolean;
-  footerIcon?: React.ReactNode;
+  footerIcon?: ReactNode;
 }) {
   return (
     <div className="rounded-3xl overflow-hidden relative"

@@ -309,11 +309,6 @@ export function SettingsScreen({
   onBack: () => void;
   onNav:  (sub: string) => void;
 }) {
-  const COPPER_L = "#e8a050";
-  const SURF     = "#131008";
-  const SURF2    = "#1a1610";
-  const BORDER   = "rgba(205,127,50,0.18)";
-  const COPPER_G = "rgba(180,100,20,0.18)";
 
   const items = [
     { key: "editProfil",  iconEl: <IconUser color={COPPER_L}/>, label: "Profil bearbeiten",  desc: "Name, Avatar, Ziele" },

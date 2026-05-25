@@ -329,7 +329,7 @@ function TrainingEditScreen({
                     onDragEnd={onDragEnd} onDragOver={e => e.preventDefault()}
                     onTouchStart={e => onTouchStart(e, i)} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>⠿</span>
                   <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0"
-                    style={{ fontFamily:F, background:`${ORANGE}22`, color:ORANGE, border:`1.5px solid ${ORANGE}` }}>{i+1}</div>
+                    style={{ fontFamily:F, background:`${COPPER}18`, color:COPPER_L, border:`1.5px solid ${COPPER_L}` }}>{i+1}</div>
                   <div className="w-9 h-9 rounded-xl flex-shrink-0 overflow-hidden cursor-pointer" style={{ background:"#2a2a2a" }}
                     onClick={() => navigate(`/active-set/${i}`)}>
                     <img src={coachImg} alt="" className="w-full h-full object-cover object-top" style={{ filter:"brightness(0.6)" }} />
@@ -352,10 +352,10 @@ function TrainingEditScreen({
                   <div className="px-4 pb-3 flex items-center gap-3 border-t" style={{ borderColor:"#1e1e1e" }}>
                     <p className="text-xs text-gray-400 flex-1">Sätze:</p>
                     <button onClick={() => changeSets(i,-1)} className="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold"
-                      style={{ background:"#2a2a2a", color:ORANGE, border:"none" }}>−</button>
+                      style={{ background:SURF2, color:COPPER_L, border:"none" }}>−</button>
                     <p className="font-black text-lg text-white w-8 text-center" style={{ fontFamily:F }}>{ex.sets.length}</p>
                     <button onClick={() => changeSets(i,1)} className="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold"
-                      style={{ background:"#2a2a2a", color:ORANGE, border:"none" }}>+</button>
+                      style={{ background:SURF2, color:COPPER_L, border:"none" }}>+</button>
                   </div>
                 )}
               </div>
@@ -364,7 +364,7 @@ function TrainingEditScreen({
         </div>
         <button onClick={() => setShowAddModal(true)}
           className="w-full py-3 rounded-2xl font-black text-sm mb-3 flex items-center justify-center gap-2"
-          style={{ background:"#111", border:`1px dashed ${ORANGE}55`, color:ORANGE, fontFamily:F }}>
+          style={{ background:"#111", border:`1px dashed ${COPPER}55`, color:COPPER_L, fontFamily:F }}>
           + ÜBUNG HINZUFÜGEN
         </button>
         <button onClick={() => { startWorkout(); navigate("/active-set/0"); }}
@@ -544,10 +544,10 @@ export function TrainingScreen() {
       {/* ── NÄCHSTES WORKOUT ── */}
       <div className="mx-4 mb-5 rounded-2xl p-4" style={{
         background: "#111",
-        border: `1px solid ${nextDay.color}55`,
-        boxShadow: `0 0 20px ${nextDay.color}18`,
+        border: `1px solid ${COPPER}44`,
+        boxShadow: `0 0 20px ${COPPER_G}`,
       }}>
-        <p className="font-black text-xs tracking-widest mb-2" style={{ color: nextDay.color, fontFamily: F }}>
+        <p className="font-black text-xs tracking-widest mb-2" style={{ color: COPPER_L, fontFamily: F }}>
           NÄCHSTES WORKOUT
         </p>
         <div className="flex items-start justify-between gap-3">
@@ -565,7 +565,7 @@ export function TrainingScreen() {
                 <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>~60 Min</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span style={{ color: nextDay.color, fontSize: 13 }}>🏆</span>
+                <span style={{ color: COPPER_L, fontSize: 13 }}>🏆</span>
                 <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>{nextDay.exercises.length} Übungen</span>
               </div>
             </div>
@@ -575,10 +575,10 @@ export function TrainingScreen() {
             <button onClick={() => setSelection({ exercises: nextDay.exercises, label: nextDay.label, color: nextDay.color })}
               className="flex items-center justify-center gap-2 rounded-2xl font-black text-sm text-white"
               style={{
-                background: nextDay.color,
+                background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`,
                 border: "none",
                 fontFamily: F,
-                boxShadow: `0 0 16px ${nextDay.color}55`,
+                boxShadow: `0 0 24px ${COPPER_G}, inset 0 1px 0 rgba(255,255,255,0.15)`,
                 padding: "14px 12px",
                 lineHeight: 1.2,
               }}>
@@ -591,7 +591,7 @@ export function TrainingScreen() {
               className="rounded-2xl font-black text-xs text-white text-center"
               style={{
                 background: "transparent",
-                border: "1px solid #2a2a2a",
+                border: `1px solid ${BORDER}`,
                 fontFamily: F,
                 padding: "10px 12px",
               }}>

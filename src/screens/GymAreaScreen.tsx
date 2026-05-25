@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, type ReactNode, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AREA_DATA } from "../data/areaData";
 import type { AreaName, AreaExercise } from "../types";
@@ -161,7 +161,7 @@ function ExerciseDetail({ ex, area, areaKey, onBack }: {
   const muscles = [ex.primary, ...(ex.secondary?.split(" · ") ?? [])].filter(Boolean);
   const muscleColors = ["#ef4444", "#22c55e", "#a855f7", "#3b82f6", "#f97316"];
 
-  const sections: { key: Section; label: string; icon: React.ReactNode; color: string; content: React.ReactNode; hasContent: boolean }[] = [
+  const sections: { key: Section; label: string; icon: ReactNode; color: string; content: ReactNode; hasContent: boolean }[] = [
     {
       key: "technik", label: "TECHNIK", color: "#22c55e",
       icon: <IconCheckCircle color="#22c55e" />,
