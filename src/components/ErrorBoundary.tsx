@@ -72,7 +72,7 @@ export class ErrorBoundary extends Component<Props, State> {
           </div>
 
           {/* Dev-Fehlerdetails */}
-          {import.meta.env.DEV && this.state.error && (
+          {this.state.error && (
             <div className="w-full rounded-2xl p-3 text-left"
               style={{
                 background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`,

@@ -9,6 +9,7 @@
  */
 
 import { useState } from "react";
+import { IconUser, IconBell, IconLock, IconInfo } from "../../components/icons";
 import type { ReactNode } from "react";
 import { useProfileStore } from "../../stores/profileStore";
 import { useCoachStore }   from "../../stores/coachStore";
