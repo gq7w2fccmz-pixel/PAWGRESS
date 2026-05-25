@@ -89,9 +89,9 @@ export function ProfilScreen() {
     <div className="min-h-screen pb-28" style={{ background:"#080808", color:"#fff" }}>
 
       {/* Hero */}
-      <div className="relative overflow-hidden" style={{ height: 310 }}>
+      <div className="relative overflow-hidden" style={{ height: 200 }}>
         <img src="/images/profil_hero.webp" alt=""
-          className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition:"center 20%" }} />
+          className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition:"right center" }} />
         <div className="absolute inset-0" style={{
           background:"linear-gradient(to right, rgba(8,8,8,0.92) 45%, rgba(8,8,8,0.15) 100%)",
         }} />

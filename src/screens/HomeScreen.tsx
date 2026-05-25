@@ -164,24 +164,24 @@ export function HomeScreen() {
       )}
 
       {/* ── HERO ── */}
-      <div className="relative overflow-hidden" style={{ height: 300 }}>
-        <img src="/images/bertl.webp" alt=""
+      <div className="relative overflow-hidden" style={{ height: 200 }}>
+        <img src="/images/home_hero.webp" alt=""
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: "center 15%" }} />
+          style={{ objectPosition: "right center" }} />
         {/* Left-to-right dark gradient so text is readable */}
         <div className="absolute inset-0" style={{
-          background: "linear-gradient(to right, rgba(8,8,8,0.92) 40%, rgba(8,8,8,0.55) 70%, rgba(8,8,8,0.1) 100%)",
+          background: "linear-gradient(to right, rgba(8,8,8,0.95) 45%, rgba(8,8,8,0.6) 70%, rgba(8,8,8,0.1) 100%)",
         }} />
         {/* Bottom fade */}
         <div className="absolute inset-0" style={{
-          background: "linear-gradient(to bottom, transparent 55%, rgba(8,8,8,1) 100%)",
+          background: "linear-gradient(to bottom, transparent 40%, rgba(8,8,8,1) 100%)",
         }} />
 
-        <div className="relative z-10 px-5 pt-6">
+        <div className="relative z-10 px-5 pt-5">
           <p className="text-xs tracking-widest font-bold uppercase" style={{ color: "rgba(255,255,255,0.45)", fontFamily: F }}>
             {greeting()}
           </p>
-          <h1 className="font-black italic leading-none" style={{ fontFamily: F, fontSize: 52, color: "#fff" }}>
+          <h1 className="font-black italic leading-none" style={{ fontFamily: F, fontSize: 48, color: "#fff" }}>
             {profile.name.toUpperCase()}
           </h1>
         </div>
