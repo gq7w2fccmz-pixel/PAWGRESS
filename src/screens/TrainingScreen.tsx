@@ -11,6 +11,12 @@ import type { AreaName } from "../types";
 
 const F = "'Barlow Condensed', sans-serif";
 const ORANGE = "#f97316";
+const COPPER   = "#cd7f32";
+const COPPER_L = "#e8a050";
+const COPPER_G = "rgba(180,100,20,0.22)";
+const SURF     = "#131008";
+const SURF2    = "#1a1610";
+const BORDER   = "rgba(205,127,50,0.18)";
 
 // ── Gym areas config ──────────────────────────────────────────────────────────
 const AREAS: { key: AreaName; label: string; img: string }[] = [
@@ -387,13 +393,7 @@ export function TrainingScreen() {
   const [showPicker,    setShowPicker]    = useState(false);
   const [selection,     setSelection]     = useState<WorkoutSelection | null>(null);
 
-  // Kupfer-Bronze Palette
-  const COPPER   = "#cd7f32";
-  const COPPER_L = "#e8a050";
-  const COPPER_G = "rgba(180,100,20,0.22)";
-  const SURF     = "#131008";
-  const SURF2    = "#1a1610";
-  const BORDER   = "rgba(205,127,50,0.18)";
+
 
   const dayIndex = totalWorkouts % 4;
   const nextDay  = PLAN_2ER_SPLIT[dayIndex];
