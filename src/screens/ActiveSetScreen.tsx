@@ -249,7 +249,7 @@ export function ActiveSetScreen() {
     <div className="min-h-screen flex flex-col pb-10" style={{ background: "#080808", color: "#fff" }}>
       {showAbort && <AbortModal />}
       <div className="flex items-center justify-between px-4 pt-5 pb-4" style={{ borderBottom: "1px solid #1e1e1e" }}>
-        <button onClick={() => navigate(-1)}
+        <button onClick={() => navigate("/training")}
           style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
         <div className="text-center">
           <p className="font-black text-lg text-white" style={{ fontFamily: F }}>{planEx.name}</p>
@@ -290,9 +290,9 @@ export function ActiveSetScreen() {
     <div className="min-h-screen pb-8" style={{ background: "#080808", color: "#fff" }}>
       {showAbort && <AbortModal />}
 
-      {/* Header – back does NOT abort, progress is saved */}
+      {/* Header – back goes to exercise list, progress is saved */}
       <div className="flex items-center justify-between px-4 pt-5 pb-4" style={{ borderBottom: "1px solid #1e1e1e" }}>
-        <button onClick={() => navigate(-1)}
+        <button onClick={() => navigate("/training")}
           style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
         <div className="text-center">
           <p className="font-black text-xl text-white" style={{ fontFamily: F }}>{planEx.name}</p>
@@ -340,25 +340,6 @@ export function ActiveSetScreen() {
           subLabel={`ZIEL: ${planEx.sets[currentSet - 1]?.reps ?? defaultReps} Wdh`} />
       </div>
       <div style={{ height: 1, background: "#1e1e1e", margin: "0 24px 24px" }} />
-
-      {/* Timer – nur nach erstem Satz anzeigen */}
-      {currentSet > 1 && (
-      <div className="px-6 mb-6">
-        <p className="text-xs text-gray-500 tracking-widest font-bold text-center mb-4">REST TIMER</p>
-        <div className="flex justify-center">
-          <TimerRing seconds={timerSec} total={timerTotal} onAdjust={adjustTimer}
-            onSet={v => { setTimerTotal(v); setTimerSec(v); if (v === 0) setTimerRunning(false); }} />
-        </div>
-        {timerTotal > 0 && (
-          <div className="flex justify-center mt-2">
-            <button onClick={() => setTimerRunning(r => !r)} className="text-sm"
-              style={{ background: "none", border: "none", color: ORANGE }}>
-              {timerRunning ? "⏸ Pause" : "▶ Start"}
-            </button>
-          </div>
-        )}
-      </div>
-      )}
 
       {/* Tipp */}
       <div className="px-6 mb-6">
