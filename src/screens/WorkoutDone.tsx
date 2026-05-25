@@ -58,7 +58,7 @@ export function WorkoutDone() {
         {/* PR badge overlay */}
         {newPRs > 0 && (
           <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full font-black text-sm"
-            style={{ background: ORANGE, color: "#fff", fontFamily: F,
+            style={{ background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, color: "#fff", fontFamily: F,
               boxShadow: `0 0 20px ${ORANGE}88` }}>
             🏆 {newPRs} NEUER PR!
           </div>
@@ -114,7 +114,7 @@ export function WorkoutDone() {
                   </div>
                   {ex.isPR && (
                     <span className="px-2 py-0.5 rounded text-[9px] font-black flex-shrink-0"
-                      style={{ background: ORANGE, color: "#fff", fontFamily: F }}>NEUER PR</span>
+                      style={{ background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, color: "#fff", fontFamily: F }}>NEUER PR</span>
                   )}
                 </div>
               );
@@ -144,7 +144,7 @@ export function WorkoutDone() {
         {/* Buttons */}
         <button onClick={() => navigate("/")}
           className="w-full py-4 rounded-2xl font-black text-xl text-white"
-          style={{ background: ORANGE, border: "none", fontFamily: F, boxShadow: `0 0 20px ${ORANGE}44` }}>
+          style={{ background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, border: "none", fontFamily: F, boxShadow: `0 0 24px rgba(180,100,20,0.55), inset 0 1px 0 rgba(255,255,255,0.15)` }}>
           ZURÜCK ZUM PLAN
         </button>
         <button onClick={() => navigate("/profil")}

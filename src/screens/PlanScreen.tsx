@@ -188,7 +188,7 @@ function PlanCard({
         <button onClick={onPress} disabled={disabled}
           className="w-full py-4 rounded-2xl font-black text-base flex items-center justify-center gap-2"
           style={{
-            background: disabled ? "#1e1e1e" : btnBg,
+            background: disabled ? `${SURF2}` : `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`,
             color: disabled ? "#555" : btnColor,
             border: "none", fontFamily: F,
             boxShadow: disabled ? "none" : `0 0 20px ${btnBg}55`,

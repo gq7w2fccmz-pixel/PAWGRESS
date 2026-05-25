@@ -236,15 +236,32 @@ export function ProfilScreen() {
           )}
         </div>
 
-        {/* Einstellungen */}
+        {/* Einstellungen – Button → eigene Seite */}
         <div>
           <p className="font-black italic text-xl text-white mb-3" style={{ fontFamily:F }}>EINSTELLUNGEN</p>
-          <div className="rounded-2xl overflow-hidden" style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}`, boxShadow: `0 0 16px ${COPPER_G}` }}>
-            <SettingRow iconEl={<IconUser color="#888"/>} label="Profil bearbeiten"  desc="Name, Avatar, Ziele"       onPress={() => setSub("editProfil")} />
-            <SettingRow iconEl={<IconBell color="#888"/>} label="Benachrichtigungen" desc="Erinnerungen & Updates"    onPress={() => setSub("notif")} />
-            <SettingRow iconEl={<IconLock color="#888"/>} label="Datenschutz"        desc="Deine Daten & Sicherheit"  onPress={() => setSub("datenschutz")} />
-            <SettingRow iconEl={<IconInfo color="#888"/>} label="Über Pawgress"      desc="App Info, Hilfe & Support" onPress={() => setSub("ueber")} last />
-          </div>
+          <button onClick={() => setSub("settings")}
+            className="w-full flex items-center gap-4 p-4 rounded-2xl"
+            style={{
+              background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`,
+              border: `1px solid ${BORDER}`,
+              boxShadow: `0 0 16px ${COPPER_G}, inset 0 1px 0 rgba(205,127,50,0.1)`,
+            }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: `${COPPER}18`, border: `1px solid ${COPPER}33` }}>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="2" stroke={COPPER_L} strokeWidth="1.5"/>
+                <path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.2 4.2l1.4 1.4M14.4 14.4l1.4 1.4M4.2 15.8l1.4-1.4M14.4 5.6l1.4-1.4"
+                  stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </div>
+            <div className="flex-1 text-left">
+              <p className="font-black text-base text-white" style={{ fontFamily:F }}>EINSTELLUNGEN</p>
+              <p className="text-xs" style={{ color: COPPER }}>Profil · Notifications · Datenschutz</p>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
         </div>
 
         {/* Logout */}

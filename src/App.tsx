@@ -120,13 +120,38 @@ export default function App() {
   // Daten werden geladen
   if (syncing) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-[#0a0a0a]">
-        <img src="/images/icon.webp" alt="Pawgress"
-          className="w-20 h-20 rounded-2xl object-cover"
-          style={{ boxShadow: `0 0 20px rgba(180,100,20,0.4)` }} />
-        <p className="font-black text-gray-500 text-base" style={{ fontFamily: F }}>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-5 bg-[#0a0807]">
+        {/* Pulsierendes Kupfer-Glow um die Pfote */}
+        <div style={{
+          position: "relative",
+          width: 100, height: 100,
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          {/* Äußerer Glow-Ring */}
+          <div style={{
+            position: "absolute", inset: -8,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(205,127,50,0.2) 0%, transparent 70%)",
+            animation: "pulse 2s ease-in-out infinite",
+          }} />
+          {/* Pfoten-Icon ohne Hintergrund */}
+          <img src="/images/nav_paw.webp" alt="Pawgress"
+            style={{
+              width: 90, height: 90,
+              objectFit: "contain",
+              filter: "drop-shadow(0 0 16px rgba(205,127,50,0.6))",
+            }} />
+        </div>
+        <p className="font-black text-base tracking-widest"
+          style={{ fontFamily: F, color: "#cd7f32" }}>
           DATEN WERDEN GELADEN …
         </p>
+        <style>{`
+          @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: scale(0.95); }
+            50%       { opacity: 1;   transform: scale(1.05); }
+          }
+        `}</style>
       </div>
     );
   }

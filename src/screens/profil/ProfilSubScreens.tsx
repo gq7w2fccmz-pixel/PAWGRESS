@@ -125,7 +125,7 @@ export function ProfilEditScreen({ onBack }: { onBack: () => void }) {
         <button onClick={onBack} style={{ background:"none", border:"none", color:"#fff", fontSize:22 }}>←</button>
         <p className="font-black italic text-xl text-white flex-1" style={{ fontFamily:F }}>PROFIL BEARBEITEN</p>
         <button onClick={save} className="px-4 py-2 rounded-xl font-black text-sm"
-          style={{ background:ORANGE, color:"#fff", fontFamily:F, border:"none" }}>SPEICHERN</button>
+          style={{ background:`linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, color:"#fff", fontFamily:F, border:"none" }}>SPEICHERN</button>
       </div>
 
       <div className="px-4 pt-6 flex flex-col gap-6">

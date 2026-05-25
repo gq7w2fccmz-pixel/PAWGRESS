@@ -120,9 +120,9 @@ export function LoginScreen() {
         <button onClick={handleSubmit} disabled={loading || !email.trim()}
           className="w-full py-4 rounded-2xl font-black text-xl text-white mt-1"
           style={{
-            background: loading || !email.trim() ? "#333" : ORANGE,
+            background: loading || !email.trim() ? "#1e1e1e" : `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`,
             border: "none", fontFamily: F,
-            boxShadow: loading || !email.trim() ? "none" : `0 0 20px ${ORANGE}44`,
+            boxShadow: loading || !email.trim() ? "none" : `0 0 24px rgba(180,100,20,0.55), inset 0 1px 0 rgba(255,255,255,0.15)`,
           }}>
           {loading ? "LADEN …" : titles[mode]}
         </button>

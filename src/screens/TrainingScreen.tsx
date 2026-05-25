@@ -265,7 +265,7 @@ function TrainingEditScreen({
                   </div>
                   <button onClick={() => { persist([...exercises, ex]); setShowAddModal(false); }}
                     className="px-4 py-1.5 rounded-xl font-black text-sm flex-shrink-0"
-                    style={{ background: ORANGE, color: "#fff", fontFamily: F, border: "none" }}>+ ADD</button>
+                    style={{ background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, color: "#fff", fontFamily: F, border: "none" }}>+ ADD</button>
                 </div>
               );
             })}
@@ -306,7 +306,7 @@ function TrainingEditScreen({
           <p className="text-sm font-bold text-white">0 / {exercises.length} Übungen</p>
         </div>
         <div className="w-full rounded-full" style={{ height: 4, background: "#1e1e1e" }}>
-          <div className="h-full rounded-full" style={{ width: "0%", background: ORANGE }} />
+          <div className="h-full rounded-full" style={{ width: "0%", background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)` }} />
         </div>
       </div>
 
@@ -369,7 +369,7 @@ function TrainingEditScreen({
         </button>
         <button onClick={() => { startWorkout(); navigate("/active-set/0"); }}
           className="w-full py-4 rounded-2xl font-black text-xl text-white"
-          style={{ background:ORANGE, border:"none", fontFamily:F, boxShadow:`0 0 20px ${ORANGE}66` }}>
+          style={{ background:`linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, border:"none", fontFamily:F, boxShadow:`0 0 20px ${ORANGE}66` }}>
           WORKOUT STARTEN
         </button>
       </div>

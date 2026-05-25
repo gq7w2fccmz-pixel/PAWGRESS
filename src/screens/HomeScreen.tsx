@@ -70,19 +70,19 @@ function WorkoutDetailModal({ workout, onClose }: {
         <div className="flex flex-col gap-2">
           {workout.exercises.map((ex, i) => (
             <div key={i} className="rounded-2xl overflow-hidden"
-              style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${expanded === i ? ORANGE+"44" : "#1e1e1e"}` }}>
+              style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${expanded === i ? COPPER+"55" : BORDER}` }}>
               <button className="w-full flex items-center gap-3 px-4 py-3 text-left"
                 style={{ background: "none", border: "none" }}
                 onClick={() => setExpanded(expanded === i ? null : i)}>
                 <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0"
-                  style={{ background: `${ORANGE}22`, color: ORANGE, fontFamily: F }}>{i+1}</div>
+                  style={{ background: `${COPPER}22`, color: COPPER_L, fontFamily: F }}>{i+1}</div>
                 <div className="flex-1 min-w-0">
                   <p className="font-black text-sm text-white truncate" style={{ fontFamily: F }}>{ex.name}</p>
                   <p className="text-xs text-gray-500">{ex.sets.length} Sätze · {fmtVolume(ex.volume)}</p>
                 </div>
                 {ex.isPR && (
                   <span className="px-2 py-0.5 rounded text-[9px] font-black"
-                    style={{ background: ORANGE, color: "#fff", fontFamily: F }}>PR</span>
+                    style={{ background: `linear-gradient(135deg, ${COPPER} 0%, ${COPPER_L} 100%)`, color: "#fff", fontFamily: F }}>PR</span>
                 )}
                 <span className="text-[10px]">{expanded === i ? "∧" : "∨"}</span>
               </button>
@@ -120,9 +120,9 @@ function GoalPicker({ current, onClose }: { current: number; onClose: () => void
               className="py-3 rounded-xl font-black text-lg"
               style={{
                 fontFamily: F,
-                background: current === n ? ORANGE : "#1e1e1e",
+                background: current === n ? `linear-gradient(135deg, ${COPPER} 0%, ${COPPER_L} 100%)` : SURF2,
                 color: current === n ? "#fff" : "#888",
-                border: `1px solid ${current === n ? ORANGE : "#2a2a2a"}`,
+                border: `1px solid ${current === n ? COPPER_L : BORDER}`,
               }}>{n}</button>
           ))}
         </div>
@@ -204,10 +204,10 @@ export function HomeScreen() {
         {/* ── NÄCHSTES TRAINING ── */}
         <div className="rounded-2xl p-4 pb-5" style={{
           background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`,
-          border: `1.5px solid ${ORANGE}66`,
-          boxShadow: `0 0 20px ${ORANGE}18`,
+          border: `1.5px solid ${COPPER}55`,
+          boxShadow: `0 0 20px ${COPPER_G}`,
         }}>
-          <p className="font-black text-xs tracking-widest mb-2" style={{ color: ORANGE, fontFamily: F }}>
+          <p className="font-black text-xs tracking-widest mb-2" style={{ color: COPPER_L, fontFamily: F }}>
             NÄCHSTES TRAINING
           </p>
           <div className="flex items-start gap-3">
@@ -225,7 +225,7 @@ export function HomeScreen() {
                   <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>~60 Min</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span style={{ color: ORANGE, fontSize: 13 }}>🏆</span>
+                  <span style={{ color: COPPER_L, fontSize: 13 }}>🏆</span>
                   <span className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>{nextDay.exercises.length} Übungen</span>
                 </div>
               </div>
@@ -235,10 +235,10 @@ export function HomeScreen() {
               <button onClick={() => navigate("/training")}
                 className="flex items-center justify-center gap-2 rounded-2xl font-black text-sm text-white"
                 style={{
-                  background: ORANGE,
+                  background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`,
                   fontFamily: F,
                   border: "none",
-                  boxShadow: `0 0 16px ${ORANGE}55`,
+                  boxShadow: `0 0 24px rgba(180,100,20,0.55), inset 0 1px 0 rgba(255,255,255,0.15)`,
                   padding: "14px 12px",
                   lineHeight: 1.2,
                 }}>
@@ -274,11 +274,11 @@ export function HomeScreen() {
               style={{ background: "none", border: "none", borderRight: "1px solid #1e1e1e" }}>
               <div className="mb-1">
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                  <circle cx="11" cy="11" r="9" stroke={ORANGE} strokeWidth="1.5"/>
-                  <circle cx="11" cy="11" r="5.5" stroke={ORANGE} strokeWidth="1.5"/>
-                  <circle cx="11" cy="11" r="2" fill={ORANGE}/>
-                  <line x1="16" y1="6" x2="19" y2="3" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
-                  <polyline points="17,3 19,3 19,5" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="11" cy="11" r="9" stroke={COPPER_L} strokeWidth="1.5"/>
+                  <circle cx="11" cy="11" r="5.5" stroke={COPPER_L} strokeWidth="1.5"/>
+                  <circle cx="11" cy="11" r="2" fill={COPPER_L}/>
+                  <line x1="16" y1="6" x2="19" y2="3" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round"/>
+                  <polyline points="17,3 19,3 19,5" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
               <p className="text-[9px] text-gray-500 tracking-widest font-bold mb-1">WOCHENZIEL</p>
@@ -293,12 +293,12 @@ export function HomeScreen() {
               style={{ borderRight: "1px solid #1e1e1e" }}>
               <div className="mb-1">
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                  <path d="M11 2C11 2 6 7.5 6 12C6 14.8 8.2 17 11 17C13.8 17 16 14.8 16 12C16 9.5 14 7.5 12.5 6.5C12.5 8 11.5 9.5 11 9.5C9.5 9.5 8.5 8 8.5 6.5C8.5 4.5 11 2 11 2Z" fill={ORANGE}/>
+                  <path d="M11 2C11 2 6 7.5 6 12C6 14.8 8.2 17 11 17C13.8 17 16 14.8 16 12C16 9.5 14 7.5 12.5 6.5C12.5 8 11.5 9.5 11 9.5C9.5 9.5 8.5 8 8.5 6.5C8.5 4.5 11 2 11 2Z" fill={COPPER_L}/>
                   <path d="M11 17C9.5 17 8.5 16 8.5 14.5C8.5 13.2 9.5 12.3 11 12C12.5 12.3 13.5 13.2 13.5 14.5C13.5 16 12.5 17 11 17Z" fill="#fff" fillOpacity="0.25"/>
                 </svg>
               </div>
               <p className="text-[9px] text-gray-500 tracking-widest font-bold mb-1">STREAK</p>
-              <p className="font-black text-2xl" style={{ fontFamily: F, color: ORANGE }}>{streak}</p>
+              <p className="font-black text-2xl" style={{ fontFamily: F, color: COPPER_L }}>{streak}</p>
               <p className="text-[10px] text-[10px] mt-0.5">Tage</p>
             </div>
 
@@ -306,9 +306,9 @@ export function HomeScreen() {
             <div className="flex flex-col items-center py-4 px-2">
               <div className="mb-1">
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                  <rect x="2" y="13" width="4" height="7" rx="1" fill={ORANGE} fillOpacity="0.4"/>
-                  <rect x="9" y="8" width="4" height="12" rx="1" fill={ORANGE} fillOpacity="0.7"/>
-                  <rect x="16" y="3" width="4" height="17" rx="1" fill={ORANGE}/>
+                  <rect x="2" y="13" width="4" height="7" rx="1" fill={COPPER_L} fillOpacity="0.4"/>
+                  <rect x="9" y="8" width="4" height="12" rx="1" fill={COPPER_L} fillOpacity="0.7"/>
+                  <rect x="16" y="3" width="4" height="17" rx="1" fill={COPPER_L}/>
                 </svg>
               </div>
               <p className="text-[9px] text-gray-500 tracking-widest font-bold mb-1">VOLUMEN</p>
@@ -326,15 +326,15 @@ export function HomeScreen() {
                 <div key={d} className="flex flex-col items-center gap-1">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center"
                     style={{
-                      background: isDone ? ORANGE : isToday ? "#1e1e1e" : "transparent",
-                      border: `1.5px solid ${isDone ? ORANGE : isToday ? ORANGE : "#333"}`,
+                      background: isDone ? `linear-gradient(135deg, ${COPPER} 0%, ${COPPER_L} 100%)` : isToday ? SURF2 : "transparent",
+                      border: `1.5px solid ${isDone ? COPPER_L : isToday ? COPPER : "#2a1f10"}`,
                     }}>
                     {isDone
                       ? <span className="text-white text-xs font-bold">✓</span>
-                      : <span className="text-[10px] font-bold" style={{ color: isToday ? ORANGE : "#555" }}>{d}</span>
+                      : <span className="text-[10px] font-bold" style={{ color: isToday ? COPPER_L : COPPER }}>{d}</span>
                     }
                   </div>
-                  <p className="text-[8px]" style={{ color: isToday ? ORANGE : "#444" }}>{d}</p>
+                  <p className="text-[8px]" style={{ color: isToday ? COPPER_L : COPPER }}>{d}</p>
                 </div>
               );
             })}
@@ -347,7 +347,7 @@ export function HomeScreen() {
           {lastWorkout ? (
             <div className="flex items-center gap-3">
               <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 text-3xl"
-                style={{ background: `${ORANGE}18`, border: `1px solid ${ORANGE}33` }}>
+                style={{ background: `${COPPER}18`, border: `1px solid ${COPPER}33` }}>
                 {lastWorkout.dayTag === "PUSH" ? "🏋️" : "💪"}
               </div>
               <div className="flex-1 min-w-0">

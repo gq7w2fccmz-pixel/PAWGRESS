@@ -278,7 +278,7 @@ export function ActiveSetScreen() {
         <div className="flex-1" />
         <button onClick={handleContinue}
           className="w-full py-4 rounded-2xl font-black text-xl text-white mt-6"
-          style={{ background: ORANGE, border: "none", fontFamily: F }}>
+          style={{ background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, border: "none", fontFamily: F }}>
           NÄCHSTER SATZ →
         </button>
       </div>
@@ -397,7 +397,7 @@ export function ActiveSetScreen() {
       <div className="px-6">
         <button onClick={currentSet >= effectiveTotalSets ? handleContinue : handleSetDone}
           className="w-full py-4 rounded-2xl font-black text-xl text-white"
-          style={{ background: ORANGE, border: "none", fontFamily: F, boxShadow: `0 0 20px ${ORANGE}55` }}>
+          style={{ background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, border: "none", fontFamily: F, boxShadow: `0 0 24px rgba(180,100,20,0.55), inset 0 1px 0 rgba(255,255,255,0.15)` }}>
           {currentSet >= effectiveTotalSets ? "ÜBUNG ABSCHLIESSEN ✓" : "SATZ ABSCHLIESSEN ✓"}
         </button>
       </div>
