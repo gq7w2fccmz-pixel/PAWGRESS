@@ -59,7 +59,7 @@ export function WorkoutDone() {
         {newPRs > 0 && (
           <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full font-black text-sm"
             style={{ background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, color: "#fff", fontFamily: F,
-              boxShadow: `0 0 20px ${ORANGE}88` }}>
+              boxShadow: `0 0 20px ${COPPER_G}` }}>
             🏆 {newPRs} NEUER PR!
           </div>
         )}

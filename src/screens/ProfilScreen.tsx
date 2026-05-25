@@ -87,7 +87,7 @@ export function ProfilScreen() {
   ];
 
   const QUICK_STATS = [
-    { iconEl:<IconFlame  size={22} color={COPPER_L}/>, label:"STREAK",       val:String(streak),          sub:"Tage",     note:`Best: ${maxStreak} Tage`, noteColor:ORANGE },
+    { iconEl:<IconFlame  size={22} color={COPPER_L}/>, label:"STREAK",       val:String(streak),          sub:"Tage",     note:`Best: ${maxStreak} Tage`, noteColor:COPPER_L },
     { iconEl:<IconTarget size={20} color={COPPER_L}/>, label:"WOCHENZIEL",   val:`${weekCount} / ${goal}`, sub:"Workouts", note:"Diese Woche",             noteColor:"#888" },
     { iconEl:<IconBars   size={20} color={COPPER_L}/>, label:"VOLUMEN",      val:totalVolume > 0 ? `${(totalVolume/1000).toFixed(1)} t` : "0 kg", sub:"gesamt", note:"", noteColor:"#888" },
     { iconEl:<IconCalendar size={20} color={COPPER_L}/>, label:"PLÄNE",      val:String(plans.length),    sub:"Aktiv",    note:"",                         noteColor:"#888" },
@@ -111,10 +111,10 @@ export function ProfilScreen() {
         </div>
         <div className="absolute bottom-4 left-0 right-0 z-20 px-4">
           <p className="text-sm text-gray-300">Deine Reise. Deine Entwicklung.</p>
-          <p className="text-sm font-black mb-3" style={{ color:ORANGE }}>Dein Erfolg.</p>
+          <p className="text-sm font-black mb-3" style={{ color:COPPER_L }}>Dein Erfolg.</p>
           <div className="flex items-center gap-3">
             <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0"
-              style={{ border:`2.5px solid ${ORANGE}`, boxShadow:`0 0 16px ${ORANGE}55` }}>
+              style={{ border:`2px solid ${COPPER_L}`, boxShadow:`0 0 16px ${COPPER_G}` }}>
               <img src={profile.avatarImg} alt="" className="w-full h-full object-cover object-top" />
             </div>
             <div>
@@ -180,7 +180,7 @@ export function ProfilScreen() {
               <p className="font-black text-sm text-white mb-1" style={{ fontFamily:F }}>VOLUMEN ENTWICKLUNG</p>
               <p className="text-xs text-gray-500 mb-3">Letzte Workouts</p>
               {volumeData.length > 1
-                ? <LineChart data={volumeData} color={ORANGE} height={90} />
+                ? <LineChart data={volumeData} color={COPPER_L} height={90} />
                 : <p className="text-gray-600 text-sm text-center py-6">Starte dein erstes Workout!</p>
               }
             </div>
@@ -209,7 +209,7 @@ export function ProfilScreen() {
               <p className="font-black text-sm text-white mb-1" style={{ fontFamily:F }}>WORKOUTS</p>
               <p className="text-xs text-gray-500 mb-2">Letzte 8 Wochen</p>
               <p className="font-black text-3xl text-white mb-3" style={{ fontFamily:F }}>{totalWorkoutCount}</p>
-              <BarChart data={workoutCountData.length > 0 ? workoutCountData : [1,2,3,4,5,4,6,8]} color={ORANGE} height={80} />
+              <BarChart data={workoutCountData.length > 0 ? workoutCountData : [1,2,3,4,5,4,6,8]} color={COPPER_L} height={80} />
             </div>
           )}
 
@@ -225,7 +225,7 @@ export function ProfilScreen() {
                   return Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0,5).map(([name, count], i) => (
                     <div key={i} className="flex items-center gap-3 py-2.5 border-b" style={{ borderColor:"#1a1a1a" }}>
                       <div className="w-6 h-6 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0"
-                        style={{ background:`${ORANGE}22`, color:ORANGE, fontFamily:F }}>{i+1}</div>
+                        style={{ background:`${COPPER}18`, color:COPPER_L, fontFamily:F }}>{i+1}</div>
                       <p className="flex-1 text-sm text-white font-bold truncate">{name}</p>
                       <p className="text-xs text-gray-500">{count}×</p>
                     </div>

@@ -218,7 +218,7 @@ function ExerciseDetail({ ex, area, areaKey, onBack }: {
     },
     {
       key: "tipps", label: `${area.coach.name.toUpperCase()}'S TIPPS`, color: ORANGE,
-      icon: <IconPaw color={ORANGE} />,
+      icon: <IconPaw color={COPPER_L} />,
       hasContent: coachTips.length > 0,
       content: (
         <div className="flex flex-col gap-3 pt-1">
@@ -272,7 +272,7 @@ function ExerciseDetail({ ex, area, areaKey, onBack }: {
             ←
           </button>
           <button style={{ background: "none", border: "none" }}>
-            <IconBookmark color={ORANGE} />
+            <IconBookmark color={COPPER_L} />
           </button>
         </div>
 
@@ -281,8 +281,8 @@ function ExerciseDetail({ ex, area, areaKey, onBack }: {
           <div className="flex items-center gap-3 mb-2">
             {/* Paw circle icon */}
             <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
-              style={{ background: `${ORANGE}28`, border: `2px solid ${ORANGE}`, boxShadow: `0 0 12px ${ORANGE}55` }}>
-              <IconPaw color={ORANGE} />
+              style={{ background: `${COPPER}28`, border: `2px solid ${COPPER_L}`, boxShadow: `0 0 12px ${COPPER_G}` }}>
+              <IconPaw color={COPPER_L} />
             </div>
             <div>
               <p className="font-black italic leading-none text-white"

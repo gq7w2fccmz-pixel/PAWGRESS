@@ -322,7 +322,7 @@ function TrainingEditScreen({
             const isEdit = editSets === i; const isDrag = draggingIdx === i;
             return (
               <div key={i} data-idx={i} className="rounded-2xl"
-                style={{ background: isDrag ? "#222" : "#111", border: `1px solid ${isDrag ? ORANGE+"88":"#1e1e1e"}`, opacity: isDrag ? 0.5 : 1 }}>
+                style={{ background: isDrag ? "#222" : "#111", border: `1px solid ${isDrag ? COPPER_L+"88":BORDER}`, opacity: isDrag ? 0.5 : 1 }}>
                 <div className="flex items-center gap-3 p-3">
                   <span className="text-gray-500 text-xl select-none flex-shrink-0" style={{ cursor:"grab",touchAction:"none" }}
                     draggable onDragStart={() => onDragStart(i)} onDragEnter={() => onDragEnter(i)}
@@ -339,10 +339,10 @@ function TrainingEditScreen({
                     <p className="text-[10px] text-gray-500 mt-0.5">{g.map(x=>`${x.count}×${x.reps}`).join(" · ")}</p>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <p className="text-xs font-bold" style={{ color:ORANGE }}>{ex.sets[0].reps} Wdh</p>
+                    <p className="text-xs font-bold" style={{ color:COPPER_L }}>{ex.sets[0].reps} Wdh</p>
                     <button onClick={e => { e.stopPropagation(); setEditSets(isEdit ? null : i); }}
                       className="w-7 h-7 rounded-full flex items-center justify-center text-[11px]"
-                      style={{ background: isEdit ? ORANGE : "#2a2a2a", color: isEdit ? "#fff":"#888", border:"none" }}>✎</button>
+                      style={{ background: isEdit ? COPPER_L : SURF2, color: isEdit ? "#fff":COPPER, border:"none" }}>✎</button>
                     <button onClick={e => { e.stopPropagation(); removeExercise(i); }}
                       className="w-7 h-7 rounded-full flex items-center justify-center text-[11px]"
                       style={{ background:"#2a2a2a", color:"#ef4444", border:"none" }}>✕</button>
@@ -369,7 +369,7 @@ function TrainingEditScreen({
         </button>
         <button onClick={() => { startWorkout(); navigate("/active-set/0"); }}
           className="w-full py-4 rounded-2xl font-black text-xl text-white"
-          style={{ background:`linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, border:"none", fontFamily:F, boxShadow:`0 0 20px ${ORANGE}66` }}>
+          style={{ background:`linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, border:"none", fontFamily:F, boxShadow:`0 0 20px ${COPPER_G}` }}>
           WORKOUT STARTEN
         </button>
       </div>
@@ -448,9 +448,9 @@ export function TrainingScreen() {
         <div className="absolute bottom-4 left-0 right-0 z-20 px-4">
           <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.85)" }}>
             Dein Hub für{" "}
-            <span style={{ color: ORANGE }}>Workouts</span>,{" "}
-            <span style={{ color: ORANGE }}>Übungen</span>{" "}
-            &amp; <span style={{ color: ORANGE }}>Wissen</span>.
+            <span style={{ color: COPPER_L }}>Workouts</span>,{" "}
+            <span style={{ color: COPPER_L }}>Übungen</span>{" "}
+            &amp; <span style={{ color: COPPER_L }}>Wissen</span>.
           </p>
         </div>
       </div>

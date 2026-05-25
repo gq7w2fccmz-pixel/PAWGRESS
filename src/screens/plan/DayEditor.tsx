@@ -116,7 +116,7 @@ function ExerciseRow({
                   className="text-center font-black text-white outline-none rounded-xl"
                   style={{
                     background: `${SURF2}`,
-                    border: `1px solid ${ORANGE}44`,
+                    border: `1px solid ${COPPER_L}44`,
                     width: 52, height: 32,
                     fontFamily: F, fontSize: 16,
                   }}

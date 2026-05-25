@@ -109,7 +109,7 @@ export function ProfilEditScreen({ onBack }: { onBack: () => void }) {
         {opts.map(o => (
           <button key={o} onClick={() => onChange(o)}
             className="flex-1 py-2 text-sm font-black"
-            style={{ fontFamily:F, background: value===o ? ORANGE : "transparent",
+            style={{ fontFamily:F, background: value===o ? `linear-gradient(135deg, ${COPPER} 0%, ${COPPER_L} 100%)` : "transparent",
               color: value===o ? "#fff" : "#666", border:"none" }}>
             {o}
           </button>
@@ -134,7 +134,7 @@ export function ProfilEditScreen({ onBack }: { onBack: () => void }) {
           <p className="text-xs text-gray-500 tracking-widest mb-2 font-bold">DEIN NAME</p>
           <input value={name} onChange={e => setName(e.target.value)}
             className="w-full px-4 py-3 rounded-xl text-white font-bold outline-none"
-            style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${name ? ORANGE : "#2a2a2a"}`, fontSize:16 }} />
+            style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${name ? COPPER_L : BORDER}`, fontSize:16 }} />
         </div>
 
         {/* Avatar */}
@@ -164,8 +164,8 @@ export function ProfilEditScreen({ onBack }: { onBack: () => void }) {
                   }}
                   className="relative rounded-2xl overflow-hidden aspect-square"
                   style={{
-                    border:     selected ? `2.5px solid ${ORANGE}` : unlocked ? "2.5px solid #2a2a2a" : "2.5px solid transparent",
-                    boxShadow:  selected ? `0 0 14px ${ORANGE}66` : "none",
+                    border:     selected ? `2.5px solid ${COPPER_L}` : unlocked ? "2.5px solid #2a2a2a" : "2.5px solid transparent",
+                    boxShadow:  selected ? `0 0 14px ${COPPER_G}` : "none",
                     padding: 0, background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`,
                   }}>
                   <img src={ch.img} alt={ch.name}
@@ -178,7 +178,7 @@ export function ProfilEditScreen({ onBack }: { onBack: () => void }) {
                   )}
                   {selected && unlocked && (
                     <div className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center"
-                      style={{ background:ORANGE }}>
+                      style={{ background:`linear-gradient(135deg, ${COPPER} 0%, ${COPPER_L} 100%)` }}>
                       <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                         <path d="M2 5L4.5 7.5L8.5 2.5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
@@ -268,7 +268,7 @@ export function NotifScreen({ onBack }: { onBack: () => void }) {
     return (
       <button onClick={() => set(!val)}
         className="relative w-12 h-6 rounded-full flex-shrink-0"
-        style={{ background: val ? ORANGE : "#333", border:"none", transition:"background 0.2s" }}>
+        style={{ background: val ? `linear-gradient(135deg, ${COPPER} 0%, ${COPPER_L} 100%)` : SURF2, border:"none", transition:"background 0.2s" }}>
         <div className="absolute top-0.5 w-5 h-5 rounded-full bg-white"
           style={{ left: val ? "calc(100% - 22px)" : "2px", transition:"left 0.2s" }} />
       </button>

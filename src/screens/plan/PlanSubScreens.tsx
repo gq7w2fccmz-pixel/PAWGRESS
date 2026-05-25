@@ -30,7 +30,7 @@ export function PlanCreatorScreen({ onBack }: { onBack: () => void }) {
   const createPlan = usePlanStore(s => s.createPlan);
   const [name,       setName]  = useState("");
   const [desc,       setDesc]  = useState("");
-  const [color,      setColor] = useState(ORANGE);
+  const [color,      setColor] = useState(COPPER_L);
   const [icon,       setIcon]  = useState("🏋️");
   const [daysPerWeek, setDPW]  = useState(4);
   const [days, setDays] = useState<CustomWorkoutDay[]>([
@@ -58,7 +58,7 @@ export function PlanCreatorScreen({ onBack }: { onBack: () => void }) {
         <button onClick={onBack} style={{ background:"none", border:"none", color:"#fff", fontSize:22 }}>←</button>
         <p className="font-black italic text-xl text-white flex-1" style={{ fontFamily:F }}>TRAININGSPLAN ERSTELLEN</p>
         <button onClick={save} className="px-4 py-2 rounded-xl font-black text-sm"
-          style={{ background: name ? ORANGE : "#2a2a2a", color:"#fff", fontFamily:F, border:"none" }}>
+          style={{ background: name ? `linear-gradient(135deg, ${COPPER} 0%, ${COPPER_L} 100%)` : SURF2, color:"#fff", fontFamily:F, border:"none" }}>
           SPEICHERN
         </button>
       </div>
@@ -69,7 +69,7 @@ export function PlanCreatorScreen({ onBack }: { onBack: () => void }) {
           <p className="text-xs text-gray-500 tracking-widest mb-2 font-bold">PLAN NAME</p>
           <input value={name} onChange={e => setName(e.target.value)} placeholder="z.B. Push Day Plan" autoFocus
             className="w-full px-4 py-3 rounded-xl text-white font-semibold outline-none"
-            style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${name ? ORANGE : "#2a2a2a"}`, fontSize:15 }} />
+            style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${name ? COPPER_L : BORDER}`, fontSize:15 }} />
         </div>
         <div>
           <p className="text-xs text-gray-500 tracking-widest mb-2 font-bold">BESCHREIBUNG</p>
@@ -183,7 +183,7 @@ export function WorkoutCreatorScreen({
           {existing ? "WORKOUT BEARBEITEN" : "WORKOUT ERSTELLEN"}
         </p>
         <button onClick={save} className="px-4 py-2 rounded-xl font-black text-sm"
-          style={{ background: name ? ORANGE : "#2a2a2a", color:"#fff", fontFamily:F, border:"none" }}>
+          style={{ background: name ? `linear-gradient(135deg, ${COPPER} 0%, ${COPPER_L} 100%)` : SURF2, color:"#fff", fontFamily:F, border:"none" }}>
           SPEICHERN
         </button>
       </div>
@@ -193,7 +193,7 @@ export function WorkoutCreatorScreen({
           <p className="text-xs text-gray-500 tracking-widest mb-2 font-bold">WORKOUT NAME</p>
           <input value={name} onChange={e => setName(e.target.value)} placeholder="z.B. Mein Push Day" autoFocus
             className="w-full px-4 py-3 rounded-xl text-white font-semibold outline-none"
-            style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${name ? ORANGE : "#2a2a2a"}`, fontSize:15 }} />
+            style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${name ? COPPER_L : BORDER}`, fontSize:15 }} />
         </div>
         <div>
           <p className="text-xs text-gray-500 tracking-widest mb-2 font-bold">BESCHREIBUNG</p>
@@ -267,7 +267,7 @@ export function AllPlansScreen({
         {(["pläne","workouts"] as const).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className="flex-1 py-2 rounded-lg font-black text-sm"
-            style={{ fontFamily:F, background: tab===t ? ORANGE : "transparent",
+            style={{ fontFamily:F, background: tab===t ? `linear-gradient(135deg, ${COPPER} 0%, ${COPPER_L} 100%)` : "transparent",
               color: tab===t ? "#fff" : "#666", border:"none" }}>
             {t === "pläne" ? "Pläne" : "Workouts"}
           </button>
@@ -318,7 +318,7 @@ export function AllPlansScreen({
           <div key={w.id} className="rounded-2xl p-4" style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${BORDER}` }}>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-                style={{ background:`${ORANGE}18` }}>💪</div>
+                style={{ background:`${COPPER}18` }}>💪</div>
               <div className="flex-1 min-w-0">
                 <p className="font-black text-sm text-white" style={{ fontFamily:F }}>{w.name}</p>
                 <p className="text-xs text-gray-500">{w.desc} · {w.exercises.length} Übungen</p>

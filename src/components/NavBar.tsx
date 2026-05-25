@@ -58,7 +58,7 @@ export function NavBar() {
         background: `linear-gradient(to right, transparent, ${COPPER}66, ${COPPER_LIGHT}88, ${COPPER}66, transparent)`,
       }} />
 
-      <div className="flex items-center justify-around px-2 pt-1.5 pb-5">
+      <div className="flex items-center justify-around px-2 pt-1 pb-4">
         {NAV_ITEMS.map((item) =>
           item.isPaw ? (
             // ── Mittleres Paw-Icon – Gebürstetes Kupfer ──────────────────────
@@ -71,9 +71,7 @@ export function NavBar() {
               <div style={{
                 width: 54, height: 54,
                 borderRadius: 13,
-                // Gebürstetes Metall Hintergrund
-                background: "linear-gradient(145deg, #2a1f14, #1a1208, #2e2010, #1a1208)",
-                // Kupfer Rahmen mit Glow
+                background: "#080604",
                 border: `1.5px solid ${COPPER}`,
                 boxShadow: isActive("/coaches")
                   ? `0 0 20px ${COPPER_GLOW}, 0 0 40px ${COPPER_GLOW}, inset 0 1px 0 ${COPPER_LIGHT}44`
@@ -82,7 +80,6 @@ export function NavBar() {
                 alignItems: "center",
                 justifyContent: "center",
                 position: "relative",
-                overflow: "hidden",
               }}>
                 {/* Innerer Metallic-Schimmer */}
                 <div style={{
@@ -92,7 +89,12 @@ export function NavBar() {
                 }} />
                 <img src="/images/nav_paw.webp" alt="paw"
                   className="relative z-10"
-                  style={{ width: 40, height: 40, objectFit: "contain", borderRadius: 9 }} />
+                  style={{
+                    width: 42, height: 42,
+                    objectFit: "contain",
+                    mixBlendMode: "screen",
+                    filter: "drop-shadow(0 0 8px rgba(205,127,50,0.8))",
+                  }} />
               </div>
             </button>
           ) : (

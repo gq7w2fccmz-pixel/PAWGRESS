@@ -264,19 +264,19 @@ export function PlanScreen() {
 
         {/* Karte 1 – Coach erstellt Plan */}
         <PlanCard
-          num="1" numBg={ORANGE}
+          num="1" numBg={COPPER}
           image="/images/plan_card_1.webp"
           titleLine1="COACH ERSTELLT"
           titleLine2="DEINEN PLAN"
-          titleColor={ORANGE}
+          titleColor={COPPER_L}
           features={[
-            { icon: <IconTarget color={ORANGE}/>,  label: "Individuell\nabgestimmt" },
-            { icon: <IconClock color={ORANGE}/>,   label: "In Sekunden\nbereit" },
-            { icon: <IconBars color={ORANGE}/>,    label: "Wissenschaftlich\nfundiert" },
+            { icon: <IconTarget color={COPPER_L}/>,  label: "Individuell\nabgestimmt" },
+            { icon: <IconClock color={COPPER_L}/>,   label: "In Sekunden\nbereit" },
+            { icon: <IconBars color={COPPER_L}/>,    label: "Wissenschaftlich\nfundiert" },
           ]}
           featureColor="#aaa"
           btnLabel="PLAN GENERIEREN"
-          btnBg={ORANGE}
+          btnBg={COPPER_L}
           btnColor="#fff"
           onPress={() => {}}
           disabled={true}
@@ -399,13 +399,13 @@ function SelfCreateScreen({
         {/* Trainingsplan erstellen */}
         <button onClick={onCreatePlan}
           className="w-full flex items-center gap-4 p-5 rounded-2xl text-left"
-          style={{ background: "#111", border: `1px solid ${ORANGE}33` }}>
+          style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}` }}>
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-            style={{ background: `${ORANGE}18` }}>
+            style={{ background: `${COPPER}18` }}>
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
               <rect x="4" y="4" width="20" height="20" rx="3" stroke={ORANGE} strokeWidth="1.5"/>
               <line x1="14" y1="9" x2="14" y2="19" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
-              <line x1="9" y1="14" x2="19" y2="14" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+              <line x1="9" y1="14" x2="19" y2="14" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           </div>
           <div className="flex-1">

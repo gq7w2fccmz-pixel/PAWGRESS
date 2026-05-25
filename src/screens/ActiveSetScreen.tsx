@@ -49,9 +49,9 @@ function TimerRing({ seconds, total, onAdjust, onSet }: {
             className="px-2.5 py-1 rounded-full text-xs font-black"
             style={{
               fontFamily: F,
-              background: total === v ? ORANGE : "#1e1e1e",
+              background: total === v ? `linear-gradient(135deg, ${COPPER} 0%, ${COPPER_L} 100%)` : SURF2,
               color: total === v ? "#fff" : "#888",
-              border: `1px solid ${total === v ? ORANGE : "#333"}`,
+              border: `1px solid ${total === v ? COPPER_L : BORDER}`,
             }}>{v === 0 ? "0" : `${v}s`}</button>
         ))}
       </div>
@@ -62,7 +62,7 @@ function TimerRing({ seconds, total, onAdjust, onSet }: {
         <div className="relative" style={{ width: 160, height: 160 }}>
           <svg width="160" height="160" style={{ transform: "rotate(-90deg)" }}>
             <circle cx="80" cy="80" r={r} fill="none" stroke="#2a1f10" strokeWidth="8" />
-            <circle cx="80" cy="80" r={r} fill="none" stroke={ORANGE} strokeWidth="8"
+            <circle cx="80" cy="80" r={r} fill="none" stroke={COPPER_L} strokeWidth="8"
               strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -112,7 +112,7 @@ function NumberInput({ value, onChange, step = 1, unit, label, subLabel }: {
               onBlur={commitEdit}
               onKeyDown={e => e.key === "Enter" && commitEdit()}
               className="font-black text-center text-white bg-transparent outline-none w-full"
-              style={{ fontFamily: F, fontSize: 52, borderBottom: `2px solid ${ORANGE}` }}
+              style={{ fontFamily: F, fontSize: 52, borderBottom: `2px solid ${COPPER_L}` }}
               inputMode="decimal" autoFocus />
           ) : (
             <p className="font-black text-white leading-none cursor-pointer"
@@ -311,7 +311,7 @@ export function ActiveSetScreen() {
         <div className="flex justify-center gap-2.5 mb-3">
           {Array.from({ length: effectiveTotalSets }).map((_, i) => (
             <div key={i} className="w-3 h-3 rounded-full transition-all"
-              style={{ background: i < currentSet - 1 ? "#22c55e" : i === currentSet - 1 ? ORANGE : "#2a2a2a" }} />
+              style={{ background: i < currentSet - 1 ? "#22c55e" : i === currentSet - 1 ? COPPER_L : "#2a1f10" }} />
           ))}
         </div>
         {/* Fix 2: set count editor */}
@@ -362,7 +362,7 @@ export function ActiveSetScreen() {
       <div className="px-6 mb-6">
         <button onClick={() => setShowTip(t => !t)}
           className="w-full flex items-start gap-3 p-4 rounded-2xl text-left"
-          style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${ORANGE}33` }}>
+          style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}` }}>
           <span style={{ color: ORANGE, fontSize: 22, flexShrink: 0 }}>💡</span>
           <div className="flex-1">
             <p className="font-black text-sm" style={{ color: ORANGE, fontFamily: F }}>TIPP</p>

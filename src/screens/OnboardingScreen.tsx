@@ -62,7 +62,7 @@ export function OnboardingScreen() {
       <div className="flex gap-2 mb-8">
         {[1,2,3].map(s => (
           <div key={s} className="flex-1 h-1 rounded-full"
-            style={{ background: s <= step ? ORANGE : "#2a2a2a" }} />
+            style={{ background: s <= step ? COPPER_L : "#2a1f10" }} />
         ))}
       </div>
     );
@@ -93,14 +93,14 @@ export function OnboardingScreen() {
             <input value={name} onChange={e => setName(e.target.value)}
               placeholder="z.B. Johannes" autoFocus
               className="w-full px-4 py-3.5 rounded-2xl text-white outline-none text-base font-bold"
-              style={{ background: "#111", border: `1px solid ${name ? ORANGE : "#2a2a2a"}`, fontSize: 16 }} />
+              style={{ background: "#111", border: `1px solid ${name ? COPPER_L : BORDER}`, fontSize: 16 }} />
           </div>
           <div>
             <p className="text-xs text-gray-500 tracking-widest mb-2 font-bold">GEBURTSDATUM</p>
             <input type="date" value={dob} onChange={e => setDob(e.target.value)}
               max={new Date().toISOString().split("T")[0]}
               className="w-full px-4 py-3.5 rounded-2xl text-white outline-none text-base"
-              style={{ background: "#111", border: `1px solid ${dob ? ORANGE : "#2a2a2a"}`, colorScheme: "dark" }} />
+              style={{ background: "#111", border: `1px solid ${dob ? COPPER_L : BORDER}`, colorScheme: "dark" }} />
           </div>
           <div className="mt-auto">
             <button onClick={() => setStep(2)} disabled={!name.trim()}
@@ -123,8 +123,8 @@ export function OnboardingScreen() {
                 <button key={g.key} onClick={() => setGender(g.key)}
                   className="w-full flex items-center gap-4 p-4 rounded-2xl text-left"
                   style={{
-                    background: gender === g.key ? `${ORANGE}18` : "#111",
-                    border: `2px solid ${gender === g.key ? ORANGE : "#2a2a2a"}`,
+                    background: gender === g.key ? `${COPPER}18` : SURF,
+                    border: `2px solid ${gender === g.key ? COPPER_L : BORDER}`,
                   }}>
                   <span style={{ fontSize: 28 }}>{g.emoji}</span>
                   <p className="font-black text-lg text-white" style={{ fontFamily: F }}>{g.label}</p>
@@ -166,7 +166,7 @@ export function OnboardingScreen() {
 
             <div className="flex justify-center mb-4">
               <div className="w-24 h-24 rounded-full overflow-hidden"
-                style={{ border: `3px solid ${ORANGE}`, boxShadow: `0 0 24px rgba(180,100,20,0.55), inset 0 1px 0 rgba(255,255,255,0.15)` }}>
+                style={{ border: `2.5px solid ${COPPER_L}`, boxShadow: `0 0 24px rgba(180,100,20,0.55), inset 0 1px 0 rgba(255,255,255,0.15)` }}>
                 <img src={avatar} alt="" className="w-full h-full object-cover object-top" />
               </div>
             </div>
@@ -176,8 +176,8 @@ export function OnboardingScreen() {
                 <button key={ch.name} onClick={() => setAvatar(ch.img)}
                   className="relative rounded-2xl overflow-hidden aspect-square col-span-2"
                   style={{
-                    border: avatar === ch.img ? `2.5px solid ${ORANGE}` : "2.5px solid #2a2a2a",
-                    boxShadow: avatar === ch.img ? `0 0 14px ${ORANGE}66` : "none",
+                    border: avatar === ch.img ? `2.5px solid ${COPPER_L}` : "2.5px solid #2a2a2a",
+                    boxShadow: avatar === ch.img ? `0 0 14px ${COPPER_G}` : "none",
                     padding: 0, background: "#111",
                   }}>
                   <img src={ch.img} alt={ch.name} className="w-full h-full object-cover object-top" />

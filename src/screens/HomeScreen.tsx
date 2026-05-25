@@ -194,7 +194,7 @@ export function HomeScreen() {
         {/* Subtitle – bottom of hero */}
         <div className="absolute bottom-4 left-0 right-0 z-10 px-5">
           <p className="text-sm italic" style={{ color: "#999" }}>
-            no excuses, just <span style={{ color: ORANGE }}>pawgress</span>
+            no excuses, just <span style={{ color: COPPER_L }}>pawgress</span>
           </p>
         </div>
       </div>
