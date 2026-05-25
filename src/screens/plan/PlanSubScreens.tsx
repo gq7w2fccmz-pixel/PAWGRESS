@@ -16,6 +16,12 @@ import { DayEditor }           from "./DayEditor";
 
 const F      = "'Barlow Condensed', sans-serif";
 const ORANGE = "#f97316";
+const COPPER   = "#cd7f32";
+const COPPER_L = "#e8a050";
+const COPPER_G = "rgba(180,100,20,0.22)";
+const SURF     = "#131008";
+const SURF2    = "#1a1610";
+const BORDER   = "rgba(205,127,50,0.18)";
 const PLAN_COLORS = ["#f97316","#3b82f6","#22c55e","#a855f7","#ef4444","#eab308","#06b6d4"];
 const PLAN_ICONS  = ["🏋️","💪","🔥","🎯","⚡","🐾","🏆","📊"];
 
@@ -48,7 +54,7 @@ export function PlanCreatorScreen({ onBack }: { onBack: () => void }) {
   return (
     <div className="min-h-screen pb-20" style={{ background:"#080808", color:"#fff" }}>
       <div className="flex items-center gap-3 px-4 py-4 border-b sticky top-0 z-10"
-        style={{ background:"#080808", borderColor:"#1e1e1e" }}>
+        style={{ background:"#080808", borderColor:`${BORDER}` }}>
         <button onClick={onBack} style={{ background:"none", border:"none", color:"#fff", fontSize:22 }}>←</button>
         <p className="font-black italic text-xl text-white flex-1" style={{ fontFamily:F }}>TRAININGSPLAN ERSTELLEN</p>
         <button onClick={save} className="px-4 py-2 rounded-xl font-black text-sm"
@@ -63,13 +69,13 @@ export function PlanCreatorScreen({ onBack }: { onBack: () => void }) {
           <p className="text-xs text-gray-500 tracking-widest mb-2 font-bold">PLAN NAME</p>
           <input value={name} onChange={e => setName(e.target.value)} placeholder="z.B. Push Day Plan" autoFocus
             className="w-full px-4 py-3 rounded-xl text-white font-semibold outline-none"
-            style={{ background:"#111", border:`1px solid ${name ? ORANGE : "#2a2a2a"}`, fontSize:15 }} />
+            style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${name ? ORANGE : "#2a2a2a"}`, fontSize:15 }} />
         </div>
         <div>
           <p className="text-xs text-gray-500 tracking-widest mb-2 font-bold">BESCHREIBUNG</p>
           <input value={desc} onChange={e => setDesc(e.target.value)} placeholder="z.B. Oberkörper Fokus"
             className="w-full px-4 py-3 rounded-xl text-white font-semibold outline-none"
-            style={{ background:"#111", border:"1px solid #2a2a2a", fontSize:14 }} />
+            style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${BORDER}`, fontSize:14 }} />
         </div>
 
         {/* Icon + Farbe */}
@@ -124,7 +130,7 @@ export function PlanCreatorScreen({ onBack }: { onBack: () => void }) {
           ))}
           <button onClick={addDay}
             className="w-full py-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2"
-            style={{ background:"#111", border:`1px dashed ${ORANGE}55`, color:ORANGE, fontFamily:F }}>
+            style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px dashed ${ORANGE}55`, color:ORANGE, fontFamily:F }}>
             + TAG HINZUFÜGEN
           </button>
         </div>
@@ -171,7 +177,7 @@ export function WorkoutCreatorScreen({
       )}
 
       <div className="flex items-center gap-3 px-4 py-4 border-b sticky top-0 z-10"
-        style={{ background:"#080808", borderColor:"#1e1e1e" }}>
+        style={{ background:"#080808", borderColor:`${BORDER}` }}>
         <button onClick={onBack} style={{ background:"none", border:"none", color:"#fff", fontSize:22 }}>←</button>
         <p className="font-black italic text-xl text-white flex-1" style={{ fontFamily:F }}>
           {existing ? "WORKOUT BEARBEITEN" : "WORKOUT ERSTELLEN"}
@@ -187,13 +193,13 @@ export function WorkoutCreatorScreen({
           <p className="text-xs text-gray-500 tracking-widest mb-2 font-bold">WORKOUT NAME</p>
           <input value={name} onChange={e => setName(e.target.value)} placeholder="z.B. Mein Push Day" autoFocus
             className="w-full px-4 py-3 rounded-xl text-white font-semibold outline-none"
-            style={{ background:"#111", border:`1px solid ${name ? ORANGE : "#2a2a2a"}`, fontSize:15 }} />
+            style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${name ? ORANGE : "#2a2a2a"}`, fontSize:15 }} />
         </div>
         <div>
           <p className="text-xs text-gray-500 tracking-widest mb-2 font-bold">BESCHREIBUNG</p>
           <input value={desc} onChange={e => setDesc(e.target.value)} placeholder="z.B. Oberkörper"
             className="w-full px-4 py-3 rounded-xl text-white font-semibold outline-none"
-            style={{ background:"#111", border:"1px solid #2a2a2a", fontSize:14 }} />
+            style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${BORDER}`, fontSize:14 }} />
         </div>
 
         <div>
@@ -208,7 +214,7 @@ export function WorkoutCreatorScreen({
               });
               return (
                 <div key={i} className="flex items-center gap-3 p-3 rounded-xl"
-                  style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+                  style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${BORDER}` }}>
                   <div className="w-7 h-7 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0"
                     style={{ background:`${ORANGE}22`, color:ORANGE, fontFamily:F }}>{i+1}</div>
                   <div className="flex-1 min-w-0">
@@ -223,7 +229,7 @@ export function WorkoutCreatorScreen({
           </div>
           <button onClick={() => setShowPicker(true)}
             className="w-full py-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2"
-            style={{ background:"#111", border:`1px dashed ${ORANGE}55`, color:ORANGE, fontFamily:F }}>
+            style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px dashed ${ORANGE}55`, color:ORANGE, fontFamily:F }}>
             + ÜBUNG HINZUFÜGEN
           </button>
         </div>
@@ -251,13 +257,13 @@ export function AllPlansScreen({
 
   return (
     <div className="min-h-screen pb-28" style={{ background:"#080808", color:"#fff" }}>
-      <div className="flex items-center gap-3 px-4 py-4 border-b" style={{ borderColor:"#1e1e1e" }}>
+      <div className="flex items-center gap-3 px-4 py-4 border-b" style={{ borderColor:`${BORDER}` }}>
         <button onClick={onBack} style={{ background:"none", border:"none", color:"#fff", fontSize:22 }}>←</button>
         <p className="font-black italic text-xl text-white flex-1" style={{ fontFamily:F }}>ALLE PLÄNE & WORKOUTS</p>
       </div>
 
       {/* Tab-Switch */}
-      <div className="flex gap-1 p-1 rounded-xl mx-4 mt-4 mb-4" style={{ background:"#111" }}>
+      <div className="flex gap-1 p-1 rounded-xl mx-4 mt-4 mb-4" style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)` }}>
         {(["pläne","workouts"] as const).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className="flex-1 py-2 rounded-lg font-black text-sm"
@@ -271,7 +277,7 @@ export function AllPlansScreen({
       <div className="px-4 flex flex-col gap-3">
         {tab === "pläne" && plans.map(plan => (
           <div key={plan.id} className="rounded-2xl overflow-hidden"
-            style={{ background:"#111", border:`1px solid ${plan.id===activePlanId ? plan.color+"55" : "#1e1e1e"}` }}>
+            style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${plan.id===activePlanId ? plan.color+"55" : "#1e1e1e"}` }}>
             <div className="flex items-center gap-3 p-4">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
                 style={{ background:`${plan.color}22`, border:`1px solid ${plan.color}44` }}>{plan.icon}</div>
@@ -290,16 +296,16 @@ export function AllPlansScreen({
                 </div>
               </div>
             </div>
-            <div className="flex border-t" style={{ borderColor:"#1e1e1e" }}>
+            <div className="flex border-t" style={{ borderColor:`${BORDER}` }}>
               {plan.id !== activePlanId && (
                 <button onClick={() => setActive(plan.id)} className="flex-1 py-2.5 font-black text-xs"
                   style={{ background:"none", border:"none", color:"#22c55e", fontFamily:F }}>✓ Aktivieren</button>
               )}
               <button onClick={() => duplicate(plan.id)} className="flex-1 py-2.5 font-black text-xs border-l"
-                style={{ background:"none", borderColor:"#1e1e1e", color:"#888", fontFamily:F }}>Duplizieren</button>
+                style={{ background:"none", borderColor:`${BORDER}`, color:COPPER, fontFamily:F }}>Duplizieren</button>
               {plan.id !== "builtin-2er-split" && (
                 <button onClick={() => deletePlan(plan.id)} className="flex-1 py-2.5 font-black text-xs border-l"
-                  style={{ background:"none", borderColor:"#1e1e1e", color:"#ef4444", fontFamily:F }}>Löschen</button>
+                  style={{ background:"none", borderColor:`${BORDER}`, color:"#ef4444", fontFamily:F }}>Löschen</button>
               )}
             </div>
           </div>
@@ -309,7 +315,7 @@ export function AllPlansScreen({
           <p className="text-gray-600 text-sm text-center py-8">Noch keine Workouts erstellt.</p>
         )}
         {tab === "workouts" && workouts.map(w => (
-          <div key={w.id} className="rounded-2xl p-4" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+          <div key={w.id} className="rounded-2xl p-4" style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${BORDER}` }}>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
                 style={{ background:`${ORANGE}18` }}>💪</div>
@@ -321,10 +327,10 @@ export function AllPlansScreen({
             <div className="flex gap-2">
               <button onClick={() => onEditWorkout(w.id)}
                 className="flex-1 py-2 rounded-xl font-black text-xs"
-                style={{ background:"#1e1e1e", color:"#888", fontFamily:F, border:"none" }}>✎ Bearbeiten</button>
+                style={{ background:`${SURF2}`, color:COPPER, fontFamily:F, border:"none" }}>✎ Bearbeiten</button>
               <button onClick={() => deleteWO(w.id)}
                 className="flex-1 py-2 rounded-xl font-black text-xs"
-                style={{ background:"#1a0000", color:"#ef4444", fontFamily:F, border:"none" }}>🗑 Löschen</button>
+                style={{ background:"rgba(60,0,0,0.4)", color:"#ef4444", fontFamily:F, border:"none" }}>🗑 Löschen</button>
             </div>
           </div>
         ))}
@@ -347,7 +353,7 @@ export function DayDetailScreen({
   return (
     <div className="min-h-screen pb-28" style={{ background:"#080808", color:"#fff" }}>
       <div className="flex items-center gap-3 px-4 py-4 border-b sticky top-0 z-10"
-        style={{ background:"#080808", borderColor:"#1e1e1e" }}>
+        style={{ background:"#080808", borderColor:`${BORDER}` }}>
         <button onClick={onBack} style={{ background:"none", border:"none", color:"#fff", fontSize:22 }}>←</button>
         <div className="flex-1">
           <p className="font-black italic text-xl text-white" style={{ fontFamily:F }}>{day.label.toUpperCase()}</p>
@@ -365,7 +371,7 @@ export function DayDetailScreen({
           });
           return (
             <div key={i} className="flex items-center gap-3 p-4 rounded-2xl"
-              style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+              style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${BORDER}` }}>
               <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0"
                 style={{ background:`${color}22`, color, fontFamily:F }}>{i+1}</div>
               <div className="flex-1 min-w-0">

@@ -19,6 +19,12 @@ import {
 
 const F      = "'Barlow Condensed', sans-serif";
 const ORANGE = "#f97316";
+const COPPER   = "#cd7f32";
+const COPPER_L = "#e8a050";
+const COPPER_G = "rgba(180,100,20,0.22)";
+const SURF     = "#131008";
+const SURF2    = "#1a1610";
+const BORDER   = "rgba(205,127,50,0.18)";
 
 // ── All coach avatars (needed for avatar picker) ───────────────────────────────
 const STARTER_NAMES = ["Bertl", "Lilly"];
@@ -57,7 +63,7 @@ export function SettingRow({
     <button onClick={onPress} className="w-full flex items-center gap-3 px-4 py-4 text-left"
       style={{ background:"none", border:"none", borderBottom: last ? "none" : "1px solid #1a1a1a" }}>
       <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-        style={{ background:"#1e1e1e" }}>{iconEl}</div>
+        style={{ background:`${SURF2}` }}>{iconEl}</div>
       <div className="flex-1">
         <p className="text-sm font-bold text-white">{label}</p>
         <p className="text-xs text-gray-500 mt-0.5">{desc}</p>
@@ -99,7 +105,7 @@ export function ProfilEditScreen({ onBack }: { onBack: () => void }) {
     value, opts, onChange,
   }: { value: T; opts: readonly T[]; onChange: (v: T) => void }) {
     return (
-      <div className="flex rounded-xl overflow-hidden" style={{ background:"#1a1a1a" }}>
+      <div className="flex rounded-xl overflow-hidden" style={{ background:`${SURF2}` }}>
         {opts.map(o => (
           <button key={o} onClick={() => onChange(o)}
             className="flex-1 py-2 text-sm font-black"
@@ -115,7 +121,7 @@ export function ProfilEditScreen({ onBack }: { onBack: () => void }) {
   return (
     <div className="min-h-screen pb-20" style={{ background:"#080808", color:"#fff" }}>
       <div className="flex items-center gap-3 px-4 py-4 border-b sticky top-0 z-10"
-        style={{ background:"#080808", borderColor:"#1e1e1e" }}>
+        style={{ background:"#080808", borderColor:`${BORDER}` }}>
         <button onClick={onBack} style={{ background:"none", border:"none", color:"#fff", fontSize:22 }}>←</button>
         <p className="font-black italic text-xl text-white flex-1" style={{ fontFamily:F }}>PROFIL BEARBEITEN</p>
         <button onClick={save} className="px-4 py-2 rounded-xl font-black text-sm"
@@ -128,7 +134,7 @@ export function ProfilEditScreen({ onBack }: { onBack: () => void }) {
           <p className="text-xs text-gray-500 tracking-widest mb-2 font-bold">DEIN NAME</p>
           <input value={name} onChange={e => setName(e.target.value)}
             className="w-full px-4 py-3 rounded-xl text-white font-bold outline-none"
-            style={{ background:"#111", border:`1px solid ${name ? ORANGE : "#2a2a2a"}`, fontSize:16 }} />
+            style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${name ? ORANGE : "#2a2a2a"}`, fontSize:16 }} />
         </div>
 
         {/* Avatar */}
@@ -139,11 +145,11 @@ export function ProfilEditScreen({ onBack }: { onBack: () => void }) {
           </div>
           {lockedTip && (
             <div className="mb-3 px-3 py-2.5 rounded-xl flex items-center gap-2"
-              style={{ background:"#1a1a1a", border:"1px solid #2a2a2a" }}>
+              style={{ background:`${SURF2}`, border:`1px solid ${BORDER}` }}>
               <IconLock size={16} color="#888" />
               <p className="text-xs text-gray-400 flex-1">{lockedTip}</p>
               <button onClick={() => setLockedTip(null)}
-                style={{ background:"none", border:"none", color:"#555", fontSize:14, lineHeight:1 }}>✕</button>
+                style={{ background:"none", border:"none", color:COPPER, fontSize:14, lineHeight:1 }}>✕</button>
             </div>
           )}
           <div className="grid grid-cols-4 gap-3">
@@ -160,7 +166,7 @@ export function ProfilEditScreen({ onBack }: { onBack: () => void }) {
                   style={{
                     border:     selected ? `2.5px solid ${ORANGE}` : unlocked ? "2.5px solid #2a2a2a" : "2.5px solid transparent",
                     boxShadow:  selected ? `0 0 14px ${ORANGE}66` : "none",
-                    padding: 0, background:"#111",
+                    padding: 0, background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`,
                   }}>
                   <img src={ch.img} alt={ch.name}
                     className="w-full h-full object-cover object-top"
@@ -213,11 +219,11 @@ export function ProfilEditScreen({ onBack }: { onBack: () => void }) {
 export function DatenschutzScreen({ onBack }: { onBack: () => void }) {
   return (
     <div className="min-h-screen pb-20" style={{ background:"#080808", color:"#fff" }}>
-      <div className="flex items-center gap-3 px-4 py-4 border-b" style={{ borderColor:"#1e1e1e" }}>
+      <div className="flex items-center gap-3 px-4 py-4 border-b" style={{ borderColor:`${BORDER}` }}>
         <button onClick={onBack} style={{ background:"none", border:"none", color:"#fff", fontSize:22 }}>←</button>
         <p className="font-black italic text-xl text-white flex-1" style={{ fontFamily:F }}>DATENSCHUTZ</p>
       </div>
-      <div className="rounded-2xl overflow-hidden mx-4 mt-4" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+      <div className="rounded-2xl overflow-hidden mx-4 mt-4" style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${BORDER}` }}>
         {[
           { iconEl:<IconLock color="#888"/>, label:"Konto",         desc:"Kommt bald – derzeit ohne Verwendung" },
           { iconEl:<IconBars color="#888" size={18}/>, label:"Meine Daten", desc:"Trainings- und Verlaufsdaten" },
@@ -232,11 +238,11 @@ export function DatenschutzScreen({ onBack }: { onBack: () => void }) {
 export function UeberScreen({ onBack }: { onBack: () => void }) {
   return (
     <div className="min-h-screen pb-20" style={{ background:"#080808", color:"#fff" }}>
-      <div className="flex items-center gap-3 px-4 py-4 border-b" style={{ borderColor:"#1e1e1e" }}>
+      <div className="flex items-center gap-3 px-4 py-4 border-b" style={{ borderColor:`${BORDER}` }}>
         <button onClick={onBack} style={{ background:"none", border:"none", color:"#fff", fontSize:22 }}>←</button>
         <p className="font-black italic text-xl text-white flex-1" style={{ fontFamily:F }}>ÜBER PAWGRESS</p>
       </div>
-      <div className="rounded-2xl overflow-hidden mx-4 mt-4" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+      <div className="rounded-2xl overflow-hidden mx-4 mt-4" style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${BORDER}` }}>
         {[
           { iconEl:<IconInfo color="#888"/>, label:"Impressum",      desc:"Rechtliche Angaben" },
           { iconEl:<IconInfo color="#888"/>, label:"App Info",       desc:"Version, Lizenz & Changelog" },
@@ -271,11 +277,11 @@ export function NotifScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="min-h-screen pb-20" style={{ background:"#080808", color:"#fff" }}>
-      <div className="flex items-center gap-3 px-4 py-4 border-b" style={{ borderColor:"#1e1e1e" }}>
+      <div className="flex items-center gap-3 px-4 py-4 border-b" style={{ borderColor:`${BORDER}` }}>
         <button onClick={onBack} style={{ background:"none", border:"none", color:"#fff", fontSize:22 }}>←</button>
         <p className="font-black italic text-xl text-white flex-1" style={{ fontFamily:F }}>BENACHRICHTIGUNGEN</p>
       </div>
-      <div className="rounded-2xl overflow-hidden mx-4 mt-4" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+      <div className="rounded-2xl overflow-hidden mx-4 mt-4" style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${BORDER}` }}>
         {[
           { label:"Trainings-Erinnerungen", desc:"Täglich zur gesetzten Zeit",      val:reminders, set:setReminders },
           { label:"App Updates",            desc:"Neue Funktionen & Verbesserungen", val:updates,   set:setUpdates },
@@ -289,6 +295,71 @@ export function NotifScreen({ onBack }: { onBack: () => void }) {
             </div>
             <Switch val={r.val} set={r.set} />
           </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── SettingsScreen ─────────────────────────────────────────────────────────────
+export function SettingsScreen({
+  onBack,
+  onNav,
+}: {
+  onBack: () => void;
+  onNav:  (sub: string) => void;
+}) {
+  const COPPER_L = "#e8a050";
+  const SURF     = "#131008";
+  const SURF2    = "#1a1610";
+  const BORDER   = "rgba(205,127,50,0.18)";
+  const COPPER_G = "rgba(180,100,20,0.18)";
+
+  const items = [
+    { key: "editProfil",  iconEl: <IconUser color={COPPER_L}/>, label: "Profil bearbeiten",  desc: "Name, Avatar, Ziele" },
+    { key: "notif",       iconEl: <IconBell color={COPPER_L}/>, label: "Benachrichtigungen", desc: "Erinnerungen & Updates" },
+    { key: "datenschutz", iconEl: <IconLock color={COPPER_L}/>, label: "Datenschutz",        desc: "Deine Daten & Sicherheit" },
+    { key: "ueber",       iconEl: <IconInfo color={COPPER_L}/>, label: "Über Pawgress",      desc: "App Info, Hilfe & Support" },
+  ];
+
+  return (
+    <div className="min-h-screen pb-28" style={{ background: "#0a0807", color: "#fff" }}>
+      {/* Header */}
+      <div className="flex items-center gap-3 px-4 pt-12 pb-5">
+        <button onClick={onBack}
+          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}` }}>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M11 4L6 9L11 14" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+        <p className="font-black italic text-3xl text-white leading-none" style={{ fontFamily: F }}>
+          EINSTELLUNGEN
+        </p>
+      </div>
+
+      {/* Items */}
+      <div className="px-4 flex flex-col gap-2">
+        {items.map((item, i) => (
+          <button key={item.key} onClick={() => onNav(item.key)}
+            className="w-full flex items-center gap-4 p-4 rounded-2xl text-left"
+            style={{
+              background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`,
+              border: `1px solid ${BORDER}`,
+              boxShadow: `0 0 12px ${COPPER_G}, inset 0 1px 0 rgba(205,127,50,0.08)`,
+            }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgba(205,127,50,0.12)", border: "1px solid rgba(205,127,50,0.25)" }}>
+              {item.iconEl}
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-white">{item.label}</p>
+              <p className="text-xs mt-0.5" style={{ color: "#cd7f32" }}>{item.desc}</p>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
         ))}
       </div>
     </div>

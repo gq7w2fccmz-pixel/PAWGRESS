@@ -24,12 +24,19 @@ import {
   DatenschutzScreen,
   UeberScreen,
   NotifScreen,
+  SettingsScreen,
 } from "./profil/ProfilSubScreens";
 
-const F      = "'Barlow Condensed', sans-serif";
-const ORANGE = "#f97316";
+const F       = "'Barlow Condensed', sans-serif";
+const ORANGE  = "#f97316";
+const COPPER  = "#cd7f32";
+const COPPER_L = "#e8a050";
+const COPPER_G = "rgba(180,100,20,0.25)";
+const SURF    = "#131008";
+const SURF2   = "#1a1610";
+const BORDER  = "rgba(205,127,50,0.18)";
 
-type SubScreen = null | "editProfil" | "datenschutz" | "ueber" | "notif";
+type SubScreen = null | "editProfil" | "datenschutz" | "ueber" | "notif" | "settings";
 
 export function ProfilScreen() {
   const stats         = useStatsStore(s => s.stats);
@@ -45,11 +52,12 @@ export function ProfilScreen() {
   const streak    = coachProgress.currentStreak;
   const maxStreak = coachProgress.maxStreak;
 
-  const [sub,    setSub]    = useState<SubScreen>(null);
-  const [devTab, setDevTab] = useState<"volumen"|"stärke"|"workouts"|"übungen">("volumen");
+  const [sub,    setSub]         = useState<SubScreen>(null);
+  const [devTab, setDevTab]      = useState<"volumen"|"stärke"|"workouts"|"übungen">("volumen");
 
   // Sub-Screen routing
   if (sub === "editProfil")  return <ProfilEditScreen  onBack={() => setSub(null)} />;
+  if (sub === "settings")     return <SettingsScreen onBack={() => setSub(null)} onNav={(s) => setSub(s as SubScreen)} />;
   if (sub === "datenschutz") return <DatenschutzScreen onBack={() => setSub(null)} />;
   if (sub === "ueber")       return <UeberScreen       onBack={() => setSub(null)} />;
   if (sub === "notif")       return <NotifScreen       onBack={() => setSub(null)} />;
@@ -79,10 +87,10 @@ export function ProfilScreen() {
   ];
 
   const QUICK_STATS = [
-    { iconEl:<IconFlame  size={22} color={ORANGE}/>, label:"STREAK",       val:String(streak),          sub:"Tage",     note:`Best: ${maxStreak} Tage`, noteColor:ORANGE },
-    { iconEl:<IconTarget size={20} color={ORANGE}/>, label:"WOCHENZIEL",   val:`${weekCount} / ${goal}`, sub:"Workouts", note:"Diese Woche",             noteColor:"#888" },
-    { iconEl:<IconBars   size={20} color={ORANGE}/>, label:"VOLUMEN",      val:totalVolume > 0 ? `${(totalVolume/1000).toFixed(1)} t` : "0 kg", sub:"gesamt", note:"", noteColor:"#888" },
-    { iconEl:<IconCalendar size={20} color={ORANGE}/>, label:"PLÄNE",      val:String(plans.length),    sub:"Aktiv",    note:"",                         noteColor:"#888" },
+    { iconEl:<IconFlame  size={22} color={COPPER_L}/>, label:"STREAK",       val:String(streak),          sub:"Tage",     note:`Best: ${maxStreak} Tage`, noteColor:ORANGE },
+    { iconEl:<IconTarget size={20} color={COPPER_L}/>, label:"WOCHENZIEL",   val:`${weekCount} / ${goal}`, sub:"Workouts", note:"Diese Woche",             noteColor:"#888" },
+    { iconEl:<IconBars   size={20} color={COPPER_L}/>, label:"VOLUMEN",      val:totalVolume > 0 ? `${(totalVolume/1000).toFixed(1)} t` : "0 kg", sub:"gesamt", note:"", noteColor:"#888" },
+    { iconEl:<IconCalendar size={20} color={COPPER_L}/>, label:"PLÄNE",      val:String(plans.length),    sub:"Aktiv",    note:"",                         noteColor:"#888" },
   ];
 
   return (
@@ -122,15 +130,20 @@ export function ProfilScreen() {
       <div className="px-4 flex flex-col gap-5 mt-2">
 
         {/* Quick Stats */}
-        <div className="rounded-2xl overflow-hidden" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+        {/* Quick Stats – Kupfer Metall */}
+        <div className="rounded-2xl overflow-hidden" style={{
+          background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`,
+          border: `1px solid ${BORDER}`,
+          boxShadow: `0 0 24px ${COPPER_G}, inset 0 1px 0 rgba(205,127,50,0.12)`,
+        }}>
           <div className="grid grid-cols-4">
             {QUICK_STATS.map((s, i) => (
               <div key={i} className="flex flex-col items-center py-3 px-1 text-center"
-                style={{ borderRight: i<3 ? "1px solid #1e1e1e" : "none" }}>
+                style={{ borderRight: i<3 ? `1px solid ${BORDER}` : "none" }}>
                 <div className="mb-1 flex items-center justify-center" style={{ height:26 }}>{s.iconEl}</div>
-                <p className="text-[8px] text-gray-600 tracking-widest font-bold mb-1">{s.label}</p>
+                <p className="text-[8px] tracking-widest font-bold mb-1" style={{ color: COPPER }}>{s.label}</p>
                 <p className="font-black text-xl text-white leading-none" style={{ fontFamily:F }}>{s.val}</p>
-                <p className="text-[9px] text-gray-500 mt-0.5">{s.sub}</p>
+                <p className="text-[9px] mt-0.5" style={{ color: COPPER }}>{s.sub}</p>
                 {s.note && <p className="text-[9px] font-bold mt-0.5" style={{ color:s.noteColor }}>{s.note}</p>}
               </div>
             ))}
@@ -142,15 +155,19 @@ export function ProfilScreen() {
           <p className="font-black italic text-xl text-white mb-3" style={{ fontFamily:F }}>MEINE ENTWICKLUNG</p>
 
           {/* Tabs */}
-          <div className="flex rounded-2xl overflow-hidden mb-3" style={{ background:"#111" }}>
+          <div className="flex rounded-2xl overflow-hidden mb-3" style={{
+            background: SURF,
+            border: `1px solid ${BORDER}`,
+            boxShadow: `inset 0 1px 0 rgba(205,127,50,0.08)`,
+          }}>
             {DEV_TABS.map(t => (
               <button key={t.key} onClick={() => setDevTab(t.key)}
                 className="flex-1 py-2.5 font-black text-[10px] text-center"
                 style={{
                   fontFamily:F, background:"transparent",
-                  color: devTab===t.key ? ORANGE : "#555", border:"none",
+                  color: devTab===t.key ? COPPER_L : COPPER + "88", border:"none",
                   borderBottomStyle:"solid", borderBottomWidth:2,
-                  borderBottomColor: devTab===t.key ? ORANGE : "transparent",
+                  borderBottomColor: devTab===t.key ? COPPER_L : "transparent",
                 }}>
                 {t.label}
               </button>
@@ -159,7 +176,7 @@ export function ProfilScreen() {
 
           {/* Volumen */}
           {devTab === "volumen" && (
-            <div className="rounded-2xl p-4" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+            <div className="rounded-2xl p-4" style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}`, boxShadow: `0 0 16px ${COPPER_G}` }}>
               <p className="font-black text-sm text-white mb-1" style={{ fontFamily:F }}>VOLUMEN ENTWICKLUNG</p>
               <p className="text-xs text-gray-500 mb-3">Letzte Workouts</p>
               {volumeData.length > 1
@@ -171,7 +188,7 @@ export function ProfilScreen() {
 
           {/* Stärke */}
           {devTab === "stärke" && (
-            <div className="rounded-2xl p-4" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+            <div className="rounded-2xl p-4" style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}`, boxShadow: `0 0 16px ${COPPER_G}` }}>
               <p className="font-black text-sm text-white mb-1" style={{ fontFamily:F }}>BANKDRÜCKEN LH</p>
               <p className="text-xs text-gray-500 mb-2">Bestes Gewicht</p>
               <p className="font-black text-3xl text-white mb-3" style={{ fontFamily:F }}>
@@ -188,7 +205,7 @@ export function ProfilScreen() {
 
           {/* Workouts */}
           {devTab === "workouts" && (
-            <div className="rounded-2xl p-4" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+            <div className="rounded-2xl p-4" style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}`, boxShadow: `0 0 16px ${COPPER_G}` }}>
               <p className="font-black text-sm text-white mb-1" style={{ fontFamily:F }}>WORKOUTS</p>
               <p className="text-xs text-gray-500 mb-2">Letzte 8 Wochen</p>
               <p className="font-black text-3xl text-white mb-3" style={{ fontFamily:F }}>{totalWorkoutCount}</p>
@@ -198,7 +215,7 @@ export function ProfilScreen() {
 
           {/* Übungen */}
           {devTab === "übungen" && (
-            <div className="rounded-2xl p-4" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+            <div className="rounded-2xl p-4" style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}`, boxShadow: `0 0 16px ${COPPER_G}` }}>
               <p className="font-black text-sm text-white mb-3" style={{ fontFamily:F }}>TOP ÜBUNGEN</p>
               {workouts.length === 0
                 ? <p className="text-gray-600 text-sm text-center py-4">Noch keine Workouts absolviert.</p>
@@ -222,7 +239,7 @@ export function ProfilScreen() {
         {/* Einstellungen */}
         <div>
           <p className="font-black italic text-xl text-white mb-3" style={{ fontFamily:F }}>EINSTELLUNGEN</p>
-          <div className="rounded-2xl overflow-hidden" style={{ background:"#111", border:"1px solid #1e1e1e" }}>
+          <div className="rounded-2xl overflow-hidden" style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}`, boxShadow: `0 0 16px ${COPPER_G}` }}>
             <SettingRow iconEl={<IconUser color="#888"/>} label="Profil bearbeiten"  desc="Name, Avatar, Ziele"       onPress={() => setSub("editProfil")} />
             <SettingRow iconEl={<IconBell color="#888"/>} label="Benachrichtigungen" desc="Erinnerungen & Updates"    onPress={() => setSub("notif")} />
             <SettingRow iconEl={<IconLock color="#888"/>} label="Datenschutz"        desc="Deine Daten & Sicherheit"  onPress={() => setSub("datenschutz")} />
@@ -233,8 +250,14 @@ export function ProfilScreen() {
         {/* Logout */}
         <div className="pb-4">
           <button onClick={logout} className="w-full py-4 rounded-2xl font-black text-base"
-            style={{ background:"transparent", border:"1px solid #2a2a2a", color:"#ef4444", fontFamily:F }}>
-            ABMELDEN 🚪
+            style={{
+              background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`,
+              border: "1px solid rgba(239,68,68,0.25)",
+              color: "#ef4444",
+              fontFamily: F,
+              boxShadow: "0 0 12px rgba(239,68,68,0.1)",
+            }}>
+            ABMELDEN
           </button>
         </div>
 

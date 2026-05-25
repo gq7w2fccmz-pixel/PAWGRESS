@@ -8,6 +8,12 @@ import { useProfileStore } from "../stores/profileStore";
 
 const F = "'Barlow Condensed', sans-serif";
 const ORANGE = "#f97316";
+const COPPER   = "#cd7f32";
+const COPPER_L = "#e8a050";
+const COPPER_G = "rgba(180,100,20,0.22)";
+const SURF     = "#131008";
+const SURF2    = "#1a1610";
+const BORDER   = "rgba(205,127,50,0.18)";
 const DAY_LABELS = ["MO", "DI", "MI", "DO", "FR", "SA", "SO"];
 
 function greeting() {
@@ -37,7 +43,7 @@ function WorkoutDetailModal({ workout, onClose }: {
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#080808" }}>
-      <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: "#1e1e1e" }}>
+      <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: `${BORDER}` }}>
         <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
         <div className="text-center">
           <p className="font-black text-lg text-white" style={{ fontFamily: F }}>{workout.dayLabel.toUpperCase()}</p>
@@ -53,7 +59,7 @@ function WorkoutDetailModal({ workout, onClose }: {
             { label: "SÄTZE",   value: String(workout.totalSets),             icon: "🏋️" },
           ].map(s => (
             <div key={s.label} className="rounded-2xl p-3 text-center"
-              style={{ background: "#111", border: "1px solid #1e1e1e" }}>
+              style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}` }}>
               <p className="text-lg mb-1">{s.icon}</p>
               <p className="font-black text-xl text-white" style={{ fontFamily: F }}>{s.value}</p>
               <p className="text-[9px] text-gray-500 tracking-widest">{s.label}</p>
@@ -64,7 +70,7 @@ function WorkoutDetailModal({ workout, onClose }: {
         <div className="flex flex-col gap-2">
           {workout.exercises.map((ex, i) => (
             <div key={i} className="rounded-2xl overflow-hidden"
-              style={{ background: "#111", border: `1px solid ${expanded === i ? ORANGE+"44" : "#1e1e1e"}` }}>
+              style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${expanded === i ? ORANGE+"44" : "#1e1e1e"}` }}>
               <button className="w-full flex items-center gap-3 px-4 py-3 text-left"
                 style={{ background: "none", border: "none" }}
                 onClick={() => setExpanded(expanded === i ? null : i)}>
@@ -78,13 +84,13 @@ function WorkoutDetailModal({ workout, onClose }: {
                   <span className="px-2 py-0.5 rounded text-[9px] font-black"
                     style={{ background: ORANGE, color: "#fff", fontFamily: F }}>PR</span>
                 )}
-                <span className="text-gray-600">{expanded === i ? "∧" : "∨"}</span>
+                <span className="text-[10px]">{expanded === i ? "∧" : "∨"}</span>
               </button>
               {expanded === i && (
-                <div className="px-4 pb-3 border-t" style={{ borderColor: "#1e1e1e" }}>
+                <div className="px-4 pb-3 border-t" style={{ borderColor: `${BORDER}` }}>
                   {ex.sets.map((set, si) => (
-                    <div key={si} className="flex items-center gap-3 py-2 border-b" style={{ borderColor: "#1a1a1a" }}>
-                      <span className="text-xs text-gray-600 w-8">Satz {si+1}</span>
+                    <div key={si} className="flex items-center gap-3 py-2 border-b" style={{ borderColor: `${BORDER}` }}>
+                      <span className="text-xs text-[10px] w-8">Satz {si+1}</span>
                       <span className="text-sm text-white font-bold">
                         {set.weight > 0 ? `${set.weight} kg` : "BW"} × {set.reps} Wdh
                       </span>
@@ -104,7 +110,7 @@ function GoalPicker({ current, onClose }: { current: number; onClose: () => void
   const setWeeklyGoal = useStatsStore(s => s.setWeeklyGoal);
   return (
     <div className="fixed inset-0 z-50 flex items-end" style={{ background: "rgba(0,0,0,0.88)" }}>
-      <div className="w-full rounded-t-3xl p-6" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
+      <div className="w-full rounded-t-3xl p-6" style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}` }}>
         <p className="font-black italic text-xl text-white mb-4" style={{ fontFamily: F }}>
           WOCHENZIEL FESTLEGEN
         </p>
@@ -197,7 +203,7 @@ export function HomeScreen() {
 
         {/* ── NÄCHSTES TRAINING ── */}
         <div className="rounded-2xl p-4 pb-5" style={{
-          background: "#111",
+          background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`,
           border: `1.5px solid ${ORANGE}66`,
           boxShadow: `0 0 20px ${ORANGE}18`,
         }}>
@@ -245,7 +251,7 @@ export function HomeScreen() {
                 className="rounded-2xl font-black text-xs text-white text-center"
                 style={{
                   background: "transparent",
-                  border: "1px solid #2a2a2a",
+                  border: `1px solid ${BORDER}`,
                   fontFamily: F,
                   padding: "10px 12px",
                 }}>
@@ -256,7 +262,7 @@ export function HomeScreen() {
         </div>
 
         {/* ── DEIN WOCHENSTATUS ── */}
-        <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}` }}>
           <div className="px-4 pt-4 pb-3">
             <p className="font-black italic text-base text-white" style={{ fontFamily: F }}>DEIN WOCHENSTATUS</p>
           </div>
@@ -277,9 +283,9 @@ export function HomeScreen() {
               </div>
               <p className="text-[9px] text-gray-500 tracking-widest font-bold mb-1">WOCHENZIEL</p>
               <p className="font-black text-2xl text-white" style={{ fontFamily: F }}>
-                {weekCount} <span className="text-gray-500">/ {goal}</span>
+                {weekCount} <span className="text-xs">/ {goal}</span>
               </p>
-              <p className="text-[10px] text-gray-600 mt-0.5">Workouts</p>
+              <p className="text-[10px] text-[10px] mt-0.5">Workouts</p>
             </button>
 
             {/* Streak */}
@@ -293,7 +299,7 @@ export function HomeScreen() {
               </div>
               <p className="text-[9px] text-gray-500 tracking-widest font-bold mb-1">STREAK</p>
               <p className="font-black text-2xl" style={{ fontFamily: F, color: ORANGE }}>{streak}</p>
-              <p className="text-[10px] text-gray-600 mt-0.5">Tage</p>
+              <p className="text-[10px] text-[10px] mt-0.5">Tage</p>
             </div>
 
             {/* Volumen */}
@@ -307,12 +313,12 @@ export function HomeScreen() {
               </div>
               <p className="text-[9px] text-gray-500 tracking-widest font-bold mb-1">VOLUMEN</p>
               <p className="font-black text-2xl text-white" style={{ fontFamily: F }}>{volLabel}</p>
-              <p className="text-[10px] text-gray-600 mt-0.5">vs. letzte Woche</p>
+              <p className="text-[10px] text-[10px] mt-0.5">vs. letzte Woche</p>
             </div>
           </div>
 
           {/* Week day dots */}
-          <div className="flex items-center justify-around px-4 py-3 border-t" style={{ borderColor: "#1e1e1e" }}>
+          <div className="flex items-center justify-around px-4 py-3 border-t" style={{ borderColor: `${BORDER}` }}>
             {DAY_LABELS.map((d, i) => {
               const isToday = i === mondayIdx;
               const isDone  = weekDays[i];
@@ -336,7 +342,7 @@ export function HomeScreen() {
         </div>
 
         {/* ── LETZTES WORKOUT ── */}
-        <div className="rounded-2xl p-4" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
+        <div className="rounded-2xl p-4" style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}` }}>
           <p className="font-black italic text-base text-white mb-3" style={{ fontFamily: F }}>LETZTES WORKOUT</p>
           {lastWorkout ? (
             <div className="flex items-center gap-3">
@@ -348,20 +354,20 @@ export function HomeScreen() {
                 <p className="font-black text-lg text-white leading-tight" style={{ fontFamily: F }}>
                   {lastWorkout.dayLabel.toUpperCase()}
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-xs">
                   {lastWorkout.dayTag === "PUSH" ? "Brust · Schultern · Trizeps" : "Rücken · Bizeps · Core"}
                 </p>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs text-gray-600">Gestern</span>
+                  <span className="text-xs text-[10px]">Gestern</span>
                   <span className="text-gray-700 text-xs">·</span>
-                  <span className="text-xs text-gray-600">{fmtDuration(lastWorkout.durationSeconds)}</span>
+                  <span className="text-xs text-[10px]">{fmtDuration(lastWorkout.durationSeconds)}</span>
                   <span className="text-gray-700 text-xs">·</span>
-                  <span className="text-xs text-gray-600">🏋️ {lastWorkout.exercises.length} Übungen</span>
+                  <span className="text-xs text-[10px]">🏋️ {lastWorkout.exercises.length} Übungen</span>
                 </div>
               </div>
               <button onClick={() => setShowWorkoutDetail(true)}
                 className="px-4 py-2 rounded-xl font-black text-xs text-white flex-shrink-0 flex items-center gap-1"
-                style={{ background: "#1e1e1e", border: "1px solid #2a2a2a", fontFamily: F }}>
+                style={{ background: "#1e1e1e", border: `1px solid ${BORDER}`, fontFamily: F }}>
                 Analysieren ›
               </button>
             </div>

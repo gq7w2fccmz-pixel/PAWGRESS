@@ -139,7 +139,7 @@ export function CoachesScreen() {
             const pct = Math.min((prog.current / prog.max) * 100, 100);
             return (
               <div key={coach.name} className="rounded-2xl overflow-hidden relative"
-                style={{ background: "#111", border: "1px solid #333" }}>
+                style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: "1px solid #333" }}>
                 {/* Portrait – clearly darkened */}
                 <div className="relative overflow-hidden" style={{ height: 140 }}>
                   {coach.heroImage && (
@@ -152,7 +152,7 @@ export function CoachesScreen() {
                   }} />
                   {/* Lock icon centered */}
                   <div className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center"
-                    style={{ background: "rgba(0,0,0,0.85)", border: "1px solid #555" }}>
+                    style={{ background: `rgba(13,10,8,0.92)`, border: "1px solid #555" }}>
                     <span style={{ fontSize: 13 }}>🔒</span>
                   </div>
                 </div>

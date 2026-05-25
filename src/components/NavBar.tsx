@@ -58,19 +58,19 @@ export function NavBar() {
         background: `linear-gradient(to right, transparent, ${COPPER}66, ${COPPER_LIGHT}88, ${COPPER}66, transparent)`,
       }} />
 
-      <div className="flex items-center justify-around px-2 pt-2 pb-6">
+      <div className="flex items-center justify-around px-2 pt-1.5 pb-5">
         {NAV_ITEMS.map((item) =>
           item.isPaw ? (
             // ── Mittleres Paw-Icon – Gebürstetes Kupfer ──────────────────────
             <button
               key="paw"
               onClick={() => navigate("/coaches")}
-              className="-mt-7 flex-shrink-0 cursor-pointer"
+              className="-mt-5 flex-shrink-0 cursor-pointer"
               style={{ background: "none", border: "none", padding: 0 }}
             >
               <div style={{
-                width: 62, height: 62,
-                borderRadius: 16,
+                width: 54, height: 54,
+                borderRadius: 13,
                 // Gebürstetes Metall Hintergrund
                 background: "linear-gradient(145deg, #2a1f14, #1a1208, #2e2010, #1a1208)",
                 // Kupfer Rahmen mit Glow
@@ -88,11 +88,11 @@ export function NavBar() {
                 <div style={{
                   position: "absolute", inset: 0,
                   background: "linear-gradient(135deg, rgba(205,127,50,0.15) 0%, transparent 50%, rgba(205,127,50,0.08) 100%)",
-                  borderRadius: 14,
+                  borderRadius: 13,
                 }} />
                 <img src="/images/nav_paw.webp" alt="paw"
                   className="relative z-10"
-                  style={{ width: 46, height: 46, objectFit: "contain", borderRadius: 10 }} />
+                  style={{ width: 40, height: 40, objectFit: "contain", borderRadius: 9 }} />
               </div>
             </button>
           ) : (

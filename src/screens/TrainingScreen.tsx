@@ -384,8 +384,16 @@ export function TrainingScreen() {
   const { startWorkout } = usePawgressStore();
   const setCustomExercises = useWorkoutStore(s => s.setCustomExercises);
 
-  const [showPicker, setShowPicker]         = useState(false);
-  const [selection, setSelection]           = useState<WorkoutSelection | null>(null);
+  const [showPicker,    setShowPicker]    = useState(false);
+  const [selection,     setSelection]     = useState<WorkoutSelection | null>(null);
+
+  // Kupfer-Bronze Palette
+  const COPPER   = "#cd7f32";
+  const COPPER_L = "#e8a050";
+  const COPPER_G = "rgba(180,100,20,0.22)";
+  const SURF     = "#131008";
+  const SURF2    = "#1a1610";
+  const BORDER   = "rgba(205,127,50,0.18)";
 
   const dayIndex = totalWorkouts % 4;
   const nextDay  = PLAN_2ER_SPLIT[dayIndex];
@@ -452,14 +460,18 @@ export function TrainingScreen() {
         <p className="font-black italic text-xl text-white mb-3" style={{ fontFamily: F }}>
           SCHNELL STARTEN
         </p>
-        <div className="rounded-2xl p-4" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
+        <div className="rounded-2xl p-4" style={{
+          background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`,
+          border: `1px solid ${BORDER}`,
+          boxShadow: `0 0 20px ${COPPER_G}, inset 0 1px 0 rgba(205,127,50,0.1)`,
+        }}>
           <div className="grid grid-cols-4 gap-2">
             {[
               {
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
-                    <circle cx="12" cy="12" r="11" stroke={ORANGE} strokeWidth="1.5"/>
-                    <polygon points="10,8 18,12 10,16" fill={ORANGE}/>
+                    <circle cx="12" cy="12" r="11" stroke={COPPER_L} strokeWidth="1.5"/>
+                    <polygon points="10,8 18,12 10,16" fill={COPPER_L}/>
                   </svg>
                 ),
                 label: "WORKOUT\nSTARTEN",
@@ -469,11 +481,11 @@ export function TrainingScreen() {
               {
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
-                    <rect x="3" y="10" width="4" height="4" rx="1" stroke={ORANGE} strokeWidth="1.5"/>
-                    <line x1="7" y1="12" x2="17" y2="12" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
-                    <rect x="17" y="10" width="4" height="4" rx="1" stroke={ORANGE} strokeWidth="1.5"/>
-                    <line x1="12" y1="5" x2="12" y2="8" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
-                    <line x1="12" y1="16" x2="12" y2="19" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+                    <rect x="3" y="10" width="4" height="4" rx="1" stroke={COPPER_L} strokeWidth="1.5"/>
+                    <line x1="7" y1="12" x2="17" y2="12" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round"/>
+                    <rect x="17" y="10" width="4" height="4" rx="1" stroke={COPPER_L} strokeWidth="1.5"/>
+                    <line x1="12" y1="5" x2="12" y2="8" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round"/>
+                    <line x1="12" y1="16" x2="12" y2="19" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round"/>
                   </svg>
                 ),
                 label: "FREIES\nTRAINING\nSTARTEN",
@@ -483,11 +495,11 @@ export function TrainingScreen() {
               {
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
-                    <rect x="3" y="4" width="18" height="16" rx="2" stroke={ORANGE} strokeWidth="1.5"/>
-                    <line x1="3" y1="9" x2="21" y2="9" stroke={ORANGE} strokeWidth="1.5"/>
-                    <line x1="8" y1="2" x2="8" y2="6" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
-                    <line x1="16" y1="2" x2="16" y2="6" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
-                    <polyline points="8,14 11,17 16,12" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <rect x="3" y="4" width="18" height="16" rx="2" stroke={COPPER_L} strokeWidth="1.5"/>
+                    <line x1="3" y1="9" x2="21" y2="9" stroke={COPPER_L} strokeWidth="1.5"/>
+                    <line x1="8" y1="2" x2="8" y2="6" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round"/>
+                    <line x1="16" y1="2" x2="16" y2="6" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round"/>
+                    <polyline points="8,14 11,17 16,12" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 ),
                 label: "PLAN\nFORTSETZEN",
@@ -497,10 +509,10 @@ export function TrainingScreen() {
               {
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
-                    <rect x="3" y="4" width="18" height="16" rx="2" stroke={ORANGE} strokeWidth="1.5"/>
-                    <line x1="7" y1="9" x2="17" y2="9" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
-                    <line x1="7" y1="13" x2="17" y2="13" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
-                    <line x1="7" y1="17" x2="13" y2="17" stroke={ORANGE} strokeWidth="1.5" strokeLinecap="round"/>
+                    <rect x="3" y="4" width="18" height="16" rx="2" stroke={COPPER_L} strokeWidth="1.5"/>
+                    <line x1="7" y1="9" x2="17" y2="9" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round"/>
+                    <line x1="7" y1="13" x2="17" y2="13" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round"/>
+                    <line x1="7" y1="17" x2="13" y2="17" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round"/>
                   </svg>
                 ),
                 label: "PLAN\nAUSWÄHLEN",
@@ -512,12 +524,17 @@ export function TrainingScreen() {
                 className="flex flex-col items-center gap-2 text-center"
                 style={{ background: "none", border: "none", padding: 0 }}>
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                  style={{ background: `${ORANGE}18` }}>
+                  style={{
+                    background: `${COPPER}18`,
+                    border: `1px solid ${COPPER}33`,
+                    boxShadow: `inset 0 1px 0 rgba(205,127,50,0.15)`,
+                  }}>
                   {item.icon}
                 </div>
-                <p className="font-black text-[10px] text-white leading-tight whitespace-pre-line"
-                  style={{ fontFamily: F }}>{item.label}</p>
-                <p className="text-[8px] text-gray-500 leading-tight whitespace-pre-line">{item.sub}</p>
+                <p className="font-black text-[10px] leading-tight whitespace-pre-line"
+                  style={{ fontFamily: F, color: "#fff" }}>{item.label}</p>
+                <p className="text-[8px] leading-tight whitespace-pre-line"
+                  style={{ color: COPPER }}>{item.sub}</p>
               </button>
             ))}
           </div>
@@ -584,45 +601,37 @@ export function TrainingScreen() {
         </div>
       </div>
 
-      {/* ── ÜBUNGEN ENTDECKEN ── */}
-      <div className="px-4">
-        <div className="flex items-center justify-between mb-3">
-          <p className="font-black italic text-xl text-white" style={{ fontFamily: F }}>ÜBUNGEN ENTDECKEN</p>
-          <button className="text-xs font-bold" style={{ color: ORANGE, background: "none", border: "none" }}>
-            Alle anzeigen ›
-          </button>
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          {AREAS.map(area => {
-            const data = AREA_DATA[area.key];
-            const count = data?.exercises?.length ?? 0;
-            return (
-              <button key={area.key}
-                onClick={() => navigate(`/gym/${area.key}`)}
-                className="relative rounded-2xl overflow-hidden text-left"
-                style={{ height: 150, background: "#111", border: "none", padding: 0 }}>
-                {/* Background image – contain so neon text is never cropped */}
-                <img src={area.img} alt={area.label}
-                  className="absolute inset-0 w-full h-full"
-                  style={{ opacity: 0.9, objectFit: "contain", objectPosition: "center top" }} />
-                {/* Gradient overlay */}
-                <div className="absolute inset-0" style={{
-                  background: `linear-gradient(to top, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.45) 50%, rgba(8,8,8,0.1) 100%)`,
-                }} />
-                {/* Content */}
-                <div className="absolute bottom-0 left-0 right-0 p-3">
-                  <p className="font-black text-base leading-none" style={{ fontFamily: F, color: data?.color ?? "#fff" }}>
-                    {area.label.toUpperCase()}
-                  </p>
-                  <div className="flex items-center justify-between mt-1">
-                    <p className="text-[10px] text-gray-400">{count} Übungen</p>
-                    <span className="text-sm" style={{ color: data?.color ?? ORANGE }}>›</span>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+      {/* ── ÜBUNGEN ENTDECKEN – Accordion ── */}
+      <div className="px-4 pb-8">
+
+        {/* Übungen-Button → eigene Seite */}
+        <button onClick={() => navigate("/training/uebungen")}
+          className="w-full flex items-center gap-4 p-4 rounded-2xl mb-2"
+          style={{
+            background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`,
+            border: `1px solid ${BORDER}`,
+            boxShadow: `0 0 16px ${COPPER_G}, inset 0 1px 0 rgba(205,127,50,0.1)`,
+            transition: "box-shadow 0.2s",
+          }}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: `${COPPER}18`, border: `1px solid ${COPPER}33` }}>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <rect x="2" y="9" width="4" height="4" rx="1" fill={COPPER_L}/>
+              <rect x="6" y="7" width="2" height="6" rx="1" fill={COPPER_L}/>
+              <rect x="8" y="9" width="4" height="2" rx="0.5" fill={COPPER_L}/>
+              <rect x="12" y="7" width="2" height="6" rx="1" fill={COPPER_L}/>
+              <rect x="14" y="9" width="4" height="4" rx="1" fill={COPPER_L}/>
+            </svg>
+          </div>
+          <div className="flex-1 text-left">
+            <p className="font-black text-base text-white" style={{ fontFamily: F }}>ÜBUNGEN ENTDECKEN</p>
+            <p className="text-xs" style={{ color: COPPER }}>Brust · Rücken · Beine · und mehr</p>
+          </div>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+            style={{ flexShrink: 0 }}>
+            <path d="M5 7.5L10 12.5L15 7.5" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
       </div>
     </div>
   );

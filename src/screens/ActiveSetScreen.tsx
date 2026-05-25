@@ -13,6 +13,12 @@ import { CORE_EXERCISES }     from "../data/exercises_core";
 
 const F = "'Barlow Condensed', sans-serif";
 const ORANGE = "#f97316";
+const COPPER   = "#cd7f32";
+const COPPER_L = "#e8a050";
+const COPPER_G = "rgba(180,100,20,0.22)";
+const SURF     = "#131008";
+const SURF2    = "#1a1610";
+const BORDER   = "rgba(205,127,50,0.18)";
 
 const ALL_EXERCISES = [
   ...BRUST_EXERCISES, ...RUECKEN_EXERCISES, ...SCHULTERN_EXERCISES,
@@ -55,7 +61,7 @@ function TimerRing({ seconds, total, onAdjust, onSet }: {
           style={{ background: "transparent", border: `2px solid ${ORANGE}`, color: ORANGE }}>−</button>
         <div className="relative" style={{ width: 160, height: 160 }}>
           <svg width="160" height="160" style={{ transform: "rotate(-90deg)" }}>
-            <circle cx="80" cy="80" r={r} fill="none" stroke="#1e1e1e" strokeWidth="8" />
+            <circle cx="80" cy="80" r={r} fill="none" stroke="#2a1f10" strokeWidth="8" />
             <circle cx="80" cy="80" r={r} fill="none" stroke={ORANGE} strokeWidth="8"
               strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" />
           </svg>
@@ -356,7 +362,7 @@ export function ActiveSetScreen() {
       <div className="px-6 mb-6">
         <button onClick={() => setShowTip(t => !t)}
           className="w-full flex items-start gap-3 p-4 rounded-2xl text-left"
-          style={{ background: "#111", border: `1px solid ${ORANGE}33` }}>
+          style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${ORANGE}33` }}>
           <span style={{ color: ORANGE, fontSize: 22, flexShrink: 0 }}>💡</span>
           <div className="flex-1">
             <p className="font-black text-sm" style={{ color: ORANGE, fontFamily: F }}>TIPP</p>
@@ -372,7 +378,7 @@ export function ActiveSetScreen() {
                           </div>
                         ))}
                         {exData.breathing && (
-                          <div className="mt-2 pt-2 border-t" style={{ borderColor: "#1e1e1e" }}>
+                          <div className="mt-2 pt-2 border-t" style={{ borderColor: `${BORDER}` }}>
                             <span className="text-blue-400 font-bold">Atmung: </span>
                             <span className="text-gray-300">{exData.breathing}</span>
                           </div>

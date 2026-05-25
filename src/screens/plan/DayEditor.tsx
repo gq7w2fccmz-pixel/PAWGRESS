@@ -10,6 +10,11 @@ import { ExercisePickerModal }   from "./ExercisePicker";
 
 const F      = "'Barlow Condensed', sans-serif";
 const ORANGE = "#f97316";
+const COPPER   = "#cd7f32";
+const COPPER_L = "#e8a050";
+const SURF     = "#131008";
+const SURF2    = "#1a1610";
+const BORDER   = "rgba(205,127,50,0.18)";
 
 // ── Einzelne Übungszeile mit aufklappbarer Satz-Konfiguration ─────────────────
 function ExerciseRow({
@@ -86,7 +91,7 @@ function ExerciseRow({
 
       {/* Aufgeklappte Satz-Konfiguration */}
       {open && (
-        <div className="px-4 pb-3" style={{ background: "#0d0d0d" }}>
+        <div className="px-4 pb-3" style={{ background: `${SURF}` }}>
 
           {/* Sätze */}
           <div className="flex flex-col gap-2 mb-3 pt-2">
@@ -100,7 +105,7 @@ function ExerciseRow({
                 <button
                   onClick={() => updateReps(si, -1)}
                   className="w-8 h-8 rounded-xl flex items-center justify-center font-black text-lg flex-shrink-0"
-                  style={{ background: "#1e1e1e", border: "none", color: "#fff" }}>
+                  style={{ background: `${SURF2}`, border: "none", color: "#fff" }}>
                   −
                 </button>
                 {/* Wdh-Eingabe */}
@@ -110,7 +115,7 @@ function ExerciseRow({
                   onChange={e => setRepsDirectly(si, e.target.value)}
                   className="text-center font-black text-white outline-none rounded-xl"
                   style={{
-                    background: "#1e1e1e",
+                    background: `${SURF2}`,
                     border: `1px solid ${ORANGE}44`,
                     width: 52, height: 32,
                     fontFamily: F, fontSize: 16,
@@ -121,7 +126,7 @@ function ExerciseRow({
                 <button
                   onClick={() => updateReps(si, 1)}
                   className="w-8 h-8 rounded-xl flex items-center justify-center font-black text-lg flex-shrink-0"
-                  style={{ background: "#1e1e1e", border: "none", color: "#fff" }}>
+                  style={{ background: `${SURF2}`, border: "none", color: "#fff" }}>
                   +
                 </button>
                 <p className="text-xs text-gray-600">Wdh</p>
@@ -146,7 +151,7 @@ function ExerciseRow({
             <button
               onClick={addSet}
               className="flex-1 py-2 rounded-xl font-black text-xs"
-              style={{ fontFamily: F, background: "#1e1e1e", border: "none", color: ORANGE }}>
+              style={{ fontFamily: F, background: `${SURF2}`, border: "none", color: ORANGE }}>
               + SATZ
             </button>
           </div>
@@ -177,7 +182,7 @@ export const DayEditor = memo(function DayEditor({
   }
 
   return (
-    <div className="rounded-2xl overflow-hidden mb-3" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
+    <div className="rounded-2xl overflow-hidden mb-3" style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}` }}>
       {showPicker && (
         <ExercisePickerModal
           onClose={() => setShowPicker(false)}

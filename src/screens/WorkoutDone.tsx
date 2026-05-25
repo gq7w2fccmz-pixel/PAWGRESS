@@ -6,6 +6,12 @@ import { PLAN_2ER_SPLIT } from "../data/plan_2er_split";
 
 const F = "'Barlow Condensed', sans-serif";
 const ORANGE = "#f97316";
+const COPPER   = "#cd7f32";
+const COPPER_L = "#e8a050";
+const COPPER_G = "rgba(180,100,20,0.22)";
+const SURF     = "#131008";
+const SURF2    = "#1a1610";
+const BORDER   = "rgba(205,127,50,0.18)";
 
 export function WorkoutDone() {
   const navigate       = useNavigate();
@@ -70,7 +76,7 @@ export function WorkoutDone() {
             { icon: "✅", label: "WIEDERHOLUNGEN", value: totalReps > 0 ? String(totalReps) : "–",                   sub: "Gesamt",    color: "#a855f7" },
           ].map(s => (
             <div key={s.label} className="rounded-2xl p-4"
-              style={{ background: "#111", border: `1px solid ${s.color}33` }}>
+              style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${s.color}33` }}>
               <div className="flex items-center gap-1.5 mb-1.5">
                 <span>{s.icon}</span>
                 <p className="text-[9px] font-black tracking-widest text-gray-500" style={{ fontFamily: F }}>{s.label}</p>
@@ -82,7 +88,7 @@ export function WorkoutDone() {
         </div>
 
         {/* Top Leistungen */}
-        <div className="rounded-2xl p-4" style={{ background: "#111", border: "1px solid #1e1e1e" }}>
+        <div className="rounded-2xl p-4" style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}` }}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <span style={{ color: ORANGE }}>🏆</span>
@@ -121,7 +127,7 @@ export function WorkoutDone() {
           const nextDay = PLAN_2ER_SPLIT[stats.totalWorkouts % 4];
           return (
             <div className="flex items-center gap-3 p-4 rounded-2xl"
-              style={{ background: "#111", border: "1px solid #1e1e1e" }}>
+              style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}` }}>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                 style={{ background: `${nextDay.color}22` }}>
                 <span style={{ color: nextDay.color, fontSize: 20 }}>{nextDay.tag === "PUSH" ? "🏋️" : "💪"}</span>
@@ -143,7 +149,7 @@ export function WorkoutDone() {
         </button>
         <button onClick={() => navigate("/profil")}
           className="w-full py-3.5 rounded-2xl font-black text-base text-white"
-          style={{ background: "transparent", border: "1px solid #2a2a2a", fontFamily: F }}>
+          style={{ background: "transparent", border: `1px solid ${BORDER}`, fontFamily: F }}>
           ZUSAMMENFASSUNG ANSEHEN ›
         </button>
       </div>

@@ -5,6 +5,12 @@ import type { AreaName, AreaExercise } from "../types";
 
 const F = "'Barlow Condensed', sans-serif";
 const ORANGE = "#f97316";
+const COPPER   = "#cd7f32";
+const COPPER_L = "#e8a050";
+const COPPER_G = "rgba(180,100,20,0.22)";
+const SURF     = "#131008";
+const SURF2    = "#1a1610";
+const BORDER   = "rgba(205,127,50,0.18)";
 
 const GYM_IMG: Record<string, string> = {
   BRUST: "/images/gym_brust.webp", RUECKEN: "/images/gym_ruecken.webp",
@@ -300,7 +306,7 @@ function ExerciseDetail({ ex, area, areaKey, onBack }: {
 
       {/* ── STATS BAR ── */}
       <div className="mx-4 mt-4 rounded-2xl overflow-hidden"
-        style={{ background: "#111", border: "1px solid #1e1e1e" }}>
+        style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}` }}>
         <div className="grid grid-cols-4">
           {[
             {
@@ -354,7 +360,7 @@ function ExerciseDetail({ ex, area, areaKey, onBack }: {
           const isOpen = open.includes(sec.key);
           return (
             <div key={sec.key} className="rounded-2xl overflow-hidden"
-              style={{ background: "#111", border: `1px solid ${isOpen ? sec.color + "44" : "#1e1e1e"}` }}>
+              style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${isOpen ? sec.color + "44" : "#1e1e1e"}` }}>
               <button className="w-full flex items-center justify-between px-4 py-4"
                 style={{ background: "none", border: "none" }}
                 onClick={() => toggle(sec.key)}>
@@ -368,7 +374,7 @@ function ExerciseDetail({ ex, area, areaKey, onBack }: {
                 </svg>
               </button>
               {isOpen && (
-                <div className="px-4 pb-4 border-t" style={{ borderColor: "#1e1e1e" }}>
+                <div className="px-4 pb-4 border-t" style={{ borderColor: `${BORDER}` }}>
                   {sec.content}
                 </div>
               )}
@@ -506,7 +512,7 @@ export function GymAreaScreen() {
       {/* ── FILTER BAR ── */}
       <div className="px-4 mt-3 mb-4">
         <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl mb-3"
-          style={{ background: "#111", border: "1px solid #1e1e1e" }}>
+          style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}` }}>
           <span className="text-gray-600 text-sm">🔍</span>
           <input
             value={search}
@@ -516,7 +522,7 @@ export function GymAreaScreen() {
             style={{ fontFamily: F }} />
           {search && (
             <button onClick={() => setSearch("")}
-              style={{ background: "none", border: "none", color: "#888", fontSize: 16 }}>✕</button>
+              style={{ background: "none", border: "none", color: COPPER, fontSize: 16 }}>✕</button>
           )}
         </div>
 
@@ -553,7 +559,7 @@ export function GymAreaScreen() {
             return (
               <button key={i} onClick={() => openExercise(ex)}
                 className="w-full text-left rounded-2xl overflow-hidden"
-                style={{ background: "#111", border: "1px solid #1e1e1e", padding: 0 }}>
+                style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}`, padding: 0 }}>
                 <div className="flex items-center gap-0">
                   <div className="relative flex-shrink-0" style={{ width: 110, height: 100 }}>
                     <img src={gymImg} alt={ex.name}
@@ -590,7 +596,7 @@ export function GymAreaScreen() {
                       )}
                       {equip && (
                         <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black"
-                          style={{ background: "#1e1e1e", color: "#888" }}>
+                          style={{ background: "#1e1e1e", color: COPPER }}>
                           <span style={{ fontSize: 10 }}>⊣⊢</span> {equip}
                         </span>
                       )}

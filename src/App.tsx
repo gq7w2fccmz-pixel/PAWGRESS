@@ -10,6 +10,7 @@ const SplashScreen        = lazy(() => import("./screens/SplashScreen").then(m =
 const LoginScreen         = lazy(() => import("./screens/LoginScreen").then(m => ({ default: m.LoginScreen })));
 const OnboardingScreen    = lazy(() => import("./screens/OnboardingScreen").then(m => ({ default: m.OnboardingScreen })));
 const ResetPasswordScreen = lazy(() => import("./screens/ResetPasswordScreen").then(m => ({ default: m.ResetPasswordScreen })));
+const UebungenScreen      = lazy(() => import("./screens/UebungenScreen").then(m => ({ default: m.UebungenScreen })));
 const HomeScreen          = lazy(() => import("./screens/HomeScreen").then(m => ({ default: m.HomeScreen })));
 const PlanScreen          = lazy(() => import("./screens/PlanScreen").then(m => ({ default: m.PlanScreen })));
 const CoachesScreen       = lazy(() => import("./screens/CoachesScreen").then(m => ({ default: m.CoachesScreen })));
@@ -49,7 +50,8 @@ function AppInner({ hideSplash }: { hideSplash: boolean }) {
           <Route path="/workout-done"      element={<WorkoutDone />} />
           <Route path="/profil"            element={<ProfilScreen />} />
           <Route path="/gym/:area"         element={<GymAreaScreen />} />
-          <Route path="/reset-password"    element={<ResetPasswordScreen />} />
+          <Route path="/reset-password"      element={<ResetPasswordScreen />} />
+          <Route path="/training/uebungen"   element={<UebungenScreen />} />
         </Routes>
       </Suspense>
       {showNav && <NavBar />}
