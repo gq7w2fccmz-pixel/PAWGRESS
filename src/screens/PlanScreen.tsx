@@ -249,6 +249,7 @@ export function PlanScreen() {
     return <DayDetailScreen day={dayDetail} color={dayDetail.color} onBack={() => setDayDetail(null)} />;
 
   return (
+    <>
     <div className="min-h-screen pb-28" style={{ background: "#080808", color: "#fff" }}>
 
       {/* Header */}
@@ -369,6 +370,8 @@ export function PlanScreen() {
         </button>
       </div>
     </div>
+    {showCoachWizard && <CoachPlanWizard onClose={() => setShowCoachWizard(false)} />}
+    </>
   );
 }
 
@@ -388,7 +391,6 @@ function SelfCreateScreen({
   const workouts = usePlanStore(s => s.workouts);
 
   return (
-    <>
     <div className="min-h-screen pb-28" style={{ background: "#080808", color: "#fff" }}>
       <div className="px-5 pt-12 pb-6">
         <button onClick={onBack}
@@ -482,7 +484,5 @@ function SelfCreateScreen({
         )}
       </div>
     </div>
-      {showCoachWizard && <CoachPlanWizard onClose={() => setShowCoachWizard(false)} />}
-    </>
   );
 }

@@ -50,6 +50,10 @@ interface HistoryStore {
   // Called when a workout finishes
   saveWorkout: (record: WorkoutInput) => WorkoutRecord;
 
+  // Manage workouts
+  deleteWorkout: (id: string) => void;
+  updateWorkoutLabel: (id: string, label: string) => void;
+
   // Query helpers
   getWorkoutById: (id: string) => WorkoutRecord | undefined;
   getExerciseHistory: (name: string) => { date: string; bestSet: SetRecord; volume: number }[];
@@ -90,6 +94,14 @@ export const useHistoryStore = create<HistoryStore>()(
         });
 
         return record;
+      },
+
+      deleteWorkout: (id) => {
+        set({ workouts: get().workouts.filter(w => w.id !== id) });
+      },
+
+      updateWorkoutLabel: (id, label) => {
+        set({ workouts: get().workouts.map(w => w.id === id ? { ...w, dayLabel: label } : w) });
       },
 
       getWorkoutById: (id) => get().workouts.find(w => w.id === id),

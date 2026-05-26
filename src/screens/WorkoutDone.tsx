@@ -49,9 +49,9 @@ export function WorkoutDone() {
     <div className="min-h-screen pb-10" style={{ background: "#080808", color: "#fff" }}>
 
       {/* Hero */}
-      <div className="relative overflow-hidden" style={{ height: 300 }}>
+      <div className="relative overflow-hidden" style={{ height: 260 }}>
         <img src="/images/workout_done_hero.webp" alt="Training abgeschlossen"
-          className="absolute inset-0 w-full h-full object-cover object-center" />
+          className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: "center 20%" }} />
         <div className="absolute inset-0" style={{
           background: "linear-gradient(to bottom, rgba(8,8,8,0) 40%, rgba(8,8,8,1) 100%)",
         }} />
@@ -65,7 +65,7 @@ export function WorkoutDone() {
         )}
       </div>
 
-      <div className="px-4 -mt-4 flex flex-col gap-3">
+      <div className="px-4 mt-4 flex flex-col gap-3">
 
         {/* Stats 2x2 */}
         <div className="grid grid-cols-2 gap-3">

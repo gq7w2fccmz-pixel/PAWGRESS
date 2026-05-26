@@ -40,6 +40,23 @@ function WorkoutDetailModal({ workout, onClose }: {
   onClose: () => void;
 }) {
   const [expanded, setExpanded] = useState<number | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showEditLabel, setShowEditLabel] = useState(false);
+  const [editLabelDraft, setEditLabelDraft] = useState(workout.dayLabel);
+  const deleteWorkout = useHistoryStore(s => s.deleteWorkout);
+  const updateWorkoutLabel = useHistoryStore(s => s.updateWorkoutLabel);
+
+  function handleDelete() {
+    deleteWorkout(workout.id);
+    onClose();
+  }
+
+  function handleSaveLabel() {
+    if (editLabelDraft.trim()) {
+      updateWorkoutLabel(workout.id, editLabelDraft.trim());
+    }
+    setShowEditLabel(false);
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#080808" }}>
@@ -49,8 +66,73 @@ function WorkoutDetailModal({ workout, onClose }: {
           <p className="font-black text-lg text-white" style={{ fontFamily: F }}>{workout.dayLabel.toUpperCase()}</p>
           <p className="text-xs text-gray-500">{workout.date}</p>
         </div>
-        <div style={{ width: 28 }} />
+        {/* Actions menu */}
+        <div className="flex gap-2">
+          <button onClick={() => setShowEditLabel(true)}
+            className="px-2 py-1 rounded-lg text-xs font-bold"
+            style={{ background: `${COPPER}22`, color: COPPER_L, border: `1px solid ${COPPER}44` }}>
+            ✏️
+          </button>
+          <button onClick={() => setShowDeleteConfirm(true)}
+            className="px-2 py-1 rounded-lg text-xs font-bold"
+            style={{ background: "#ef444422", color: "#ef4444", border: "1px solid #ef444444" }}>
+            🗑
+          </button>
+        </div>
       </div>
+
+      {/* Delete Confirm Modal */}
+      {showDeleteConfirm && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center px-6"
+          style={{ background: "rgba(0,0,0,0.92)" }}>
+          <div className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4"
+            style={{ background: "#141414", border: "1px solid #2a2a2a" }}>
+            <div className="text-center">
+              <p className="text-3xl mb-2">🗑️</p>
+              <p className="font-black italic text-xl text-white mb-1" style={{ fontFamily: F }}>WORKOUT LÖSCHEN?</p>
+              <p className="text-sm text-gray-400">Das kann nicht rückgängig gemacht werden.</p>
+            </div>
+            <button onClick={handleDelete}
+              className="w-full py-4 rounded-2xl font-black text-base"
+              style={{ background: "#ef4444", color: "#fff", fontFamily: F }}>
+              JA, LÖSCHEN
+            </button>
+            <button onClick={() => setShowDeleteConfirm(false)}
+              className="w-full py-3 rounded-2xl font-black text-sm"
+              style={{ background: "#1a1a1a", color: "#aaa", border: "1px solid #2a2a2a", fontFamily: F }}>
+              ABBRECHEN
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Label Modal */}
+      {showEditLabel && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center px-6"
+          style={{ background: "rgba(0,0,0,0.92)" }}>
+          <div className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4"
+            style={{ background: "#141414", border: "1px solid #2a2a2a" }}>
+            <p className="font-black italic text-xl text-white" style={{ fontFamily: F }}>WORKOUT UMBENENNEN</p>
+            <input
+              value={editLabelDraft}
+              onChange={e => setEditLabelDraft(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl text-white font-bold text-base"
+              style={{ background: "#1a1a1a", border: `1px solid ${COPPER}44`, outline: "none", fontFamily: F }}
+              autoFocus
+            />
+            <button onClick={handleSaveLabel}
+              className="w-full py-4 rounded-2xl font-black text-base text-white"
+              style={{ background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, fontFamily: F }}>
+              SPEICHERN
+            </button>
+            <button onClick={() => setShowEditLabel(false)}
+              className="w-full py-3 rounded-2xl font-black text-sm"
+              style={{ background: "#1a1a1a", color: "#aaa", border: "1px solid #2a2a2a", fontFamily: F }}>
+              ABBRECHEN
+            </button>
+          </div>
+        </div>
+      )}
       <div className="flex-1 overflow-y-auto px-4 pb-10">
         <div className="grid grid-cols-3 gap-3 my-4">
           {[

@@ -166,6 +166,7 @@ export function ActiveSetScreen() {
   const [timerRunning, setTimerRunning] = useState(false);
   const [showTip, setShowTip]     = useState(false);
   const [showAbort, setShowAbort] = useState(false);
+  const [showFinishModal, setShowFinishModal] = useState(false);
   // Fix 2: local extra sets (on top of plan)
   const [extraSets, setExtraSets] = useState(0);
   const effectiveTotalSets = totalSets + extraSets;
@@ -211,9 +212,8 @@ export function ActiveSetScreen() {
       if (nextIndex < activeExercises.length) {
         navigate(`/active-set/${nextIndex}`);
       } else {
-        const cats = activeExercises.map(e => e.name);
-        finishWorkout(cats, weight, session?.startTime);
-        navigate("/workout-done");
+        // Letzte Übung fertig → Modal zeigen, kein Auto-Navigate
+        setShowFinishModal(true);
       }
     } else {
       const next = currentSet + 1;
@@ -221,6 +221,12 @@ export function ActiveSetScreen() {
       setReps(planEx?.sets[next - 1]?.reps ?? defaultReps);
       setSetDone(false);
     }
+  }
+
+  function handleFinishWorkout() {
+    const cats = activeExercises.map(e => e.name);
+    finishWorkout(cats, weight, session?.startTime);
+    navigate("/workout-done");
   }
 
   function handleAbort() {
@@ -289,6 +295,31 @@ export function ActiveSetScreen() {
   return (
     <div className="min-h-screen pb-8" style={{ background: "#080808", color: "#fff" }}>
       {showAbort && <AbortModal />}
+      {showFinishModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-6"
+          style={{ background: "rgba(0,0,0,0.92)" }}>
+          <div className="w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4"
+            style={{ background: "#141414", border: "1px solid #2a2a2a" }}>
+            <div className="text-center">
+              <p className="text-4xl mb-2">🏆</p>
+              <p className="font-black italic text-2xl text-white mb-1" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+                LETZTE ÜBUNG FERTIG!
+              </p>
+              <p className="text-sm text-gray-400">Was möchtest du tun?</p>
+            </div>
+            <button onClick={handleFinishWorkout}
+              className="w-full py-4 rounded-2xl font-black text-base text-white"
+              style={{ background: "linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)", fontFamily: "'Barlow Condensed', sans-serif" }}>
+              WORKOUT BEENDEN ✓
+            </button>
+            <button onClick={() => { setShowFinishModal(false); navigate("/training/active"); }}
+              className="w-full py-3.5 rounded-2xl font-black text-base"
+              style={{ background: "#1a1a1a", color: "#aaa", border: "1px solid #2a2a2a", fontFamily: "'Barlow Condensed', sans-serif" }}>
+              ZURÜCK ZUR ÜBERSICHT
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Header – back goes to exercise list, progress is saved */}
       <div className="flex items-center justify-between px-4 pt-5 pb-4" style={{ borderBottom: "1px solid #1e1e1e" }}>
