@@ -234,7 +234,12 @@ export function ActiveSetScreen() {
     navigate("/training/active");
   }
 
-  if (!planEx) return null;
+  // Übung nicht gefunden (z.B. Index out of bounds nach Listenänderung)
+  if (!planEx) {
+    // Sofort zurück zur Übersicht statt schwarzer Bildschirm
+    setTimeout(() => navigate("/training/active"), 0);
+    return null;
+  }
 
   const AbortModal = () => (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-6"
@@ -251,7 +256,7 @@ export function ActiveSetScreen() {
   );
 
   // ── Set-Done Rest Screen ──────────────────────────────────────────────────
-  if (setDone && currentSet < effectiveTotalSets) return (
+  if (setDone) return (
     <div className="min-h-screen flex flex-col pb-10" style={{ background: "#080808", color: "#fff" }}>
       {showAbort && <AbortModal />}
       <div className="flex items-center justify-between px-4 pt-5 pb-4" style={{ borderBottom: "1px solid #1e1e1e" }}>
@@ -285,7 +290,7 @@ export function ActiveSetScreen() {
         <button onClick={handleContinue}
           className="w-full py-4 rounded-2xl font-black text-xl text-white mt-6"
           style={{ background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, border: "none", fontFamily: F }}>
-          NÄCHSTER SATZ →
+          {currentSet >= effectiveTotalSets ? "ÜBUNG ABSCHLIESSEN ✓" : "NÄCHSTER SATZ →"}
         </button>
       </div>
     </div>
@@ -409,10 +414,10 @@ export function ActiveSetScreen() {
 
       {/* CTA */}
       <div className="px-6">
-        <button onClick={currentSet >= effectiveTotalSets ? handleContinue : handleSetDone}
+        <button onClick={handleSetDone}
           className="w-full py-4 rounded-2xl font-black text-xl text-white"
           style={{ background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, border: "none", fontFamily: F, boxShadow: `0 0 24px rgba(180,100,20,0.55), inset 0 1px 0 rgba(255,255,255,0.15)` }}>
-          {currentSet >= effectiveTotalSets ? "ÜBUNG ABSCHLIESSEN ✓" : "SATZ ABSCHLIESSEN ✓"}
+          {currentSet >= effectiveTotalSets ? "LETZTEN SATZ ABSCHLIESSEN ✓" : "SATZ ABSCHLIESSEN ✓"}
         </button>
       </div>
     </div>

@@ -392,11 +392,19 @@ function TrainingEditScreen({
           style={{ background:"#111", border:`1px dashed ${COPPER}55`, color:COPPER_L, fontFamily:F }}>
           + ÜBUNG HINZUFÜGEN
         </button>
-        <button onClick={() => { startWorkout(); navigate("/active-set/0"); }}
-          className="w-full py-4 rounded-2xl font-black text-xl text-white"
-          style={{ background:`linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, border:"none", fontFamily:F, boxShadow:`0 0 20px ${COPPER_G}` }}>
-          WORKOUT STARTEN
-        </button>
+        {session ? (
+          <button onClick={() => navigate("/active-set/0")}
+            className="w-full py-4 rounded-2xl font-black text-xl text-white"
+            style={{ background:`linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, border:"none", fontFamily:F, boxShadow:`0 0 20px ${COPPER_G}` }}>
+            WORKOUT FORTSETZEN →
+          </button>
+        ) : (
+          <button onClick={() => { startWorkout(); navigate("/active-set/0"); }}
+            className="w-full py-4 rounded-2xl font-black text-xl text-white"
+            style={{ background:`linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, border:"none", fontFamily:F, boxShadow:`0 0 20px ${COPPER_G}` }}>
+            WORKOUT STARTEN
+          </button>
+        )}
       </div>
     </div>
   );

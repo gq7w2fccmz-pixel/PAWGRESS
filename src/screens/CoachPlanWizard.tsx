@@ -612,14 +612,6 @@ export function CoachPlanWizard({ onClose }: { onClose: () => void }) {
     } catch { return "upper_lower"; }
   })();
 
-  function totalSteps() { return 5; }
-
-  function currentStepNum() {
-    if (wizardStep < 3) return wizardStep;
-    if (wizardStep === 3) return subStep === "A" ? 3 : 3;
-    return wizardStep;
-  }
-
   function handleNext() {
     if (wizardStep === 3 && subStep === "A") { setSubStep("B"); return; }
     if (wizardStep === 3 && subStep === "B") { setWizardStep(4); return; }
@@ -645,7 +637,7 @@ export function CoachPlanWizard({ onClose }: { onClose: () => void }) {
   // Loading
   if (screen === "loading") {
     return (
-      <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(0,0,0,0.85)" }}>
+      <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(0,0,0,0.85)", paddingBottom: 80 }}>
         <div className="w-full max-w-[430px] rounded-t-3xl overflow-hidden" style={{ background: BG }}>
           <LoadingScreen onDone={(p) => { setPlan(p); setScreen("result"); }} />
         </div>
@@ -656,8 +648,8 @@ export function CoachPlanWizard({ onClose }: { onClose: () => void }) {
   // Result
   if (screen === "result" && plan) {
     return (
-      <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(0,0,0,0.85)" }}>
-        <div className="w-full max-w-[430px] rounded-t-3xl overflow-y-auto" style={{ background: BG, maxHeight: "90vh" }}>
+      <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(0,0,0,0.85)", paddingBottom: 80 }}>
+        <div className="w-full max-w-[430px] rounded-t-3xl overflow-y-auto" style={{ background: BG, maxHeight: "calc(100vh - 80px)" }}>
           <div className="px-4 pt-4 pb-2 flex items-center justify-between">
             <div />
             <button onClick={onClose} className="text-gray-500 hover:text-white text-sm">✕</button>
@@ -671,8 +663,8 @@ export function CoachPlanWizard({ onClose }: { onClose: () => void }) {
   // Overview
   if (screen === "overview" && plan) {
     return (
-      <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(0,0,0,0.85)" }}>
-        <div className="w-full max-w-[430px] rounded-t-3xl overflow-y-auto" style={{ background: BG, maxHeight: "90vh" }}>
+      <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(0,0,0,0.85)", paddingBottom: 80 }}>
+        <div className="w-full max-w-[430px] rounded-t-3xl overflow-y-auto" style={{ background: BG, maxHeight: "calc(100vh - 80px)" }}>
           <div className="px-4 pt-4 pb-2 flex items-center justify-between">
             <button onClick={() => setScreen("result")} className="text-gray-400 hover:text-white">←</button>
             <button onClick={onClose} className="text-gray-500 hover:text-white text-sm">✕</button>
@@ -686,8 +678,8 @@ export function CoachPlanWizard({ onClose }: { onClose: () => void }) {
   // Day Detail
   if (screen === "day" && plan) {
     return (
-      <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(0,0,0,0.85)" }}>
-        <div className="w-full max-w-[430px] rounded-t-3xl overflow-y-auto" style={{ background: BG, maxHeight: "90vh" }}>
+      <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(0,0,0,0.85)", paddingBottom: 80 }}>
+        <div className="w-full max-w-[430px] rounded-t-3xl overflow-y-auto" style={{ background: BG, maxHeight: "calc(100vh - 80px)" }}>
           <div className="px-4 pt-4 pb-2 flex items-center justify-between">
             <button onClick={() => setScreen("overview")} className="text-gray-400 hover:text-white">←</button>
             <button onClick={onClose} className="text-gray-500 hover:text-white text-sm">✕</button>
@@ -711,8 +703,8 @@ export function CoachPlanWizard({ onClose }: { onClose: () => void }) {
   const stepLabel = wizardStep === 3 ? `3${subStep} von 5` : `${wizardStep} von 5`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(0,0,0,0.85)" }}>
-      <div className="w-full max-w-[430px] rounded-t-3xl overflow-hidden flex flex-col" style={{ background: BG, maxHeight: "90vh" }}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(0,0,0,0.85)", paddingBottom: 80 }}>
+      <div className="w-full max-w-[430px] rounded-t-3xl overflow-hidden flex flex-col" style={{ background: BG, maxHeight: "calc(100vh - 80px)" }}>
         {/* Progress */}
         <div className="flex items-center gap-3 px-4 pt-4 pb-3 flex-shrink-0">
           <button onClick={handleBack} className="text-gray-400 hover:text-white transition-colors text-lg">←</button>

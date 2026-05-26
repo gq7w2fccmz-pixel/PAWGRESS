@@ -116,8 +116,8 @@ function pickExercisesForDay(
   usedNames: Set<string>,
 ): PlannedExercise[] {
   const exercises: PlannedExercise[] = [];
-  const setsPerMinute = 0.08; // ~1 Satz / 12 Minuten
-  const maxSets = Math.floor(input.minutesPerSession * setsPerMinute);
+  const setsPerMinute = 0.1; // ~1 Satz / 10 Minuten
+  const maxSets = Math.max(10, Math.floor(input.minutesPerSession * setsPerMinute));
   let usedSets = 0;
 
   for (const mg of muscles) {
@@ -128,7 +128,7 @@ function pickExercisesForDay(
 
     const targetSets = volumeMap[mg] ?? 8;
     // Pro Tag: ca. 40-60% des Wochenvolumens (bei 2x Frequenz)
-    const daySets = Math.min(Math.ceil(targetSets / 2), Math.floor(maxSets * 0.4));
+    const daySets = Math.max(1, Math.min(Math.ceil(targetSets / 2), Math.floor(maxSets * 0.4)));
 
     let addedSets = 0;
     let exIdx = 0;
