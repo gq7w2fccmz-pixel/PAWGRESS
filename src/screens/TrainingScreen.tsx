@@ -178,6 +178,7 @@ function TrainingEditScreen({
   const session = useWorkoutStore(s => s.session);
   const resetWorkout = useWorkoutStore(s => s.resetWorkout);
   const setCustomExercises = useWorkoutStore(s => s.setCustomExercises);
+  const setProgress = useWorkoutStore(s => s.setProgress);
 
   // Übungen aus der WorkoutSelection laden (Custom-Plan oder 2er-Split)
   const [exercises, setExercises] = useState<PlanExercise[]>(selection.exercises);
@@ -287,7 +288,7 @@ function TrainingEditScreen({
           background: "linear-gradient(to bottom, rgba(8,8,8,0.1) 0%, rgba(8,8,8,0.65) 55%, rgba(8,8,8,1) 100%)",
         }} />
         <div className="relative z-10 flex items-center justify-between px-4 pt-4">
-          <button onClick={onBack} style={{ background:"none",border:"none",color:"#fff",fontSize:22 }}>←</button>
+          {!session && <button onClick={onBack} style={{ background:"none",border:"none",color:"#fff",fontSize:22 }}>←</button>}
           <p className="font-black text-sm tracking-widest text-white/60" style={{ fontFamily: F }}>TRAINING</p>
           {session
             ? <button onClick={() => setShowAbortConfirm(true)} className="text-xs font-bold px-3 py-1 rounded-full"
@@ -307,14 +308,20 @@ function TrainingEditScreen({
         </div>
       </div>
 
-      <div className="px-4 mt-4 mb-4">
-        <div className="flex justify-between mb-1.5">
-          <p className="text-sm font-bold text-white">0 / {exercises.length} Übungen</p>
-        </div>
-        <div className="w-full rounded-full" style={{ height: 4, background: "#1e1e1e" }}>
-          <div className="h-full rounded-full" style={{ width: "0%", background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)` }} />
-        </div>
-      </div>
+      {(() => {
+        const doneCount = exercises.filter((_, i) => setProgress[i]?.done).length;
+        const pct = exercises.length > 0 ? Math.round((doneCount / exercises.length) * 100) : 0;
+        return (
+          <div className="px-4 mt-4 mb-4">
+            <div className="flex justify-between mb-1.5">
+              <p className="text-sm font-bold text-white">{doneCount} / {exercises.length} Übungen</p>
+            </div>
+            <div className="w-full rounded-full" style={{ height: 4, background: "#1e1e1e" }}>
+              <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)` }} />
+            </div>
+          </div>
+        );
+      })()}
 
       <div className="px-4">
         <div className="flex items-center justify-between mb-3">
@@ -334,8 +341,20 @@ function TrainingEditScreen({
                     draggable onDragStart={() => onDragStart(i)} onDragEnter={() => onDragEnter(i)}
                     onDragEnd={onDragEnd} onDragOver={e => e.preventDefault()}
                     onTouchStart={e => onTouchStart(e, i)} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>⠿</span>
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0"
-                    style={{ fontFamily:F, background:`${COPPER}18`, color:COPPER_L, border:`1.5px solid ${COPPER_L}` }}>{i+1}</div>
+                  {(() => {
+                    const prog = setProgress[i];
+                    const isDone = prog?.done;
+                    const inProgress = prog && !prog.done && prog.currentSet > 1;
+                    return (
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0"
+                        style={{ fontFamily:F,
+                          background: isDone ? "#22c55e22" : inProgress ? `${COPPER}30` : `${COPPER}18`,
+                          color: isDone ? "#22c55e" : COPPER_L,
+                          border: `1.5px solid ${isDone ? "#22c55e" : inProgress ? COPPER_L : COPPER_L}` }}>
+                        {isDone ? "✓" : i+1}
+                      </div>
+                    );
+                  })()}
                   <div className="w-9 h-9 rounded-xl flex-shrink-0 overflow-hidden cursor-pointer" style={{ background:"#2a2a2a" }}
                     onClick={() => navigate(`/active-set/${i}`)}>
                     <img src={coachImg} alt="" className="w-full h-full object-cover object-top" style={{ filter:"brightness(0.6)" }} />
@@ -389,11 +408,8 @@ export function TrainingScreen() {
   const totalWorkouts = useStatsStore(s => s.stats.totalWorkouts);
   const { startWorkout } = usePawgressStore();
   const setCustomExercises = useWorkoutStore(s => s.setCustomExercises);
-
   const [showPicker,    setShowPicker]    = useState(false);
   const [selection,     setSelection]     = useState<WorkoutSelection | null>(null);
-
-
 
   const dayIndex = totalWorkouts % 4;
   const nextDay  = PLAN_2ER_SPLIT[dayIndex];
@@ -635,4 +651,24 @@ export function TrainingScreen() {
       </div>
     </div>
   );
+}
+
+// ── ActiveTrainingScreen – direkte Route /training/active ────────────────────
+// Wird aufgerufen wenn der User während eines laufenden Trainings auf ← tippt.
+// Zeigt sofort die Übungsliste ohne Umweg über TrainingScreen-Logik.
+export function ActiveTrainingScreen() {
+  const totalWorkouts   = useStatsStore(s => s.stats.totalWorkouts);
+  const customExercises = useWorkoutStore(s => s.customExercises);
+
+  const dayIndex = totalWorkouts % 4;
+  const nextDay  = PLAN_2ER_SPLIT[dayIndex];
+
+  const resumeExercises = customExercises ?? nextDay.exercises;
+  const resumeSelection: WorkoutSelection = {
+    exercises: resumeExercises,
+    label:     nextDay.label,
+    color:     nextDay.color,
+  };
+
+  return <TrainingEditScreen selection={resumeSelection} onBack={() => {}} />;
 }

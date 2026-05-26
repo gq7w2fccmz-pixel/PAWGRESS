@@ -1,4 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from "react";
+import { flushAllPending } from "./lib/syncService";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { NavBar }         from "./components/NavBar";
@@ -15,6 +16,7 @@ const HomeScreen          = lazy(() => import("./screens/HomeScreen").then(m => 
 const PlanScreen          = lazy(() => import("./screens/PlanScreen").then(m => ({ default: m.PlanScreen })));
 const CoachesScreen       = lazy(() => import("./screens/CoachesScreen").then(m => ({ default: m.CoachesScreen })));
 const TrainingScreen      = lazy(() => import("./screens/TrainingScreen").then(m => ({ default: m.TrainingScreen })));
+const ActiveTrainingScreen = lazy(() => import("./screens/TrainingScreen").then(m => ({ default: m.ActiveTrainingScreen })));
 const ActiveSetScreen     = lazy(() => import("./screens/ActiveSetScreen").then(m => ({ default: m.ActiveSetScreen })));
 const WorkoutDone         = lazy(() => import("./screens/WorkoutDone").then(m => ({ default: m.WorkoutDone })));
 const ProfilScreen        = lazy(() => import("./screens/ProfilScreen").then(m => ({ default: m.ProfilScreen })));
@@ -46,6 +48,7 @@ function AppInner({ hideSplash }: { hideSplash: boolean }) {
           <Route path="/plan"              element={<PlanScreen />} />
           <Route path="/coaches"           element={<CoachesScreen />} />
           <Route path="/training"          element={<TrainingScreen />} />
+          <Route path="/training/active"   element={<ActiveTrainingScreen />} />
           <Route path="/active-set/:index" element={<ActiveSetScreen />} />
           <Route path="/workout-done"      element={<WorkoutDone />} />
           <Route path="/profil"            element={<ProfilScreen />} />
@@ -66,6 +69,15 @@ export default function App() {
   useEffect(() => {
     const unsub = initAuth();
     return unsub;
+  }, []);
+
+  // Flush beim App-Backgrounding (Tab verlassen / Gerät sperren)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") flushAllPending();
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, []);
 
   useEffect(() => {

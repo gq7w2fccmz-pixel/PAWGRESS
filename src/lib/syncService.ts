@@ -16,6 +16,48 @@ import type { UserProfile }   from "../stores/profileStore";
 import type { WorkoutRecord } from "../stores/historyStore";
 import type { CustomPlan, StandaloneWorkout } from "../stores/planStore";
 
+// ── Debounce-Engine ───────────────────────────────────────────────────────────
+// Jede Tabelle hat einen eigenen Timer. Mehrere Aufrufe innerhalb von 10s
+// werden zusammengefasst – nur der letzte Datensatz wird tatsächlich geschrieben.
+const DEBOUNCE_MS = 10_000;
+const timers  = new Map<string, ReturnType<typeof setTimeout>>();
+const pending = new Map<string, Record<string, unknown>>();
+
+function debouncedUpsert(table: string, data: Record<string, unknown>) {
+  // Neueste Daten merken (überschreibt ältere pending-Daten)
+  pending.set(table, data);
+
+  // Laufenden Timer zurücksetzen
+  const existing = timers.get(table);
+  if (existing) clearTimeout(existing);
+
+  // Neuen Timer starten
+  const timer = setTimeout(async () => {
+    const payload = pending.get(table);
+    if (!payload) return;
+    pending.delete(table);
+    timers.delete(table);
+    const { error } = await supabase.from(table).upsert(payload);
+    if (error) console.error(`[sync] ${table}:`, error.message);
+  }, DEBOUNCE_MS);
+
+  timers.set(table, timer);
+}
+
+// Sofortiger Flush – z.B. beim App-Backgrounding oder Logout
+export async function flushAllPending() {
+  for (const [table, timer] of timers.entries()) {
+    clearTimeout(timer);
+    timers.delete(table);
+    const payload = pending.get(table);
+    pending.delete(table);
+    if (payload) {
+      const { error } = await supabase.from(table).upsert(payload);
+      if (error) console.error(`[sync:flush] ${table}:`, error.message);
+    }
+  }
+}
+
 // ── Hilfsfunktion ─────────────────────────────────────────────────────────────
 async function upsert(table: string, data: Record<string, unknown>) {
   const { error } = await supabase.from(table).upsert(data);
@@ -30,7 +72,7 @@ export async function saveStats(
 ) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
-  await upsert("user_stats", {
+  debouncedUpsert("user_stats", {
     user_id: user.id,
     stats,
     week_days: weekDays,
@@ -56,7 +98,7 @@ export async function loadStats() {
 export async function saveProfile(profile: UserProfile) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
-  await upsert("user_profile", {
+  debouncedUpsert("user_profile", {
     user_id: user.id,
     profile,
     updated_at: new Date().toISOString(),
@@ -79,7 +121,7 @@ export async function saveCoaches(
 ) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
-  await upsert("user_coaches", {
+  debouncedUpsert("user_coaches", {
     user_id: user.id,
     selected_coach: selectedCoach,
     coach_progress: coachProgress,
@@ -134,7 +176,7 @@ export async function savePlans(
 ) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
-  await upsert("user_plans", {
+  debouncedUpsert("user_plans", {
     user_id: user.id,
     plans,
     workouts,

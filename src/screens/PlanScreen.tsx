@@ -17,6 +17,7 @@ import {
   AllPlansScreen,
   DayDetailScreen,
 } from "./plan/PlanSubScreens";
+import { CoachPlanWizard } from "./CoachPlanWizard";
 
 const F        = "'Barlow Condensed', sans-serif";
 const ORANGE   = "#f97316";
@@ -230,6 +231,7 @@ export function PlanScreen() {
   const [sub,      setSub]      = useState<SubScreen>(null);
   const [editWOId, setEditWOId] = useState<string | undefined>(undefined);
   const [dayDetail, setDayDetail] = useState<{ label:string; exercises:PlanExercise[]; color:string } | null>(null);
+  const [showCoachWizard, setShowCoachWizard] = useState(false);
 
   // Sub-Screen routing
   if (sub === "createPlan")    return <PlanCreatorScreen   onBack={() => setSub(null)} />;
@@ -285,8 +287,8 @@ export function PlanScreen() {
           btnLabel="PLAN GENERIEREN"
           btnBg={COPPER_L}
           btnColor="#fff"
-          onPress={() => {}}
-          disabled={true}
+          onPress={() => setShowCoachWizard(true)}
+          disabled={false}
           footerIcon={
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path d="M9 2L11 7H16L12 10.5L13.5 16L9 13L4.5 16L6 10.5L2 7H7L9 2Z" fill="#fff" fillOpacity="0.8"/>
@@ -386,6 +388,7 @@ function SelfCreateScreen({
   const workouts = usePlanStore(s => s.workouts);
 
   return (
+    <>
     <div className="min-h-screen pb-28" style={{ background: "#080808", color: "#fff" }}>
       <div className="px-5 pt-12 pb-6">
         <button onClick={onBack}
@@ -479,5 +482,7 @@ function SelfCreateScreen({
         )}
       </div>
     </div>
+      {showCoachWizard && <CoachPlanWizard onClose={() => setShowCoachWizard(false)} />}
+    </>
   );
 }

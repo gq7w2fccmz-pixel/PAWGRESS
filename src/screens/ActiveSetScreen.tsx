@@ -225,7 +225,7 @@ export function ActiveSetScreen() {
 
   function handleAbort() {
     resetWorkout();
-    navigate("/training");
+    navigate("/training/active");
   }
 
   if (!planEx) return null;
@@ -249,7 +249,7 @@ export function ActiveSetScreen() {
     <div className="min-h-screen flex flex-col pb-10" style={{ background: "#080808", color: "#fff" }}>
       {showAbort && <AbortModal />}
       <div className="flex items-center justify-between px-4 pt-5 pb-4" style={{ borderBottom: "1px solid #1e1e1e" }}>
-        <button onClick={() => navigate("/training")}
+        <button onClick={() => navigate("/training/active")}
           style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
         <div className="text-center">
           <p className="font-black text-lg text-white" style={{ fontFamily: F }}>{planEx.name}</p>
@@ -292,7 +292,7 @@ export function ActiveSetScreen() {
 
       {/* Header – back goes to exercise list, progress is saved */}
       <div className="flex items-center justify-between px-4 pt-5 pb-4" style={{ borderBottom: "1px solid #1e1e1e" }}>
-        <button onClick={() => navigate("/training")}
+        <button onClick={() => navigate("/training/active")}
           style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
         <div className="text-center">
           <p className="font-black text-xl text-white" style={{ fontFamily: F }}>{planEx.name}</p>

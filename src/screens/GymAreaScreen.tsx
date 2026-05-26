@@ -279,11 +279,6 @@ function ExerciseDetail({ ex, area, areaKey, onBack }: {
         {/* Title block */}
         <div className="absolute bottom-0 left-0 right-0 px-4 pb-4 z-10">
           <div className="flex items-center gap-3 mb-2">
-            {/* Paw circle icon */}
-            <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
-              style={{ background: `${COPPER}28`, border: `2px solid ${COPPER_L}`, boxShadow: `0 0 12px ${COPPER_G}` }}>
-              <IconPaw color={COPPER_L} />
-            </div>
             <div>
               <p className="font-black italic leading-none text-white"
                 style={{ fontFamily: F, fontSize: 30, lineHeight: 1.05 }}>
