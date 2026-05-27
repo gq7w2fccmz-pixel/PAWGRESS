@@ -174,7 +174,7 @@ function TrainingEditScreen({
   onBack,
 }: { selection: WorkoutSelection; onBack: () => void }) {
   const navigate = useNavigate();
-  const { startWorkout } = usePawgressStore();
+  const { startWorkout, finishWorkout } = usePawgressStore();
   const session = useWorkoutStore(s => s.session);
   const resetWorkout = useWorkoutStore(s => s.resetWorkout);
   const setCustomExercises = useWorkoutStore(s => s.setCustomExercises);
@@ -393,11 +393,28 @@ function TrainingEditScreen({
           + ÜBUNG HINZUFÜGEN
         </button>
         {session ? (
-          <button onClick={() => navigate("/active-set/0")}
-            className="w-full py-4 rounded-2xl font-black text-xl text-white"
-            style={{ background:`linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, border:"none", fontFamily:F, boxShadow:`0 0 20px ${COPPER_G}` }}>
-            WORKOUT FORTSETZEN →
-          </button>
+          <div className="flex flex-col gap-2">
+            {(() => {
+              // Nächste unfertige Übung finden
+              const nextIdx = exercises.findIndex((_, i) => !setProgress[i]?.done);
+              const resumeIdx = nextIdx >= 0 ? nextIdx : 0;
+              return (
+                <button onClick={() => navigate(`/active-set/${resumeIdx}`)}
+                  className="w-full py-4 rounded-2xl font-black text-xl text-white"
+                  style={{ background:`linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, border:"none", fontFamily:F, boxShadow:`0 0 20px ${COPPER_G}` }}>
+                  WEITER TRAINIEREN →
+                </button>
+              );
+            })()}
+            <button onClick={() => {
+                finishWorkout(exercises.map(e => e.name), 0, session.startTime);
+                navigate("/workout-done");
+              }}
+              className="w-full py-3.5 rounded-2xl font-black text-base"
+              style={{ background:"#1a1a1a", color:"#ef4444", border:"1px solid #ef444444", fontFamily:F }}>
+              WORKOUT BEENDEN ✓
+            </button>
+          </div>
         ) : (
           <button onClick={() => { startWorkout(); navigate("/active-set/0"); }}
             className="w-full py-4 rounded-2xl font-black text-xl text-white"

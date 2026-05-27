@@ -142,9 +142,11 @@ export function PlanCreatorScreen({ onBack }: { onBack: () => void }) {
 // ── Workout Creator ────────────────────────────────────────────────────────────
 export function WorkoutCreatorScreen({
   onBack,
+  onSaved,
   existingId,
 }: {
   onBack:      () => void;
+  onSaved?:    () => void;
   existingId?: string;
 }) {
   const createWorkout = usePlanStore(s => s.createWorkout);
@@ -164,7 +166,8 @@ export function WorkoutCreatorScreen({
     } else {
       createWorkout({ name: name.trim(), desc, exercises });
     }
-    onBack();
+    // After saving: if caller provides onSaved, use it; otherwise fall back to onBack
+    (onSaved ?? onBack)();
   }
 
   return (
@@ -206,23 +209,53 @@ export function WorkoutCreatorScreen({
           <p className="text-xs text-gray-500 tracking-widest mb-3 font-bold">ÜBUNGEN ({exercises.length})</p>
           <div className="flex flex-col gap-2 mb-3">
             {exercises.map((ex, i) => {
-              const g: { reps:number; count:number }[] = [];
-              ex.sets.forEach(s => {
-                const l = g[g.length - 1];
-                if (l && l.reps === s.reps) l.count++;
-                else g.push({ reps: s.reps, count: 1 });
-              });
+              const setsCount = ex.sets.length;
+              const repsCount = ex.sets[0]?.reps ?? 8;
+              function updateSets(delta: number) {
+                const newCount = Math.max(1, setsCount + delta);
+                setEx(e => e.map((x, j) => j !== i ? x : {
+                  ...x, sets: Array(newCount).fill({ reps: x.sets[0]?.reps ?? 8 })
+                }));
+              }
+              function updateReps(delta: number) {
+                const newReps = Math.max(1, repsCount + delta);
+                setEx(e => e.map((x, j) => j !== i ? x : {
+                  ...x, sets: x.sets.map(() => ({ reps: newReps }))
+                }));
+              }
               return (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-xl"
+                <div key={i} className="flex flex-col p-3 rounded-xl gap-2"
                   style={{ background:`linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border:`1px solid ${BORDER}` }}>
-                  <div className="w-7 h-7 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0"
-                    style={{ background:`${ORANGE}22`, color:ORANGE, fontFamily:F }}>{i+1}</div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm text-white truncate">{ex.name}</p>
-                    <p className="text-xs text-gray-500">{g.map(x => `${x.count}×${x.reps}`).join(" · ")}</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0"
+                      style={{ background:`${ORANGE}22`, color:ORANGE, fontFamily:F }}>{i+1}</div>
+                    <p className="font-bold text-sm text-white flex-1 truncate">{ex.name}</p>
+                    <button onClick={() => setEx(e => e.filter((_, j) => j!==i))}
+                      style={{ background:"none", border:"none", color:"#ef4444", fontSize:16 }}>✕</button>
                   </div>
-                  <button onClick={() => setEx(e => e.filter((_, j) => j!==i))}
-                    style={{ background:"none", border:"none", color:"#ef4444", fontSize:16 }}>✕</button>
+                  {/* Sätze & Reps inline editor */}
+                  <div className="flex items-center gap-4 pl-10">
+                    <div className="flex items-center gap-2">
+                      <p className="text-[10px] text-gray-500 w-10">SÄTZE</p>
+                      <button onClick={() => updateSets(-1)}
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold"
+                        style={{ background:"#1e1e1e", color:ORANGE, border:"none" }}>−</button>
+                      <span className="font-black text-sm text-white w-5 text-center" style={{ fontFamily:F }}>{setsCount}</span>
+                      <button onClick={() => updateSets(1)}
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold"
+                        style={{ background:"#1e1e1e", color:ORANGE, border:"none" }}>+</button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[10px] text-gray-500 w-6">WDH</p>
+                      <button onClick={() => updateReps(-1)}
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold"
+                        style={{ background:"#1e1e1e", color:ORANGE, border:"none" }}>−</button>
+                      <span className="font-black text-sm text-white w-5 text-center" style={{ fontFamily:F }}>{repsCount}</span>
+                      <button onClick={() => updateReps(1)}
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold"
+                        style={{ background:"#1e1e1e", color:ORANGE, border:"none" }}>+</button>
+                    </div>
+                  </div>
                 </div>
               );
             })}
@@ -242,9 +275,11 @@ export function WorkoutCreatorScreen({
 export function AllPlansScreen({
   onBack,
   onEditWorkout,
+  initialTab,
 }: {
   onBack:        () => void;
   onEditWorkout: (id: string) => void;
+  initialTab?:   "pläne" | "workouts";
 }) {
   const plans      = usePlanStore(s => s.plans);
   const workouts   = usePlanStore(s => s.workouts);
@@ -253,7 +288,7 @@ export function AllPlansScreen({
   const deleteWO   = usePlanStore(s => s.deleteWorkout);
   const duplicate  = usePlanStore(s => s.duplicatePlan);
   const activePlanId = usePlanStore(s => s.activePlanId);
-  const [tab, setTab] = useState<"pläne" | "workouts">("pläne");
+  const [tab, setTab] = useState<"pläne" | "workouts">(initialTab ?? "pläne");
 
   return (
     <div className="min-h-screen pb-28" style={{ background:"#080808", color:"#fff" }}>

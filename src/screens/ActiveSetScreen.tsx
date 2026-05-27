@@ -181,6 +181,15 @@ export function ActiveSetScreen() {
     updateSetProgress(exIndex, { currentSet: v });
   }
 
+  // Reset timer and setDone state when switching to a different exercise
+  useEffect(() => {
+    setSetDone(false);
+    setTimerRunning(false);
+    setTimerSec(120);
+    setTimerTotal(120);
+    setShowFinishModal(false);
+  }, [exIndex]);
+
   useEffect(() => {
     if (!timerRunning) return;
     if (timerSec <= 0) { setTimerRunning(false); return; }

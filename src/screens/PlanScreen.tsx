@@ -5,7 +5,7 @@
  * Karte 3: Selbst erstellen (funktioniert)
  */
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import type { PlanExercise } from "../data/plan_2er_split";
@@ -229,22 +229,25 @@ export function PlanScreen() {
 
   type SubScreen = null | "createPlan" | "createWorkout" | "allPlans" | "editWorkout" | "selfCreate";
   const [sub,      setSub]      = useState<SubScreen>(null);
+  const prevSub = useRef<SubScreen>(null);
+  function goTo(s: SubScreen) { prevSub.current = sub; setSub(s); }
   const [editWOId, setEditWOId] = useState<string | undefined>(undefined);
   const [dayDetail, setDayDetail] = useState<{ label:string; exercises:PlanExercise[]; color:string } | null>(null);
   const [showCoachWizard, setShowCoachWizard] = useState(false);
 
   // Sub-Screen routing
   if (sub === "createPlan")    return <PlanCreatorScreen   onBack={() => setSub(null)} />;
-  if (sub === "createWorkout") return <WorkoutCreatorScreen onBack={() => setSub(null)} />;
+  if (sub === "createWorkout") return <WorkoutCreatorScreen onBack={() => setSub(null)} onSaved={() => goTo("allPlans")} />;
   if (sub === "editWorkout" && editWOId)
     return <WorkoutCreatorScreen onBack={() => setSub(null)} existingId={editWOId} />;
   if (sub === "allPlans")
     return <AllPlansScreen onBack={() => setSub(null)}
-      onEditWorkout={id => { setEditWOId(id); setSub("editWorkout"); }} />;
+      onEditWorkout={id => { setEditWOId(id); setSub("editWorkout"); }}
+      initialTab={prevSub.current === "createWorkout" ? "workouts" : "pläne"} />;
   if (sub === "selfCreate")    return <SelfCreateScreen    onBack={() => setSub(null)}
     onCreatePlan={() => setSub("createPlan")}
-    onCreateWorkout={() => setSub("createWorkout")}
-    onAllPlans={() => setSub("allPlans")} />;
+    onCreateWorkout={() => goTo("createWorkout")}
+    onAllPlans={() => goTo("allPlans")} />;
   if (dayDetail)
     return <DayDetailScreen day={dayDetail} color={dayDetail.color} onBack={() => setDayDetail(null)} />;
 
