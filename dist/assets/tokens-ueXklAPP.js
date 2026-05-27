@@ -1,0 +1,1 @@
+const c="'Barlow Condensed', sans-serif",s="#f97316",n="#cd7f32",t="#e8a050",e="rgba(180,100,20,0.22)",a="#3b82f6",R="#0a0a0a",E="#131008",r="#1a1610",b="rgba(205,127,50,0.18)",C="#141414",d="#1a1a1a",f="#22c55e",o="#ef4444",O={orange:s,red:o,blue:a,cyan:"#06b6d4",yellow:"#eab308"};export{R as B,C,c as F,f as G,s as O,E as S,a,b,d as c,n as d,e,t as f,r as g,O as h};
