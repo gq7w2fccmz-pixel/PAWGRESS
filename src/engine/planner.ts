@@ -116,25 +116,46 @@ function pickExercisesForDay(
   usedNames: Set<string>,
 ): PlannedExercise[] {
   const exercises: PlannedExercise[] = [];
-  const setsPerMinute = 0.1; // ~1 Satz / 10 Minuten
-  const maxSets = Math.max(10, Math.floor(input.minutesPerSession * setsPerMinute));
-  let usedSets = 0;
+
+  // Sätze pro Session je nach Zeitbudget
+  const MAX_SETS_PER_SESSION: Record<number, number> = { 45: 12, 60: 18, 75: 24, 90: 30 };
+  const maxSets = MAX_SETS_PER_SESSION[input.minutesPerSession] ?? 18;
+
+  // Sätze fair auf Muskelgruppen aufteilen
+  const setsPerMuscle = Math.floor(maxSets / muscles.length);
+
+  let totalUsedSets = 0;
 
   for (const mg of muscles) {
+    if (totalUsedSets >= maxSets) break;
+
     const pool = EXERCISE_POOL[mg] ?? [];
+
+    // usedNames nur INNERHALB eines Tages verwenden, nicht tagesübergreifend für die Auswahl
+    // (das verhindert, dass spätere Muskelgruppen ausgehungert werden)
     const filtered = filterExercises(pool, input)
       .filter(ex => !usedNames.has(ex.name))
       .sort((a, b) => scoreExercise(b, input, mg) - scoreExercise(a, input, mg));
 
-    const daySets = Math.max(1, Math.min(volumeMap[mg] ?? 6, Math.floor(maxSets * 0.45)));
+    if (filtered.length === 0) continue;
+
+    // Zielsätze für diese Muskelgruppe
+    const targetSets = Math.min(
+      volumeMap[mg] ?? setsPerMuscle,
+      setsPerMuscle,
+      maxSets - totalUsedSets,
+    );
 
     let addedSets = 0;
     let exIdx = 0;
 
-    while (addedSets < daySets && exIdx < filtered.length && usedSets < maxSets) {
+    while (addedSets < targetSets && exIdx < filtered.length) {
       const ex = filtered[exIdx++];
       const scheme = getRepScheme(input, ex.compound_isolation === "compound");
-      const setsForEx = Math.min(scheme.sets, daySets - addedSets);
+
+      // Sätze für diese Übung: nicht mehr als nötig, mindestens 1
+      const setsForEx = Math.min(scheme.sets, targetSets - addedSets);
+      if (setsForEx <= 0) break;
 
       exercises.push({
         name: ex.name,
@@ -149,7 +170,7 @@ function pickExercisesForDay(
 
       usedNames.add(ex.name);
       addedSets += setsForEx;
-      usedSets += setsForEx;
+      totalUsedSets += setsForEx;
     }
   }
 
@@ -185,12 +206,14 @@ export function generatePlan(input: UserInput): GeneratedPlan {
     : [...structure, ...structure].slice(0, input.daysPerWeek);
 
   // 4. Übungen pro Tag auswählen
-  const usedNames = new Set<string>();
+  // usedNames pro Tag frisch — Übungen dürfen zwischen Tagen wiederholt werden
+  // (realistisch: Bankdrücken kann in Upper A und Upper B vorkommen)
   const days: TrainingDay[] = dayTemplates.map((template, i) => {
-    // Für A/B-Varianten: usedNames nach jedem Paar resetten
-    if (i % structure.length === 0 && i > 0) usedNames.clear();
+    // Für jede neue "Runde" des Splits usedNames leeren (A→B Zyklus)
+    // Aber innerhalb eines Tages keine Duplikate
+    const dayUsedNames = new Set<string>();
 
-    const exercises = pickExercisesForDay(template.muscles, input, volumeMap, usedNames);
+    const exercises = pickExercisesForDay(template.muscles, input, volumeMap, dayUsedNames);
     const totalSets = exercises.reduce((s, e) => s + e.sets, 0);
     const estimatedMinutes = Math.min(input.minutesPerSession, totalSets * 12 + 10);
 

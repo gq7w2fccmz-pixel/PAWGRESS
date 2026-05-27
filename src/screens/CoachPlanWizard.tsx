@@ -41,13 +41,12 @@ export function CoachPlanWizard({ onClose }: { onClose: () => void }) {
   const setActivePlan = usePlanStore(s => s.setActivePlan);
 
   function saveGeneratedPlan(generatedPlan: GeneratedPlan): string {
-    // GeneratedPlan → CustomPlan konvertieren
     const days: CustomWorkoutDay[] = generatedPlan.days.map((d, i) => ({
       id: `gen-day-${i}`,
       label: d.label,
       exercises: d.exercises.map(ex => ({
         name: ex.name,
-        sets: Array.from({ length: ex.sets }, (_, si) => ({
+        sets: Array.from({ length: ex.sets }, () => ({
           reps: Math.round((ex.repsMin + ex.repsMax) / 2),
           weight: 0,
         })),
