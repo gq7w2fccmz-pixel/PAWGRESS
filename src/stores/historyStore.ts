@@ -53,6 +53,7 @@ interface HistoryStore {
   // Manage workouts
   deleteWorkout: (id: string) => void;
   updateWorkoutLabel: (id: string, label: string) => void;
+  updateWorkoutExercises: (id: string, exercises: ExerciseRecord[]) => void;
 
   // Query helpers
   getWorkoutById: (id: string) => WorkoutRecord | undefined;
@@ -94,6 +95,16 @@ export const useHistoryStore = create<HistoryStore>()(
         });
 
         return record;
+      },
+
+      updateWorkoutExercises: (id, exercises) => {
+        set({ workouts: get().workouts.map(w => {
+          if (w.id !== id) return w;
+          const totalVolume = exercises.reduce((s, e) => s + e.volume, 0);
+          const totalSets   = exercises.reduce((s, e) => s + e.sets.length, 0);
+          const totalReps   = exercises.reduce((s, e) => s + e.sets.reduce((r, set) => r + set.reps, 0), 0);
+          return { ...w, exercises, totalVolume, totalSets, totalReps };
+        })});
       },
 
       deleteWorkout: (id) => {

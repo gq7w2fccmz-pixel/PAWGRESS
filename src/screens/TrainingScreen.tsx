@@ -433,23 +433,40 @@ export function TrainingScreen() {
   const totalWorkouts = useStatsStore(s => s.stats.totalWorkouts);
   const { startWorkout } = usePawgressStore();
   const setCustomExercises = useWorkoutStore(s => s.setCustomExercises);
-  const [showPicker,    setShowPicker]    = useState(false);
-  const [selection,     setSelection]     = useState<WorkoutSelection | null>(null);
+  const [showPicker,       setShowPicker]       = useState(false);
+  const [showWorkoutList,  setShowWorkoutList]  = useState(false);
+  const [showPlanPicker,   setShowPlanPicker]   = useState(false);
+  const [selection,        setSelection]        = useState<WorkoutSelection | null>(null);
+
+  const plans      = usePlanStore(s => s.plans);
+  const workouts   = usePlanStore(s => s.workouts);
+  const activePlanId = usePlanStore(s => s.activePlanId);
+  const setActivePlan = usePlanStore(s => s.setActivePlan);
 
   const dayIndex = totalWorkouts % 4;
   const nextDay  = PLAN_2ER_SPLIT[dayIndex];
 
+  // Active plan's next workout
+  const activePlan = plans.find(p => p.id === activePlanId);
+  const activePlanNextDay = activePlan
+    ? activePlan.days[totalWorkouts % activePlan.days.length]
+    : null;
+
   function startFreeWorkout() {
+    // Freies Training: leere Übungsliste, Übungen werden live hinzugefügt
     setSelection({ exercises: [], label: "Freies Training", color: ORANGE });
   }
 
   function handlePlanContinue() {
-    // Nächsten Tag aus dem aktiven Plan nehmen
-    setSelection({
-      exercises: nextDay.exercises,
-      label:     nextDay.label,
-      color:     nextDay.color,
-    });
+    if (activePlanNextDay) {
+      setSelection({
+        exercises: activePlanNextDay.exercises,
+        label:     activePlanNextDay.label ?? nextDay.label,
+        color:     COPPER_L,
+      });
+    } else {
+      setSelection({ exercises: nextDay.exercises, label: nextDay.label, color: nextDay.color });
+    }
   }
 
   // Wenn eine Auswahl getroffen wurde → Edit Screen
@@ -465,6 +482,115 @@ export function TrainingScreen() {
           onClose={() => setShowPicker(false)}
           onSelect={(sel) => { setShowPicker(false); setSelection(sel); }}
         />
+      )}
+
+      {/* ── Workout List Modal ── */}
+      {showWorkoutList && (
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#080808" }}>
+          <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: "#1e1e1e" }}>
+            <button onClick={() => setShowWorkoutList(false)}
+              style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
+            <p className="font-black text-lg text-white" style={{ fontFamily: F }}>WORKOUT WÄHLEN</p>
+            <div style={{ width: 28 }} />
+          </div>
+          <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
+            {/* Plan-Workouts */}
+            {plans.map(plan => plan.days.map((day, di) => (
+              <button key={`${plan.id}-${di}`}
+                onClick={() => { setShowWorkoutList(false); setSelection({ exercises: day.exercises, label: day.label ?? plan.name, color: COPPER_L }); }}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-left w-full"
+                style={{ background: "#141414", border: `1px solid #2a2a2a` }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: `${COPPER}18`, border: `1px solid ${COPPER}33` }}>
+                  <span className="text-lg">📋</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-black text-sm text-white" style={{ fontFamily: F }}>{day.label ?? plan.name}</p>
+                  <p className="text-xs text-gray-500">{plan.name} · {day.exercises.length} Übungen</p>
+                </div>
+                <span className="text-gray-600 text-sm">›</span>
+              </button>
+            )))}
+            {/* Standalone Workouts */}
+            {workouts.map(wo => (
+              <button key={wo.id}
+                onClick={() => { setShowWorkoutList(false); setSelection({ exercises: wo.exercises, label: wo.name, color: ORANGE }); }}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-left w-full"
+                style={{ background: "#141414", border: `1px solid #2a2a2a` }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: `${ORANGE}18`, border: `1px solid ${ORANGE}33` }}>
+                  <span className="text-lg">🏋️</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-black text-sm text-white" style={{ fontFamily: F }}>{wo.name}</p>
+                  <p className="text-xs text-gray-500">{wo.exercises.length} Übungen{wo.desc ? ` · ${wo.desc}` : ""}</p>
+                </div>
+                <span className="text-gray-600 text-sm">›</span>
+              </button>
+            ))}
+            {plans.length === 0 && workouts.length === 0 && (
+              <p className="text-gray-600 text-sm text-center py-8">Noch keine Workouts erstellt.</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Plan Picker Modal ── */}
+      {showPlanPicker && (
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#080808" }}>
+          <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: "#1e1e1e" }}>
+            <button onClick={() => setShowPlanPicker(false)}
+              style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
+            <p className="font-black text-lg text-white" style={{ fontFamily: F }}>PLAN WÄHLEN</p>
+            <div style={{ width: 28 }} />
+          </div>
+          <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
+            {plans.map(plan => {
+              const isActive = plan.id === activePlanId;
+              return (
+                <div key={plan.id} className="rounded-xl overflow-hidden"
+                  style={{ border: `1.5px solid ${isActive ? COPPER_L : "#2a2a2a"}` }}>
+                  <div className="flex items-center gap-3 px-4 py-3"
+                    style={{ background: isActive ? `${COPPER}18` : "#141414" }}>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-black text-sm text-white" style={{ fontFamily: F }}>{plan.name}</p>
+                        {isActive && (
+                          <span className="text-[9px] font-black px-2 py-0.5 rounded-full"
+                            style={{ background: ORANGE, color: "#fff" }}>AKTIV</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500">{plan.days.length} Tage · {plan.days.reduce((s, d) => s + d.exercises.length, 0)} Übungen</p>
+                    </div>
+                    {!isActive && (
+                      <button onClick={() => { setActivePlan(plan.id); setShowPlanPicker(false); }}
+                        className="px-3 py-1.5 rounded-lg font-black text-xs"
+                        style={{ background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, color: "#fff", fontFamily: F, border: "none" }}>
+                        AKTIVIEREN
+                      </button>
+                    )}
+                    {isActive && (
+                      <button onClick={() => { setShowPlanPicker(false); handlePlanContinue(); }}
+                        className="px-3 py-1.5 rounded-lg font-black text-xs"
+                        style={{ background: ORANGE, color: "#fff", fontFamily: F, border: "none" }}>
+                        STARTEN →
+                      </button>
+                    )}
+                  </div>
+                  {/* Plan days preview */}
+                  <div className="flex gap-1 px-4 py-2 flex-wrap" style={{ background: "#0f0f0f" }}>
+                    {plan.days.map((d, di) => (
+                      <span key={di} className="text-[9px] px-2 py-0.5 rounded-full"
+                        style={{ background: "#1e1e1e", color: "#888" }}>
+                        {d.label ?? `Tag ${di + 1}`}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       )}
 
       {/* ── HERO ── */}
@@ -516,8 +642,8 @@ export function TrainingScreen() {
                   </svg>
                 ),
                 label: "WORKOUT\nSTARTEN",
-                sub: "Starte dein\nnächstes Workout",
-                action: () => setShowPicker(true),
+                sub: "Alle deine\nWorkouts",
+                action: () => setShowWorkoutList(true),
               },
               {
                 icon: (
@@ -530,7 +656,7 @@ export function TrainingScreen() {
                   </svg>
                 ),
                 label: "FREIES\nTRAINING\nSTARTEN",
-                sub: "Eigene Übungen\nund Pläne",
+                sub: "Live Übungen\nhinzufügen",
                 action: startFreeWorkout,
               },
               {
@@ -544,7 +670,7 @@ export function TrainingScreen() {
                   </svg>
                 ),
                 label: "PLAN\nFORTSETZEN",
-                sub: "Weiter mit deinem\naktuellen Plan",
+                sub: "Nächstes Workout\nim aktiven Plan",
                 action: handlePlanContinue,
               },
               {
@@ -557,8 +683,8 @@ export function TrainingScreen() {
                   </svg>
                 ),
                 label: "PLAN\nAUSWÄHLEN",
-                sub: "Wähle einen Plan\noder ein Workout",
-                action: () => setShowPicker(true),
+                sub: "Plan aktivieren\noder wechseln",
+                action: () => setShowPlanPicker(true),
               },
             ].map((item, i) => (
               <button key={i} onClick={item.action}

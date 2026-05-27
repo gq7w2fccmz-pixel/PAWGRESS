@@ -12,7 +12,7 @@ import { BEINE_EXERCISES }    from "../data/exercises_beine";
 import { CORE_EXERCISES }     from "../data/exercises_core";
 
 const F = "'Barlow Condensed', sans-serif";
-const ORANGE = "#f97316";
+const ORANGE   = "#f97316";
 const COPPER   = "#cd7f32";
 const COPPER_L = "#e8a050";
 const COPPER_G = "rgba(180,100,20,0.22)";
@@ -36,9 +36,8 @@ function TimerRing({ seconds, total, onAdjust, onSet }: {
 }) {
   const r = 70;
   const circ = 2 * Math.PI * r;
-  const pct = Math.max(0, seconds / total);
+  const pct = Math.max(0, seconds / Math.max(1, total));
   const dash = circ * pct;
-  // Fix 3: added 0 as preset
   const PRESETS = [0, 30, 60, 90, 120];
 
   return (
@@ -132,64 +131,87 @@ function NumberInput({ value, onChange, step = 1, unit, label, subLabel }: {
 }
 
 // ── Main Screen ───────────────────────────────────────────────────────────────
+// STATE MODEL (stored in workoutStore.setProgress[exIndex]):
+//   completedSets : number  — how many sets are DONE (0-based counter)
+//   totalSets     : number  — target total sets (plan value + user additions)
+//   weight        : number  — last used weight
+//   reps          : number  — last used reps
+//   done          : boolean — exercise fully completed
+//
+// UI:
+//   currentSetDisplay = completedSets + 1  (shown as "Satz X von Y")
+//   isLastSet = completedSets + 1 >= totalSets
+
 export function ActiveSetScreen() {
   const { index } = useParams<{ index: string }>();
   const navigate = useNavigate();
-  // State direkt aus den jeweiligen Stores
   const stats   = useStatsStore(s => s.stats);
   const session = useWorkoutStore(s => s.session);
-  // Actions weiterhin über Bridge (finishWorkout hat Supabase-Sync eingebaut)
   const { completeSet, completeExercise, finishWorkout } = usePawgressStore();
   const recordSet          = useWorkoutStore(s => s.recordSet);
   const resetWorkout       = useWorkoutStore(s => s.resetWorkout);
   const getActiveExercises = useWorkoutStore(s => s.getActiveExercises);
   const getSetProgress     = useWorkoutStore(s => s.getSetProgress);
   const updateSetProgress  = useWorkoutStore(s => s.updateSetProgress);
-  const advanceSet         = useWorkoutStore(s => s.advanceSet);
+  const setProgress        = useWorkoutStore(s => s.setProgress);
 
-  const dayIndex       = stats.totalWorkouts % 4;
+  const dayIndex        = stats.totalWorkouts % 4;
   const activeExercises = getActiveExercises(dayIndex);
-  const exIndex        = Number(index) ?? 0;
-  const planEx         = activeExercises[exIndex];
-  const defaultReps    = planEx?.sets[0]?.reps ?? 8;
+  const exIndex         = Number(index) ?? 0;
+  const planEx          = activeExercises[exIndex];
+  const defaultReps     = planEx?.sets[0]?.reps ?? 8;
 
-  // Fix 1: Load persisted progress from store
-  const savedProgress  = getSetProgress(exIndex, defaultReps);
-  const totalSets      = planEx?.sets.length ?? 3;
+  // Load persisted progress — completedSets is how many sets are DONE
+  const savedProgress   = getSetProgress(exIndex, defaultReps);
+  const planTotalSets   = planEx?.sets.length ?? 3;
+
+  // totalSets is persisted so extra sets survive navigation
+  const storedTotal     = (savedProgress as any).totalSets as number | undefined;
+  const totalSets       = storedTotal ?? planTotalSets;
+
+  // completedSets: number of sets done so far (0 = none done yet)
+  const completedSets   = Math.min(savedProgress.currentSet - 1, totalSets - 1);
+  // currentSetDisplay: which set is about to be done (1-based)
+  const currentSetDisplay = Math.min(completedSets + 1, totalSets);
+  const isLastSet       = currentSetDisplay >= totalSets;
 
   const [weight, setWeightState]  = useState(savedProgress.weight);
-  const [reps, setRepsState]      = useState(savedProgress.reps);
-  const [currentSet, setCurrentSetState] = useState(savedProgress.currentSet);
-  const [setDone, setSetDone]     = useState(false);
-  const [timerTotal, setTimerTotal] = useState(120);
-  const [timerSec, setTimerSec]   = useState(120);
+  const [reps, setRepsState]      = useState(
+    planEx?.sets[currentSetDisplay - 1]?.reps ?? savedProgress.reps
+  );
+  const [restVisible, setRestVisible] = useState(false);
+  const [timerTotal, setTimerTotal]   = useState(120);
+  const [timerSec, setTimerSec]       = useState(120);
   const [timerRunning, setTimerRunning] = useState(false);
-  const [showTip, setShowTip]     = useState(false);
-  const [showAbort, setShowAbort] = useState(false);
+  const [showTip, setShowTip]         = useState(false);
+  const [showAbort, setShowAbort]     = useState(false);
   const [showFinishModal, setShowFinishModal] = useState(false);
-  // Fix 2: local extra sets (on top of plan)
-  const [extraSets, setExtraSets] = useState(0);
-  const effectiveTotalSets = totalSets + extraSets;
+
+  // Workout-Gesamttimer: läuft ab session.startTime ununterbrochen
+  const [elapsed, setElapsed] = useState(
+    session ? Math.floor((Date.now() - session.startTime) / 1000) : 0
+  );
 
   const exData = planEx ? getExerciseData(planEx.name) : null;
 
-  // Persist weight+reps on change
+  // Persist weight/reps on change
   function setWeight(v: number) { setWeightState(v); updateSetProgress(exIndex, { weight: v }); }
-  function setReps(v: number)   { setRepsState(v);   updateSetProgress(exIndex, { reps: v });   }
-  function setCurrentSet(v: number) {
-    setCurrentSetState(v);
-    updateSetProgress(exIndex, { currentSet: v });
+  function setReps(v: number)   { setRepsState(v);   updateSetProgress(exIndex, { reps: v }); }
+
+  function adjustTotalSets(delta: number) {
+    const next = Math.max(completedSets + 1, totalSets + delta);
+    updateSetProgress(exIndex, { totalSets: next } as any);
   }
 
-  // Reset timer and setDone state when switching to a different exercise
+  // Workout-Gesamttimer (läuft immer)
   useEffect(() => {
-    setSetDone(false);
-    setTimerRunning(false);
-    setTimerSec(120);
-    setTimerTotal(120);
-    setShowFinishModal(false);
-  }, [exIndex]);
+    const id = setInterval(() => {
+      setElapsed(session ? Math.floor((Date.now() - session.startTime) / 1000) : 0);
+    }, 1000);
+    return () => clearInterval(id);
+  }, [session]);
 
+  // Timer countdown
   useEffect(() => {
     if (!timerRunning) return;
     if (timerSec <= 0) { setTimerRunning(false); return; }
@@ -202,33 +224,41 @@ export function ActiveSetScreen() {
     setTimerTotal(next); setTimerSec(next);
   }
 
+  // Complete current set → show rest screen
   function handleSetDone() {
     completeSet(exIndex, weight, reps);
-    recordSet(planEx.name, weight, reps);
-    // Auto-start timer only if > 0
+    recordSet(planEx!.name, weight, reps);
+    // Advance completedSets by 1 (currentSet in store = completedSets + 1, so store gets +1)
+    const newCompletedSets = completedSets + 1;
+    updateSetProgress(exIndex, { currentSet: newCompletedSets + 1 });
     if (timerTotal > 0) {
       setTimerSec(timerTotal);
       setTimerRunning(true);
     }
-    setSetDone(true);
+    setRestVisible(true);
   }
 
+  // After rest: either go to next set or finish exercise
   function handleContinue() {
-    if (currentSet >= effectiveTotalSets) {
+    setRestVisible(false);
+    const newCompleted = completedSets + 1; // sets done after handleSetDone
+    if (newCompleted >= totalSets) {
+      // Exercise done
       completeExercise(exIndex);
       updateSetProgress(exIndex, { done: true });
       const nextIndex = exIndex + 1;
       if (nextIndex < activeExercises.length) {
         navigate(`/active-set/${nextIndex}`);
       } else {
-        // Letzte Übung fertig → Modal zeigen, kein Auto-Navigate
-        setShowFinishModal(true);
+        // Letzte Übung fertig → direkt zur Übungsübersicht
+        navigate("/training/active");
       }
     } else {
-      const next = currentSet + 1;
-      setCurrentSet(next);
-      setReps(planEx?.sets[next - 1]?.reps ?? defaultReps);
-      setSetDone(false);
+      // Next set: update reps target for next set
+      const nextSetIdx = newCompleted; // 0-based index of next set
+      const nextReps = planEx?.sets[nextSetIdx]?.reps ?? defaultReps;
+      setRepsState(nextReps);
+      updateSetProgress(exIndex, { reps: nextReps });
     }
   }
 
@@ -243,9 +273,7 @@ export function ActiveSetScreen() {
     navigate("/training/active");
   }
 
-  // Übung nicht gefunden (z.B. Index out of bounds nach Listenänderung)
   if (!planEx) {
-    // Sofort zurück zur Übersicht statt schwarzer Bildschirm
     setTimeout(() => navigate("/training/active"), 0);
     return null;
   }
@@ -264,8 +292,8 @@ export function ActiveSetScreen() {
     </div>
   );
 
-  // ── Set-Done Rest Screen ──────────────────────────────────────────────────
-  if (setDone) return (
+  // ── Rest Screen (after completing a set) ─────────────────────────────────
+  if (restVisible) return (
     <div className="min-h-screen flex flex-col pb-10" style={{ background: "#080808", color: "#fff" }}>
       {showAbort && <AbortModal />}
       <div className="flex items-center justify-between px-4 pt-5 pb-4" style={{ borderBottom: "1px solid #1e1e1e" }}>
@@ -273,7 +301,12 @@ export function ActiveSetScreen() {
           style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
         <div className="text-center">
           <p className="font-black text-lg text-white" style={{ fontFamily: F }}>{planEx.name}</p>
-          <p className="text-xs text-gray-500">Satz {currentSet} von {effectiveTotalSets} abgeschlossen</p>
+          <p className="text-xs text-gray-500">
+            Satz {completedSets + 1} von {totalSets} abgeschlossen
+          </p>
+          <p className="text-xs font-black mt-0.5" style={{ color: COPPER_L, fontFamily: F }}>
+            ⏱ {String(Math.floor(elapsed / 60)).padStart(2,"0")}:{String(elapsed % 60).padStart(2,"0")}
+          </p>
         </div>
         <button onClick={() => setShowAbort(true)} className="text-xs font-bold px-2 py-1 rounded"
           style={{ background: "#ef444422", color: "#ef4444", border: "1px solid #ef4444" }}>STOP</button>
@@ -299,7 +332,7 @@ export function ActiveSetScreen() {
         <button onClick={handleContinue}
           className="w-full py-4 rounded-2xl font-black text-xl text-white mt-6"
           style={{ background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, border: "none", fontFamily: F }}>
-          {currentSet >= effectiveTotalSets ? "ÜBUNG ABSCHLIESSEN ✓" : "NÄCHSTER SATZ →"}
+          {(completedSets + 1) >= totalSets ? "ÜBUNG ABSCHLIESSEN ✓" : "NÄCHSTER SATZ →"}
         </button>
       </div>
     </div>
@@ -316,26 +349,26 @@ export function ActiveSetScreen() {
             style={{ background: "#141414", border: "1px solid #2a2a2a" }}>
             <div className="text-center">
               <p className="text-4xl mb-2">🏆</p>
-              <p className="font-black italic text-2xl text-white mb-1" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+              <p className="font-black italic text-2xl text-white mb-1" style={{ fontFamily: F }}>
                 LETZTE ÜBUNG FERTIG!
               </p>
               <p className="text-sm text-gray-400">Was möchtest du tun?</p>
             </div>
             <button onClick={handleFinishWorkout}
               className="w-full py-4 rounded-2xl font-black text-base text-white"
-              style={{ background: "linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)", fontFamily: "'Barlow Condensed', sans-serif" }}>
+              style={{ background: "linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)", fontFamily: F }}>
               WORKOUT BEENDEN ✓
             </button>
             <button onClick={() => { setShowFinishModal(false); navigate("/training/active"); }}
               className="w-full py-3.5 rounded-2xl font-black text-base"
-              style={{ background: "#1a1a1a", color: "#aaa", border: "1px solid #2a2a2a", fontFamily: "'Barlow Condensed', sans-serif" }}>
+              style={{ background: "#1a1a1a", color: "#aaa", border: "1px solid #2a2a2a", fontFamily: F }}>
               ZURÜCK ZUR ÜBERSICHT
             </button>
           </div>
         </div>
       )}
 
-      {/* Header – back goes to exercise list, progress is saved */}
+      {/* Header */}
       <div className="flex items-center justify-between px-4 pt-5 pb-4" style={{ borderBottom: "1px solid #1e1e1e" }}>
         <button onClick={() => navigate("/training/active")}
           style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
@@ -344,28 +377,38 @@ export function ActiveSetScreen() {
           <p className="text-xs text-gray-500">
             {PLAN_2ER_SPLIT[dayIndex]?.tag === "PUSH" ? "Brust · Schultern · Trizeps" : "Rücken · Bizeps · Core"}
           </p>
+          {/* Workout elapsed timer */}
+          <p className="text-xs font-black mt-0.5" style={{ color: COPPER_L, fontFamily: F }}>
+            ⏱ {String(Math.floor(elapsed / 60)).padStart(2,"0")}:{String(elapsed % 60).padStart(2,"0")}
+          </p>
         </div>
         <button onClick={() => setShowAbort(true)} className="text-xs font-bold px-2 py-1 rounded"
           style={{ background: "#ef444422", color: "#ef4444", border: "1px solid #ef4444" }}>STOP</button>
       </div>
 
-      {/* Set indicator + Fix 2: +/- set count */}
+      {/* Set indicator */}
       <div className="text-center pt-5 pb-4">
-        <p className="text-sm font-bold text-white mb-2">Satz {currentSet} von {effectiveTotalSets}</p>
-        {/* Dots */}
+        <p className="text-sm font-bold text-white mb-2">
+          Satz {currentSetDisplay} von {totalSets}
+        </p>
+        {/* Dots: green = done, orange = current, dark = upcoming */}
         <div className="flex justify-center gap-2.5 mb-3">
-          {Array.from({ length: effectiveTotalSets }).map((_, i) => (
+          {Array.from({ length: totalSets }).map((_, i) => (
             <div key={i} className="w-3 h-3 rounded-full transition-all"
-              style={{ background: i < currentSet - 1 ? "#22c55e" : i === currentSet - 1 ? COPPER_L : "#2a1f10" }} />
+              style={{
+                background: i < completedSets ? "#22c55e"
+                  : i === completedSets ? COPPER_L
+                  : "#2a1f10"
+              }} />
           ))}
         </div>
-        {/* Fix 2: set count editor */}
+        {/* Set count editor */}
         <div className="flex items-center justify-center gap-3">
-          <button onClick={() => { if (effectiveTotalSets > 1) setExtraSets(e => e - 1); }}
+          <button onClick={() => adjustTotalSets(-1)}
             className="w-7 h-7 rounded-full flex items-center justify-center text-base font-bold"
             style={{ background: "#1e1e1e", color: ORANGE, border: "none" }}>−</button>
-          <p className="text-xs text-gray-600">{effectiveTotalSets} Sätze</p>
-          <button onClick={() => setExtraSets(e => e + 1)}
+          <p className="text-xs text-gray-600">{totalSets} Sätze</p>
+          <button onClick={() => adjustTotalSets(1)}
             className="w-7 h-7 rounded-full flex items-center justify-center text-base font-bold"
             style={{ background: "#1e1e1e", color: ORANGE, border: "none" }}>+</button>
         </div>
@@ -382,7 +425,7 @@ export function ActiveSetScreen() {
       {/* Reps */}
       <div className="px-6 mb-6">
         <NumberInput value={reps} onChange={setReps} step={1} label="WIEDERHOLUNGEN"
-          subLabel={`ZIEL: ${planEx.sets[currentSet - 1]?.reps ?? defaultReps} Wdh`} />
+          subLabel={`ZIEL: ${planEx.sets[currentSetDisplay - 1]?.reps ?? defaultReps} Wdh`} />
       </div>
       <div style={{ height: 1, background: "#1e1e1e", margin: "0 24px 24px" }} />
 
@@ -426,7 +469,7 @@ export function ActiveSetScreen() {
         <button onClick={handleSetDone}
           className="w-full py-4 rounded-2xl font-black text-xl text-white"
           style={{ background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, border: "none", fontFamily: F, boxShadow: `0 0 24px rgba(180,100,20,0.55), inset 0 1px 0 rgba(255,255,255,0.15)` }}>
-          {currentSet >= effectiveTotalSets ? "LETZTEN SATZ ABSCHLIESSEN ✓" : "SATZ ABSCHLIESSEN ✓"}
+          {isLastSet ? "LETZTEN SATZ ABSCHLIESSEN ✓" : "SATZ ABSCHLIESSEN ✓"}
         </button>
       </div>
     </div>

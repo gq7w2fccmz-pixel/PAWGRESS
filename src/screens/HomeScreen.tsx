@@ -43,8 +43,11 @@ function WorkoutDetailModal({ workout, onClose }: {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showEditLabel, setShowEditLabel] = useState(false);
   const [editLabelDraft, setEditLabelDraft] = useState(workout.dayLabel);
+  const [editMode, setEditMode] = useState(false);
+  const [editedExercises, setEditedExercises] = useState<import("../stores/historyStore").ExerciseRecord[]>(workout.exercises);
   const deleteWorkout = useHistoryStore(s => s.deleteWorkout);
   const updateWorkoutLabel = useHistoryStore(s => s.updateWorkoutLabel);
+  const updateWorkoutExercises = useHistoryStore(s => s.updateWorkoutExercises);
 
   function handleDelete() {
     deleteWorkout(workout.id);
@@ -58,6 +61,49 @@ function WorkoutDetailModal({ workout, onClose }: {
     setShowEditLabel(false);
   }
 
+  function handleSaveExercises() {
+    updateWorkoutExercises(workout.id, editedExercises);
+    setEditMode(false);
+  }
+
+  function updateSet(exIdx: number, setIdx: number, field: "weight" | "reps", delta: number) {
+    setEditedExercises(prev => prev.map((ex, i) => {
+      if (i !== exIdx) return ex;
+      const newSets = ex.sets.map((s, si) => {
+        if (si !== setIdx) return s;
+        const val = Math.max(0, (s[field] ?? 0) + delta);
+        return { ...s, [field]: val };
+      });
+      const volume = newSets.reduce((a, s) => a + s.weight * s.reps, 0);
+      const bestSet = newSets.reduce((b, s) => s.weight > b.weight ? s : b, newSets[0]);
+      return { ...ex, sets: newSets, volume, bestSet };
+    }));
+  }
+
+  function addSet(exIdx: number) {
+    setEditedExercises(prev => prev.map((ex, i) => {
+      if (i !== exIdx) return ex;
+      const lastSet = ex.sets[ex.sets.length - 1] ?? { weight: 0, reps: 8 };
+      const newSets = [...ex.sets, { ...lastSet }];
+      const volume = newSets.reduce((a, s) => a + s.weight * s.reps, 0);
+      return { ...ex, sets: newSets, volume };
+    }));
+  }
+
+  function removeSet(exIdx: number, setIdx: number) {
+    setEditedExercises(prev => prev.map((ex, i) => {
+      if (i !== exIdx) return ex;
+      if (ex.sets.length <= 1) return ex;
+      const newSets = ex.sets.filter((_, si) => si !== setIdx);
+      const volume = newSets.reduce((a, s) => a + s.weight * s.reps, 0);
+      return { ...ex, sets: newSets, volume };
+    }));
+  }
+
+  function removeExercise(exIdx: number) {
+    setEditedExercises(prev => prev.filter((_, i) => i !== exIdx));
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#080808" }}>
       <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: `${BORDER}` }}>
@@ -68,15 +114,15 @@ function WorkoutDetailModal({ workout, onClose }: {
         </div>
         {/* Actions menu */}
         <div className="flex gap-2">
-          <button onClick={() => setShowEditLabel(true)}
-            className="px-2 py-1 rounded-lg text-xs font-bold"
-            style={{ background: `${COPPER}22`, color: COPPER_L, border: `1px solid ${COPPER}44` }}>
-            ✏️
+          <button onClick={() => setEditMode(e => !e)}
+            className="px-3 py-1.5 rounded-lg text-xs font-bold"
+            style={{ background: editMode ? `${COPPER}33` : `${COPPER}18`, color: COPPER_L, border: `1px solid ${COPPER}${editMode ? "88" : "44"}` }}>
+            {editMode ? "✓ Fertig" : "✏️ Bearbeiten"}
           </button>
           <button onClick={() => setShowDeleteConfirm(true)}
-            className="px-2 py-1 rounded-lg text-xs font-bold"
-            style={{ background: "#ef444422", color: "#ef4444", border: "1px solid #ef444444" }}>
-            🗑
+            className="px-2 py-1.5 rounded-lg text-xs font-bold"
+            style={{ background: "#ef444418", color: "#ef4444", border: "1px solid #ef444433" }}>
+            🗑️
           </button>
         </div>
       </div>
@@ -136,9 +182,9 @@ function WorkoutDetailModal({ workout, onClose }: {
       <div className="flex-1 overflow-y-auto px-4 pb-10">
         <div className="grid grid-cols-3 gap-3 my-4">
           {[
-            { label: "ZEIT",    value: fmtDuration(workout.durationSeconds), icon: "⏱" },
-            { label: "VOLUMEN", value: fmtVolume(workout.totalVolume),        icon: "📊" },
-            { label: "SÄTZE",   value: String(workout.totalSets),             icon: "🏋️" },
+            { label: "ZEIT",    value: fmtDuration(workout.durationSeconds), icon: "⏱️" },
+            { label: "VOLUMEN", value: fmtVolume(workout.totalVolume),        icon: "📈" },
+            { label: "SÄTZE",   value: String(workout.totalSets),             icon: "💪" },
           ].map(s => (
             <div key={s.label} className="rounded-2xl p-3 text-center"
               style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}` }}>
@@ -148,9 +194,18 @@ function WorkoutDetailModal({ workout, onClose }: {
             </div>
           ))}
         </div>
-        <p className="font-black italic text-base text-white mb-3" style={{ fontFamily: F }}>ÜBUNGEN</p>
+        <div className="flex items-center justify-between mb-3">
+          <p className="font-black italic text-base text-white" style={{ fontFamily: F }}>ÜBUNGEN</p>
+          {editMode && (
+            <button onClick={handleSaveExercises}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold"
+              style={{ background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, color: "#fff", fontFamily: F }}>
+              SPEICHERN
+            </button>
+          )}
+        </div>
         <div className="flex flex-col gap-2">
-          {workout.exercises.map((ex, i) => (
+          {(editMode ? editedExercises : workout.exercises).map((ex, i) => (
             <div key={i} className="rounded-2xl overflow-hidden"
               style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${expanded === i ? COPPER+"55" : BORDER}` }}>
               <button className="w-full flex items-center gap-3 px-4 py-3 text-left"
@@ -162,22 +217,57 @@ function WorkoutDetailModal({ workout, onClose }: {
                   <p className="font-black text-sm text-white truncate" style={{ fontFamily: F }}>{ex.name}</p>
                   <p className="text-xs text-gray-500">{ex.sets.length} Sätze · {fmtVolume(ex.volume)}</p>
                 </div>
-                {ex.isPR && (
+                {ex.isPR && !editMode && (
                   <span className="px-2 py-0.5 rounded text-[9px] font-black"
                     style={{ background: `linear-gradient(135deg, ${COPPER} 0%, ${COPPER_L} 100%)`, color: "#fff", fontFamily: F }}>PR</span>
                 )}
-                <span className="text-[10px]">{expanded === i ? "∧" : "∨"}</span>
+                {editMode
+                  ? <button onClick={e => { e.stopPropagation(); removeExercise(i); }}
+                      className="text-red-400 text-base px-1" style={{ background: "none", border: "none" }}>✕</button>
+                  : <span className="text-[10px]">{expanded === i ? "∧" : "∨"}</span>
+                }
               </button>
               {expanded === i && (
                 <div className="px-4 pb-3 border-t" style={{ borderColor: `${BORDER}` }}>
                   {ex.sets.map((set, si) => (
-                    <div key={si} className="flex items-center gap-3 py-2 border-b" style={{ borderColor: `${BORDER}` }}>
-                      <span className="text-xs text-[10px] w-8">Satz {si+1}</span>
-                      <span className="text-sm text-white font-bold">
-                        {set.weight > 0 ? `${set.weight} kg` : "BW"} × {set.reps} Wdh
-                      </span>
+                    <div key={si} className="flex items-center gap-2 py-2 border-b" style={{ borderColor: `${BORDER}` }}>
+                      <span className="text-[10px] text-gray-500 w-10">Satz {si+1}</span>
+                      {editMode ? (
+                        <>
+                          {/* Weight stepper */}
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => updateSet(i, si, "weight", -2.5)}
+                              className="w-6 h-6 rounded-full text-sm font-bold" style={{ background: "#1e1e1e", color: COPPER_L, border: "none" }}>−</button>
+                            <span className="text-xs text-white font-bold w-14 text-center">{set.weight > 0 ? `${set.weight}kg` : "BW"}</span>
+                            <button onClick={() => updateSet(i, si, "weight", 2.5)}
+                              className="w-6 h-6 rounded-full text-sm font-bold" style={{ background: "#1e1e1e", color: COPPER_L, border: "none" }}>+</button>
+                          </div>
+                          <span className="text-gray-600 text-xs">×</span>
+                          {/* Reps stepper */}
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => updateSet(i, si, "reps", -1)}
+                              className="w-6 h-6 rounded-full text-sm font-bold" style={{ background: "#1e1e1e", color: COPPER_L, border: "none" }}>−</button>
+                            <span className="text-xs text-white font-bold w-8 text-center">{set.reps} Wdh</span>
+                            <button onClick={() => updateSet(i, si, "reps", 1)}
+                              className="w-6 h-6 rounded-full text-sm font-bold" style={{ background: "#1e1e1e", color: COPPER_L, border: "none" }}>+</button>
+                          </div>
+                          <button onClick={() => removeSet(i, si)}
+                            className="ml-auto text-red-400 text-xs" style={{ background: "none", border: "none" }}>✕</button>
+                        </>
+                      ) : (
+                        <span className="text-sm text-white font-bold">
+                          {set.weight > 0 ? `${set.weight} kg` : "BW"} × {set.reps} Wdh
+                        </span>
+                      )}
                     </div>
                   ))}
+                  {editMode && (
+                    <button onClick={() => addSet(i)}
+                      className="w-full mt-2 py-2 rounded-xl text-xs font-bold"
+                      style={{ background: "#111", color: COPPER_L, border: `1px dashed ${COPPER}44` }}>
+                      + Satz hinzufügen
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -225,11 +315,13 @@ export function HomeScreen() {
   const setWeeklyGoal = useStatsStore(s => s.setWeeklyGoal);
   const coachProgress = useCoachStore(s => s.coachProgress);
   const { profile }   = useProfileStore();
-  const recentWorkouts = useHistoryStore(s => s.getRecentWorkouts)(1);
-  const lastWorkout    = recentWorkouts[0] ?? null;
+  const recentWorkouts = useHistoryStore(s => s.getRecentWorkouts)(7);
+  const lastWorkout     = recentWorkouts[0] ?? null;
 
   const [showGoalPicker, setShowGoalPicker] = useState(false);
   const [showWorkoutDetail, setShowWorkoutDetail] = useState(false);
+  const [showNextDayDetail, setShowNextDayDetail] = useState(false);
+  const [dayWorkout, setDayWorkout] = useState<import("../stores/historyStore").WorkoutRecord | null>(null);
 
   const dayIndex  = stats.totalWorkouts % 4;
   const nextDay   = PLAN_2ER_SPLIT[dayIndex];
@@ -249,6 +341,48 @@ export function HomeScreen() {
       {showGoalPicker && <GoalPicker current={goal} onClose={() => setShowGoalPicker(false)} />}
       {showWorkoutDetail && lastWorkout && (
         <WorkoutDetailModal workout={lastWorkout} onClose={() => setShowWorkoutDetail(false)} />
+      )}
+
+      {/* NextDay Detail Modal */}
+      {showNextDayDetail && (
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#080808" }}>
+          <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: "#1e1e1e" }}>
+            <button onClick={() => setShowNextDayDetail(false)}
+              style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
+            <div className="text-center">
+              <p className="font-black text-lg text-white" style={{ fontFamily: F }}>{nextDay.label.toUpperCase()}</p>
+              <p className="text-xs text-gray-500">{nextDay.tag === "PUSH" ? "Brust · Schultern · Trizeps" : "Rücken · Bizeps · Core"}</p>
+            </div>
+            <div style={{ width: 28 }} />
+          </div>
+          <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
+            {nextDay.exercises.map((ex, i) => (
+              <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl"
+                style={{ background: "#141414", border: "1px solid #1e1e1e" }}>
+                <div className="w-7 h-7 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0"
+                  style={{ background: `${COPPER}22`, color: COPPER_L, fontFamily: F }}>{i + 1}</div>
+                <div className="flex-1">
+                  <p className="font-bold text-sm text-white">{ex.name}</p>
+                  <p className="text-xs text-gray-500">
+                    {ex.sets.length} Sätze · {ex.sets[0]?.reps ?? 8} Wdh
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="px-4 pb-8 pt-3">
+            <button onClick={() => { setShowNextDayDetail(false); navigate("/training"); }}
+              className="w-full py-4 rounded-2xl font-black text-xl text-white"
+              style={{ background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, fontFamily: F }}>
+              WORKOUT STARTEN
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Day Workout Modal – klick auf Wochentag */}
+      {dayWorkout && (
+        <WorkoutDetailModal workout={dayWorkout} onClose={() => setDayWorkout(null)} />
       )}
 
       {/* ── HERO ── */}
@@ -329,7 +463,7 @@ export function HomeScreen() {
                 </svg>
                 WORKOUT<br/>STARTEN
               </button>
-              <button onClick={() => navigate("/plan")}
+              <button onClick={() => setShowNextDayDetail(true)}
                 className="rounded-2xl font-black text-xs text-white text-center"
                 style={{
                   background: "transparent",
@@ -399,17 +533,27 @@ export function HomeScreen() {
             </div>
           </div>
 
-          {/* Week day dots */}
+          {/* Week day dots – klickbar wenn Training absolviert */}
           <div className="flex items-center justify-around px-4 py-3 border-t" style={{ borderColor: `${BORDER}` }}>
             {DAY_LABELS.map((d, i) => {
               const isToday = i === mondayIdx;
               const isDone  = weekDays[i];
+              // Workout dieses Tages finden
+              const todayDate = new Date();
+              const diff = i - mondayIdx;
+              const dayDate = new Date(todayDate);
+              dayDate.setDate(todayDate.getDate() + diff);
+              const dayStr = dayDate.toISOString().slice(0,10);
+              const dayWorkout = recentWorkouts.find((w: import("../stores/historyStore").WorkoutRecord) => w.date === dayStr);
               return (
-                <div key={d} className="flex flex-col items-center gap-1">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center"
+                <button key={d} onClick={() => dayWorkout && setDayWorkout(dayWorkout)}
+                  className="flex flex-col items-center gap-1"
+                  style={{ background: "none", border: "none", cursor: dayWorkout ? "pointer" : "default" }}>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center transition-all"
                     style={{
                       background: isDone ? `linear-gradient(135deg, ${COPPER} 0%, ${COPPER_L} 100%)` : isToday ? SURF2 : "transparent",
                       border: `1.5px solid ${isDone ? COPPER_L : isToday ? COPPER : "#2a1f10"}`,
+                      boxShadow: dayWorkout ? `0 0 8px ${COPPER}66` : "none",
                     }}>
                     {isDone
                       ? <span className="text-white text-xs font-bold">✓</span>
@@ -417,7 +561,7 @@ export function HomeScreen() {
                     }
                   </div>
                   <p className="text-[8px]" style={{ color: isToday ? COPPER_L : COPPER }}>{d}</p>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -430,7 +574,7 @@ export function HomeScreen() {
             <div className="flex items-center gap-3">
               <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 text-3xl"
                 style={{ background: `${COPPER}18`, border: `1px solid ${COPPER}33` }}>
-                {lastWorkout.dayTag === "PUSH" ? "🏋️" : "💪"}
+                {lastWorkout.dayTag === "PUSH" ? "🔥" : "💪"}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-black text-lg text-white leading-tight" style={{ fontFamily: F }}>
