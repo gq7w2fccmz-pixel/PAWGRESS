@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { PLAN_2ER_SPLIT, type PlanExercise } from "../data/plan_2er_split";
 import { AREA_DATA } from "../data/areaData";
@@ -190,13 +190,18 @@ function TrainingEditScreen({
   const touchDragIdx = useRef<number | null>(null);
   const coachImg = "/images/coach_bertl.webp";
 
-  // dayIndex=0 als Fallback – workoutStore braucht einen Index für setCustomExercises
   const FAKE_DAY_IDX = 0;
 
   function persist(list: PlanExercise[]) {
     setExercises(list);
     setCustomExercises(list, FAKE_DAY_IDX);
   }
+
+  // Sofort beim Mount die Auswahl in customExercises schreiben,
+  // damit startWorkout() immer die richtigen Übungen lädt
+  useEffect(() => {
+    setCustomExercises(selection.exercises, FAKE_DAY_IDX);
+  }, []);
 
   function onDragStart(i: number) { setDraggingIdx(i); }
   function onDragEnter(i: number) { dragOverIdx.current = i; }
