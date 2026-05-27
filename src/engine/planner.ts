@@ -126,9 +126,7 @@ function pickExercisesForDay(
       .filter(ex => !usedNames.has(ex.name))
       .sort((a, b) => scoreExercise(b, input, mg) - scoreExercise(a, input, mg));
 
-    const targetSets = volumeMap[mg] ?? 8;
-    // Pro Tag: ca. 40-60% des Wochenvolumens (bei 2x Frequenz)
-    const daySets = Math.max(1, Math.min(Math.ceil(targetSets / 2), Math.floor(maxSets * 0.4)));
+    const daySets = Math.max(1, Math.min(volumeMap[mg] ?? 6, Math.floor(maxSets * 0.45)));
 
     let addedSets = 0;
     let exIdx = 0;
@@ -174,7 +172,7 @@ export function generatePlan(input: UserInput): GeneratedPlan {
   // 2. Volumen berechnen
   const volumeBreakdown = calcVolume(input);
   const volumeMap: Record<string, number> = {};
-  volumeBreakdown.forEach(v => { volumeMap[v.muscleGroup] = v.setsPerWeek; });
+  volumeBreakdown.forEach(v => { volumeMap[v.muscleGroup] = v.setsPerSession; });
 
   // 3. Tagesstruktur wählen
   const structures = SPLIT_STRUCTURE[bestSplit.split];

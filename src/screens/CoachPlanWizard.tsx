@@ -1,6 +1,9 @@
 // ── CoachPlanWizard – vollständiger 5-Step Onboarding-Wizard ────────────────
 import { useState, useEffect } from "react";
 import { generatePlan } from "../engine/planner";
+import { usePlanStore } from "../stores/planStore";
+import type { CustomPlan, CustomWorkoutDay } from "../stores/planStore";
+import type { PlanExercise } from "../data/plan_2er_split";
 import { scoreSplits } from "../engine/scorer";
 import type { UserInput, GeneratedPlan, SplitType, Goal, FocusArea, TrainingFocus, Intensity, TrainingStyle, Equipment, TimeSlot, TrainingDay } from "../engine/types";
 
@@ -417,12 +420,22 @@ function LoadingScreen({ onDone }: { onDone: (plan: GeneratedPlan) => void }) {
 }
 
 // ── Result Screen ─────────────────────────────────────────────────────────────
-function ResultScreen({ plan, onView, onAdjust }: { plan: GeneratedPlan; onView: () => void; onAdjust: () => void }) {
+function ResultScreen({ plan, isSaved, onView, onAdjust }: { plan: GeneratedPlan; isSaved?: boolean; onView: () => void; onAdjust: () => void }) {
   return (
     <div className="px-4 pb-4 flex flex-col gap-4">
       <div className="text-center pt-2">
         <p className="font-black italic text-2xl text-white" style={{ fontFamily: F }}>Dein Plan ist bereit! 🎉</p>
         <p className="text-xs text-gray-500 mt-1">Hier ist dein individueller Trainingsplan.</p>
+        {isSaved && (
+          <div className="flex items-center justify-center gap-1.5 mt-2 px-3 py-1.5 rounded-full mx-auto w-fit"
+            style={{ background: "#22c55e18", border: "1px solid #22c55e44" }}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <circle cx="6" cy="6" r="5.5" stroke="#22c55e" strokeWidth="1"/>
+              <path d="M3 6l2 2 4-4" stroke="#22c55e" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <p className="text-[10px] font-bold" style={{ color: "#22c55e" }}>Plan gespeichert & aktiviert</p>
+          </div>
+        )}
       </div>
 
       {/* Split-Info */}
@@ -597,11 +610,51 @@ const DEFAULT_INPUT: Partial<UserInput> = {
 
 export function CoachPlanWizard({ onClose }: { onClose: () => void }) {
   const [screen, setScreen] = useState<WizardScreen>("wizard");
-  const [wizardStep, setWizardStep] = useState(1); // 1..5 (3 hat zwei sub-steps: 3A, 3B)
+  const [wizardStep, setWizardStep] = useState(1);
   const [subStep, setSubStep] = useState<"A" | "B">("A");
   const [input, setInput] = useState<Partial<UserInput>>(DEFAULT_INPUT);
   const [plan, setPlan] = useState<GeneratedPlan | null>(null);
   const [selectedDay, setSelectedDay] = useState(0);
+  const [savedPlanId, setSavedPlanId] = useState<string | null>(null);
+
+  const createPlan = usePlanStore(s => s.createPlan);
+  const setActivePlan = usePlanStore(s => s.setActivePlan);
+
+  function saveGeneratedPlan(generatedPlan: GeneratedPlan): string {
+    // GeneratedPlan → CustomPlan konvertieren
+    const days: CustomWorkoutDay[] = generatedPlan.days.map((d, i) => ({
+      id: `gen-day-${i}`,
+      label: d.label,
+      exercises: d.exercises.map(ex => ({
+        name: ex.name,
+        sets: Array.from({ length: ex.sets }, (_, si) => ({
+          reps: Math.round((ex.repsMin + ex.repsMax) / 2),
+          weight: 0,
+        })),
+        movement_pattern: ex.movementPattern,
+      } as PlanExercise)),
+    }));
+
+    const goalLabels: Record<string, string> = {
+      hypertrophy: "Muskelaufbau", strength: "Kraftaufbau",
+      fat_loss: "Fettabbau", fitness: "Allgemeine Fitness",
+    };
+
+    const planId = createPlan({
+      name: `${generatedPlan.splitLabel} – Coach Plan`,
+      desc: `${goalLabels[generatedPlan.userInput.goal] ?? ""} · ${generatedPlan.userInput.daysPerWeek} Tage`,
+      icon: "🤖",
+      color: "#e8a050",
+      daysPerWeek: generatedPlan.userInput.daysPerWeek,
+      focus: generatedPlan.userInput.focusAreas.join(" · ") || "Ausgewogen",
+      days,
+      isActive: false,
+    });
+
+    setActivePlan(planId);
+    setSavedPlanId(planId);
+    return planId;
+  }
 
   function update(v: Partial<UserInput>) { setInput(prev => ({ ...prev, ...v })); }
 
@@ -621,6 +674,7 @@ export function CoachPlanWizard({ onClose }: { onClose: () => void }) {
     setTimeout(() => {
       const generated = generatePlan(input as UserInput);
       setPlan(generated);
+      saveGeneratedPlan(generated);  // Sofort speichern & aktivieren
       setScreen("result");
     }, 3800);
   }
@@ -654,7 +708,7 @@ export function CoachPlanWizard({ onClose }: { onClose: () => void }) {
             <div />
             <button onClick={onClose} className="text-gray-500 hover:text-white text-sm">✕</button>
           </div>
-          <ResultScreen plan={plan} onView={() => setScreen("overview")} onAdjust={() => { setScreen("wizard"); setWizardStep(1); }} />
+          <ResultScreen plan={plan} isSaved={!!savedPlanId} onView={() => setScreen("overview")} onAdjust={() => { setScreen("wizard"); setWizardStep(1); }} />
         </div>
       </div>
     );

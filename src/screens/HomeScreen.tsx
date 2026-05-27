@@ -105,7 +105,7 @@ function WorkoutDetailModal({ workout, onClose }: {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#080808" }}>
+    <div className="fixed inset-0 z-[55] flex flex-col" style={{ background: "#080808" }}>
       <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: `${BORDER}` }}>
         <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 22 }}>←</button>
         <div className="text-center">
@@ -182,13 +182,40 @@ function WorkoutDetailModal({ workout, onClose }: {
       <div className="flex-1 overflow-y-auto px-4 pb-10">
         <div className="grid grid-cols-3 gap-3 my-4">
           {[
-            { label: "ZEIT",    value: fmtDuration(workout.durationSeconds), icon: "⏱️" },
-            { label: "VOLUMEN", value: fmtVolume(workout.totalVolume),        icon: "📈" },
-            { label: "SÄTZE",   value: String(workout.totalSets),             icon: "💪" },
+            {
+              label: "ZEIT", value: fmtDuration(workout.durationSeconds),
+              icon: (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="13" r="8" stroke={COPPER_L} strokeWidth="1.5"/>
+                  <path d="M12 9v4l2.5 2.5" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round"/>
+                  <path d="M9 2h6M12 2v3" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              ),
+            },
+            {
+              label: "VOLUMEN", value: fmtVolume(workout.totalVolume),
+              icon: (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <polyline points="3,17 8,12 12,15 17,8 21,11" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <polyline points="17,8 21,8 21,12" stroke={COPPER_L} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              ),
+            },
+            {
+              label: "SÄTZE", value: String(workout.totalSets),
+              icon: (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5" stroke={COPPER_L} strokeWidth="1.5"/>
+                  <rect x="14" y="3" width="7" height="7" rx="1.5" stroke={COPPER_L} strokeWidth="1.5"/>
+                  <rect x="3" y="14" width="7" height="7" rx="1.5" stroke={COPPER_L} strokeWidth="1.5"/>
+                  <rect x="14" y="14" width="7" height="7" rx="1.5" stroke={COPPER_L} strokeWidth="1.5"/>
+                </svg>
+              ),
+            },
           ].map(s => (
-            <div key={s.label} className="rounded-2xl p-3 text-center"
+            <div key={s.label} className="rounded-2xl p-3 text-center flex flex-col items-center"
               style={{ background: `linear-gradient(135deg, ${SURF} 0%, ${SURF2} 100%)`, border: `1px solid ${BORDER}` }}>
-              <p className="text-lg mb-1">{s.icon}</p>
+              <div className="mb-1.5">{s.icon}</div>
               <p className="font-black text-xl text-white" style={{ fontFamily: F }}>{s.value}</p>
               <p className="text-[9px] text-gray-500 tracking-widest">{s.label}</p>
             </div>
@@ -322,6 +349,8 @@ export function HomeScreen() {
   const [showWorkoutDetail, setShowWorkoutDetail] = useState(false);
   const [showNextDayDetail, setShowNextDayDetail] = useState(false);
   const [dayWorkout, setDayWorkout] = useState<import("../stores/historyStore").WorkoutRecord | null>(null);
+  const [dayWorkouts, setDayWorkouts] = useState<import("../stores/historyStore").WorkoutRecord[]>([]);
+  const [dayWorkoutIdx, setDayWorkoutIdx] = useState(0);
 
   const dayIndex  = stats.totalWorkouts % 4;
   const nextDay   = PLAN_2ER_SPLIT[dayIndex];
@@ -382,7 +411,26 @@ export function HomeScreen() {
 
       {/* Day Workout Modal – klick auf Wochentag */}
       {dayWorkout && (
-        <WorkoutDetailModal workout={dayWorkout} onClose={() => setDayWorkout(null)} />
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "#080808" }}>
+          {/* Falls mehrere Workouts: Tabs oben */}
+          {dayWorkouts.length > 1 && (
+            <div className="fixed top-0 left-0 right-0 z-[60] flex px-4 pt-12 pb-2 gap-2" style={{ background: "#080808" }}>
+              {dayWorkouts.map((wo, idx) => (
+                <button key={wo.id} onClick={() => { setDayWorkoutIdx(idx); setDayWorkout(wo); }}
+                  className="px-3 py-1.5 rounded-full text-xs font-black"
+                  style={{
+                    background: idx === dayWorkoutIdx ? `${COPPER}33` : "#1a1a1a",
+                    color: idx === dayWorkoutIdx ? COPPER_L : "#888",
+                    border: `1px solid ${idx === dayWorkoutIdx ? COPPER_L : "#2a2a2a"}`,
+                    fontFamily: F,
+                  }}>
+                  {wo.dayLabel}
+                </button>
+              ))}
+            </div>
+          )}
+          <WorkoutDetailModal workout={dayWorkout} onClose={() => { setDayWorkout(null); setDayWorkouts([]); }} />
+        </div>
       )}
 
       {/* ── HERO ── */}
@@ -533,34 +581,51 @@ export function HomeScreen() {
             </div>
           </div>
 
-          {/* Week day dots – klickbar wenn Training absolviert */}
+          {/* Week day dots – basierend auf echter History, nicht statsStore */}
           <div className="flex items-center justify-around px-4 py-3 border-t" style={{ borderColor: `${BORDER}` }}>
             {DAY_LABELS.map((d, i) => {
               const isToday = i === mondayIdx;
-              const isDone  = weekDays[i];
-              // Workout dieses Tages finden
-              const todayDate = new Date();
-              const diff = i - mondayIdx;
-              const dayDate = new Date(todayDate);
-              dayDate.setDate(todayDate.getDate() + diff);
-              const dayStr = dayDate.toISOString().slice(0,10);
-              const dayWorkout = recentWorkouts.find((w: import("../stores/historyStore").WorkoutRecord) => w.date === dayStr);
+              // Datum dieses Wochentags berechnen
+              const dayDate = new Date();
+              dayDate.setDate(dayDate.getDate() + (i - mondayIdx));
+              const dayStr = dayDate.toISOString().slice(0, 10);
+              // Alle Workouts dieses Tages aus der echten History
+              const dayWorkouts = recentWorkouts.filter(
+                (w: import("../stores/historyStore").WorkoutRecord) => w.date === dayStr
+              );
+              const isDone = dayWorkouts.length > 0;
+              const firstWorkout = dayWorkouts[0] ?? null;
               return (
-                <button key={d} onClick={() => dayWorkout && setDayWorkout(dayWorkout)}
+                <button key={d}
+                  onClick={() => {
+                    if (!isDone) return;
+                    setDayWorkouts(dayWorkouts);
+                    setDayWorkoutIdx(0);
+                    setDayWorkout(firstWorkout);
+                  }}
                   className="flex flex-col items-center gap-1"
-                  style={{ background: "none", border: "none", cursor: dayWorkout ? "pointer" : "default" }}>
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center transition-all"
+                  style={{ background: "none", border: "none", cursor: isDone ? "pointer" : "default" }}>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center transition-all relative"
                     style={{
-                      background: isDone ? `linear-gradient(135deg, ${COPPER} 0%, ${COPPER_L} 100%)` : isToday ? SURF2 : "transparent",
+                      background: isDone
+                        ? `linear-gradient(135deg, ${COPPER} 0%, ${COPPER_L} 100%)`
+                        : isToday ? SURF2 : "transparent",
                       border: `1.5px solid ${isDone ? COPPER_L : isToday ? COPPER : "#2a1f10"}`,
-                      boxShadow: dayWorkout ? `0 0 8px ${COPPER}66` : "none",
+                      boxShadow: isDone ? `0 0 10px ${COPPER}55` : "none",
                     }}>
                     {isDone
                       ? <span className="text-white text-xs font-bold">✓</span>
-                      : <span className="text-[10px] font-bold" style={{ color: isToday ? COPPER_L : COPPER }}>{d}</span>
+                      : <span className="text-[10px] font-bold" style={{ color: isToday ? COPPER_L : "#555" }}>{d}</span>
                     }
+                    {/* Badge wenn mehrere Workouts */}
+                    {dayWorkouts.length > 1 && (
+                      <div className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center"
+                        style={{ background: ORANGE, border: "1px solid #080808" }}>
+                        <span className="text-white" style={{ fontSize: 7, fontWeight: 900 }}>{dayWorkouts.length}</span>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-[8px]" style={{ color: isToday ? COPPER_L : COPPER }}>{d}</p>
+                  <p className="text-[8px]" style={{ color: isDone ? COPPER_L : isToday ? COPPER_L : "#555" }}>{d}</p>
                 </button>
               );
             })}
@@ -574,7 +639,15 @@ export function HomeScreen() {
             <div className="flex items-center gap-3">
               <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 text-3xl"
                 style={{ background: `${COPPER}18`, border: `1px solid ${COPPER}33` }}>
-                {lastWorkout.dayTag === "PUSH" ? "🔥" : "💪"}
+                {lastWorkout.dayTag === "PUSH"
+                  ? <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 2C8 8 5 11 5 15a7 7 0 0014 0c0-4-3-7-7-13z" stroke={COPPER_L} strokeWidth="1.5" strokeLinejoin="round"/>
+                      <path d="M12 12c-1 2-1.5 3-1.5 4a1.5 1.5 0 003 0c0-1-.5-2-1.5-4z" fill={COPPER_L}/>
+                    </svg>
+                  : <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                      <path d="M6 4a2 2 0 00-2 2v1a2 2 0 002 2h1v6a2 2 0 002 2h6a2 2 0 002-2V9h1a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 00-2 0v1H8V3a1 1 0 00-2 0v1H6z" stroke={COPPER_L} strokeWidth="1.4" strokeLinejoin="round"/>
+                    </svg>
+                }
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-black text-lg text-white leading-tight" style={{ fontFamily: F }}>

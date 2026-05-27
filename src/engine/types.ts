@@ -47,7 +47,8 @@ export interface TrainingDay {
 export interface VolumeBreakdown {
   muscleGroup: string;
   setsPerWeek: number;
-  recommended: string;   // "optimal" | "above" | "reduced"
+  setsPerSession: number;  // Sätze pro Training-Einheit
+  recommended: string;     // "optimal" | "above" | "reduced"
 }
 
 export interface SplitScore {

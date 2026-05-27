@@ -197,11 +197,12 @@ function TrainingEditScreen({
     setCustomExercises(list, FAKE_DAY_IDX);
   }
 
-  // Sofort beim Mount die Auswahl in customExercises schreiben,
-  // damit startWorkout() immer die richtigen Übungen lädt
-  useEffect(() => {
+  // Synchron beim ersten Render customExercises setzen (useRef verhindert doppelten Aufruf)
+  const didInit = useRef(false);
+  if (!didInit.current) {
+    didInit.current = true;
     setCustomExercises(selection.exercises, FAKE_DAY_IDX);
-  }, []);
+  }
 
   function onDragStart(i: number) { setDraggingIdx(i); }
   function onDragEnter(i: number) { dragOverIdx.current = i; }

@@ -96,7 +96,14 @@ export function usePawgressStore() {
 
     // ── Workout ──────────────────────────────────────────────────
     startWorkout: () => {
+      // Ausgewählte Übungen sichern bevor resetWorkout() sie löscht
+      const savedCustom = useWorkoutStore.getState().customExercises;
+      const savedDayIdx = useWorkoutStore.getState().customDayIndex;
       resetWorkout();
+      // Übungen wiederherstellen damit startWorkoutSession die richtigen lädt
+      if (savedCustom) {
+        useWorkoutStore.getState().setCustomExercises(savedCustom, savedDayIdx ?? 0);
+      }
       startWorkoutSession(stats.totalWorkouts);
     },
 
