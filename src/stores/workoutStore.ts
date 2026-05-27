@@ -17,7 +17,8 @@ export interface LiveExerciseLog {
 
 // Tracks current set progress per exercise index so back-navigation preserves state
 export interface ExSetProgress {
-  currentSet: number;    // 1-based
+  currentSet: number;    // completedSets + 1 (next set to do, 1-based)
+  totalSets?: number;    // user-adjusted total (overrides plan value)
   weight: number;
   reps: number;
   done: boolean;         // exercise fully completed
@@ -67,12 +68,28 @@ export const useWorkoutStore = create<WorkoutStore>()((set, get) => ({
   setActiveArea: (activeArea) => set({ activeArea }),
 
   setCustomExercises: (exercises, dayIndex) => {
-    set({ customExercises: exercises, customDayIndex: dayIndex });
+    const { session } = get();
+    // If a session is running, sync session.exercises to the new list
+    // so activeExercises.length stays accurate during workout
+    if (session) {
+      const updatedSessionExercises = exercises.map((ex, i) => ({
+        name: ex.name,
+        done: session.exercises[i]?.done ?? false,
+      }));
+      set({
+        customExercises: exercises,
+        customDayIndex: dayIndex,
+        session: { ...session, exercises: updatedSessionExercises },
+      });
+    } else {
+      set({ customExercises: exercises, customDayIndex: dayIndex });
+    }
   },
 
   getActiveExercises: (dayIndex) => {
-    const { customExercises, customDayIndex } = get();
-    if (customExercises && customDayIndex === dayIndex) return customExercises;
+    const { customExercises } = get();
+    // If user explicitly customised the exercise list, always use it
+    if (customExercises) return customExercises;
     return PLAN_2ER_SPLIT[dayIndex].exercises;
   },
 
