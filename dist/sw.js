@@ -1,5 +1,6 @@
 // Pawgress Service Worker – Offline Support
-const CACHE = "pawgress-v1";
+// Cache-Version wird beim Build automatisch gesetzt
+const CACHE = "pawgress-v__BUILD_DATE__";
 const STATIC = [
   "/",
   "/manifest.json",
@@ -15,6 +16,7 @@ self.addEventListener("install", e => {
 });
 
 self.addEventListener("activate", e => {
+  // Alle alten Caches löschen → zwingt Nutzer zur neuen Version
   e.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
@@ -24,16 +26,22 @@ self.addEventListener("activate", e => {
 
 self.addEventListener("fetch", e => {
   const url = new URL(e.request.url);
-  // Never cache Supabase API calls
+  // Supabase API-Calls nie cachen
   if (url.hostname.includes("supabase")) return;
-  // Cache-first for assets, network-first for navigation
+  // Navigation: Network-first, Fallback auf gecachte Root
   if (e.request.mode === "navigate") {
     e.respondWith(
       fetch(e.request).catch(() => caches.match("/"))
     );
   } else {
+    // Assets: Cache-first
     e.respondWith(
       caches.match(e.request).then(cached => cached ?? fetch(e.request))
     );
   }
+});
+
+// Update-Check: Beim Aktivieren Clients informieren
+self.addEventListener("message", e => {
+  if (e.data === "SKIP_WAITING") self.skipWaiting();
 });
