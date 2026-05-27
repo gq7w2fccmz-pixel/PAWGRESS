@@ -4,28 +4,31 @@ import { usePawgressStore } from "../hooks/usePawgressStore";
 import { useWorkoutStore }  from "../stores/workoutStore";
 import { useStatsStore }    from "../stores/statsStore";
 import { PLAN_2ER_SPLIT } from "../data/plan_2er_split";
-import { BRUST_EXERCISES }    from "../data/exercises_brust";
-import { RUECKEN_EXERCISES }  from "../data/exercises_ruecken";
-import { SCHULTERN_EXERCISES } from "../data/exercises_schultern";
-import { ARME_EXERCISES }     from "../data/exercises_arme";
-import { BEINE_EXERCISES }    from "../data/exercises_beine";
-import { CORE_EXERCISES }     from "../data/exercises_core";
+import type { AreaExercise } from "../types";
+import { F, ORANGE, COPPER, COPPER_L, COPPER_G, SURF, SURF2, BORDER, CARD, CARD2, BORDER2, GREEN, RED, BG } from "../styles/tokens";
 
-const F = "'Barlow Condensed', sans-serif";
-const ORANGE   = "#f97316";
-const COPPER   = "#cd7f32";
-const COPPER_L = "#e8a050";
-const COPPER_G = "rgba(180,100,20,0.22)";
-const SURF     = "#131008";
-const SURF2    = "#1a1610";
-const BORDER   = "rgba(205,127,50,0.18)";
 
-const ALL_EXERCISES = [
-  ...BRUST_EXERCISES, ...RUECKEN_EXERCISES, ...SCHULTERN_EXERCISES,
-  ...ARME_EXERCISES, ...BEINE_EXERCISES, ...CORE_EXERCISES,
-];
-function getExerciseData(name: string) {
-  return ALL_EXERCISES.find(e => e.name.toLowerCase() === name.toLowerCase());
+// Exercise tip data loaded lazily on demand
+const exerciseTipCache = new Map<string, AreaExercise | undefined>();
+async function loadExerciseTip(name: string): Promise<AreaExercise | undefined> {
+  if (exerciseTipCache.has(name)) return exerciseTipCache.get(name);
+  const lower = name.toLowerCase();
+  // Try each module until found - only loaded if user opens tip
+  const modules = [
+    () => import("../data/exercises_brust").then(m => m.BRUST_EXERCISES),
+    () => import("../data/exercises_ruecken").then(m => m.RUECKEN_EXERCISES),
+    () => import("../data/exercises_schultern").then(m => m.SCHULTERN_EXERCISES),
+    () => import("../data/exercises_arme").then(m => m.ARME_EXERCISES),
+    () => import("../data/exercises_beine").then(m => m.BEINE_EXERCISES),
+    () => import("../data/exercises_core").then(m => m.CORE_EXERCISES),
+  ];
+  for (const load of modules) {
+    const exs = await load();
+    const found = exs.find((e: AreaExercise) => e.name.toLowerCase() === lower);
+    if (found) { exerciseTipCache.set(name, found); return found; }
+  }
+  exerciseTipCache.set(name, undefined);
+  return undefined;
 }
 
 // ── Timer Ring ────────────────────────────────────────────────────────────────
@@ -166,7 +169,7 @@ export function ActiveSetScreen() {
   const planTotalSets   = planEx?.sets.length ?? 3;
 
   // totalSets is persisted so extra sets survive navigation
-  const storedTotal     = (savedProgress as any).totalSets as number | undefined;
+  const storedTotal     = savedProgress.totalSets;
   const totalSets       = storedTotal ?? planTotalSets;
 
   // completedSets: number of sets done so far (0 = none done yet)
@@ -192,7 +195,12 @@ export function ActiveSetScreen() {
     session ? Math.floor((Date.now() - session.startTime) / 1000) : 0
   );
 
-  const exData = planEx ? getExerciseData(planEx.name) : null;
+  const [exData, setExData] = useState<AreaExercise | undefined>(undefined);
+  useEffect(() => {
+    if (planEx && showTip) {
+      loadExerciseTip(planEx.name).then(setExData);
+    }
+  }, [planEx?.name, showTip]);
 
   // Persist weight/reps on change
   function setWeight(v: number) { setWeightState(v); updateSetProgress(exIndex, { weight: v }); }
@@ -200,7 +208,7 @@ export function ActiveSetScreen() {
 
   function adjustTotalSets(delta: number) {
     const next = Math.max(completedSets + 1, totalSets + delta);
-    updateSetProgress(exIndex, { totalSets: next } as any);
+    updateSetProgress(exIndex, { totalSets: next });
   }
 
   // Workout-Gesamttimer (läuft immer)

@@ -38,6 +38,18 @@ function checkStreakExpiry(progress: CoachProgress, lastWorkoutDate: string | nu
 
 // Daten von Supabase laden – mit Timeout, nie hängen
 async function syncFromSupabase() {
+  // Guard: don't overwrite local data if we've already synced recently
+  // Uses useAuthStore.getState() since this function lives outside the create() scope
+  const now = Date.now();
+  const lastSync = useAuthStore.getState().lastSyncedAt ?? 0;
+  const localAge = now - lastSync;
+  // If synced within last 5 seconds AND not first-time load, skip
+  if (localAge < 5000 && lastSync > 0) return;
+
+  // Atomic: check AND set syncing in one operation to prevent race conditions
+  if (useAuthStore.getState().syncing) return;
+  useAuthStore.setState({ syncing: true });
+
   try {
     const result = await withTimeout(loadAllUserData(), 5000);
     const { stats, profile, coaches, history, plans } = result;
@@ -65,8 +77,9 @@ async function syncFromSupabase() {
       activePlanId: plans.activePlanId,
     });
   } catch (e) {
-    // Timeout oder Fehler → einfach lokale Daten behalten, App läuft weiter
     console.warn("[auth] syncFromSupabase fehlgeschlagen (lokale Daten werden verwendet):", e);
+  } finally {
+    useAuthStore.setState({ syncing: false, lastSyncedAt: Date.now() });
   }
 }
 
@@ -75,6 +88,7 @@ interface AuthStore {
   session:         Session | null;
   loading:         boolean;
   syncing:         boolean;
+  lastSyncedAt:    number;
   authError:       string | null;
   needsOnboarding: boolean;
 
@@ -89,11 +103,12 @@ interface AuthStore {
 
 export const useAuthStore = create<AuthStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user:            null,
       session:         null,
       loading:         true,
       syncing:         false,
+      lastSyncedAt:    0,
       authError:       null,
       needsOnboarding: false,
 
@@ -155,7 +170,7 @@ export const useAuthStore = create<AuthStore>()(
         } catch (e) {
           console.warn("[auth] signOut fehlgeschlagen:", e);
         }
-        set({ user: null, session: null, needsOnboarding: false });
+        set({ user: null, session: null, needsOnboarding: false, lastSyncedAt: 0 });
       },
 
       completeOnboarding: async (_data) => {
@@ -169,9 +184,8 @@ export const useAuthStore = create<AuthStore>()(
           .then(async ({ data: { session } }) => {
             set({ session, user: session?.user ?? null, loading: false });
             if (session?.user) {
-              set({ syncing: true });
               await syncFromSupabase();
-              set({ syncing: false });
+              set({ lastSyncedAt: Date.now() });
             }
           })
           .catch((e) => {
@@ -184,9 +198,8 @@ export const useAuthStore = create<AuthStore>()(
           async (_event, session) => {
             set({ session, user: session?.user ?? null, loading: false });
             if (session?.user) {
-              set({ syncing: true });
               await syncFromSupabase();
-              set({ syncing: false });
+              set({ lastSyncedAt: Date.now() });
             }
           }
         );
@@ -196,7 +209,7 @@ export const useAuthStore = create<AuthStore>()(
     }),
     {
       name: "pawgress-auth",
-      partialize: (s) => ({ needsOnboarding: s.needsOnboarding }),
+      partialize: (s) => ({ needsOnboarding: s.needsOnboarding, lastSyncedAt: s.lastSyncedAt }),
     }
   )
 );

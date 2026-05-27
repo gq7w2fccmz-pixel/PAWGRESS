@@ -3,15 +3,11 @@
  */
 import { useNavigate } from "react-router-dom";
 import { AREA_DATA }   from "../data/areaData";
+import type { AreaName } from "../types";
+import { F, ORANGE, COPPER, COPPER_L, COPPER_G, SURF, SURF2, BORDER, CARD, CARD2, BORDER2, GREEN, RED, BG } from "../styles/tokens";
 
-const F        = "'Barlow Condensed', sans-serif";
-const COPPER   = "#cd7f32";
-const COPPER_L = "#e8a050";
-const SURF     = "#131008";
-const SURF2    = "#1a1610";
-const BORDER   = "rgba(205,127,50,0.18)";
 
-const AREAS = [
+const AREAS: { key: AreaName; label: string; img: string }[] = [
   { key: "BRUST",     label: "Brust",     img: "/images/gym_brust.webp" },
   { key: "RUECKEN",   label: "Rücken",    img: "/images/gym_ruecken.webp" },
   { key: "BEINE",     label: "Beine",     img: "/images/gym_beine.webp" },

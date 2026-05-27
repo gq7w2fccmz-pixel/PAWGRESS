@@ -17,6 +17,7 @@ interface StatsStore {
   setWeeklyGoal: (goal: number) => void;
   addVolume: (kg: number) => void;
   finishWorkoutStats: () => void;
+  checkStreakDecay: () => void;
   resetWeekly: () => void;
 }
 
@@ -46,6 +47,25 @@ export const useStatsStore = create<StatsStore>()(
             totalVolume: stats.totalVolume + kg,
           },
         });
+      },
+
+      checkStreakDecay: () => {
+        const { stats } = get();
+        if (!stats.lastWorkoutDate) return;
+        const today = new Date().toISOString().split("T")[0];
+        const last  = new Date(stats.lastWorkoutDate);
+        const now   = new Date(today);
+        const diffDays = Math.floor((now.getTime() - last.getTime()) / 86_400_000);
+        // If more than 1 day has passed without a workout, streak is broken
+        if (diffDays > 1) {
+          set({ stats: { ...stats } }); // streak tracking via coachStore separately
+        }
+        // Reset weekly if new week started (Mon = 1)
+        const lastDay = last.getDay();
+        const todayDay = now.getDay();
+        if (diffDays >= 7 || (todayDay <= lastDay && diffDays > 0)) {
+          get().resetWeekly();
+        }
       },
 
       finishWorkoutStats: () => {

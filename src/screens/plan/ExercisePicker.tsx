@@ -3,31 +3,26 @@
  * Ausgelagert aus PlanScreen.tsx
  */
 
-import { useState, useMemo, memo } from "react";
+import { useState, useMemo, memo, useEffect } from "react";
 import type { PlanExercise } from "../../data/plan_2er_split";
-import type { AreaExercise }  from "../../types";
-import { BRUST_EXERCISES }    from "../../data/exercises_brust";
-import { RUECKEN_EXERCISES }  from "../../data/exercises_ruecken";
-import { SCHULTERN_EXERCISES } from "../../data/exercises_schultern";
-import { ARME_EXERCISES }     from "../../data/exercises_arme";
-import { BEINE_EXERCISES }    from "../../data/exercises_beine";
-import { CORE_EXERCISES }     from "../../data/exercises_core";
-import { CARDIO_EXERCISES }   from "../../data/exercises_cardio";
+import type { AreaExercise } from "../../types";
+import { F, ORANGE, COPPER, COPPER_L, COPPER_G, SURF, SURF2, BORDER, CARD, CARD2, BORDER2, GREEN, RED, BG } from "../../styles/tokens";
 
-const F      = "'Barlow Condensed', sans-serif";
-const ORANGE = "#f97316";
 
 export const AREA_SOURCES: {
-  key: string; label: string; color: string; exercises: AreaExercise[];
+  key: string; label: string; color: string; loader: () => Promise<AreaExercise[]>;
 }[] = [
-  { key: "BRUST",     label: "Brust",     color: "#ef4444", exercises: BRUST_EXERCISES },
-  { key: "RUECKEN",   label: "Rücken",    color: "#3b82f6", exercises: RUECKEN_EXERCISES },
-  { key: "BEINE",     label: "Beine",     color: "#22c55e", exercises: BEINE_EXERCISES },
-  { key: "SCHULTERN", label: "Schultern", color: "#a855f7", exercises: SCHULTERN_EXERCISES },
-  { key: "ARME",      label: "Arme",      color: "#f97316", exercises: ARME_EXERCISES },
-  { key: "CORE",      label: "Core",      color: "#eab308", exercises: CORE_EXERCISES },
-  { key: "CARDIO",    label: "Cardio",    color: "#06b6d4", exercises: CARDIO_EXERCISES },
+  { key: "BRUST",     label: "Brust",     color: "#ef4444", loader: () => import("../../data/exercises_brust").then(m => m.BRUST_EXERCISES) },
+  { key: "RUECKEN",   label: "Rücken",    color: "#3b82f6", loader: () => import("../../data/exercises_ruecken").then(m => m.RUECKEN_EXERCISES) },
+  { key: "BEINE",     label: "Beine",     color: "#22c55e", loader: () => import("../../data/exercises_beine").then(m => m.BEINE_EXERCISES) },
+  { key: "SCHULTERN", label: "Schultern", color: "#a855f7", loader: () => import("../../data/exercises_schultern").then(m => m.SCHULTERN_EXERCISES) },
+  { key: "ARME",      label: "Arme",      color: "#f97316", loader: () => import("../../data/exercises_arme").then(m => m.ARME_EXERCISES) },
+  { key: "CORE",      label: "Core",      color: "#eab308", loader: () => import("../../data/exercises_core").then(m => m.CORE_EXERCISES) },
+  { key: "CARDIO",    label: "Cardio",    color: "#06b6d4", loader: () => import("../../data/exercises_cardio").then(m => m.CARDIO_EXERCISES) },
 ];
+
+// Cache for loaded exercise data
+const exerciseCache = new Map<string, AreaExercise[]>();
 
 export const LEVEL_COLORS: Record<string, string> = {
   "Anfänger":       "#22c55e",
@@ -58,13 +53,43 @@ export const ExercisePickerModal = memo(function ExercisePickerModal({
   const [area,     setArea]     = useState("ALLE");
   const [level,    setLevel]    = useState("ALLE");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [loadedExercises, setLoadedExercises] = useState<Record<string, AreaExercise[]>>({});
+
+  // Load exercise data for selected area on demand
+  useEffect(() => {
+    if (area === "ALLE") {
+      // Load all areas
+      AREA_SOURCES.forEach(a => {
+        if (!exerciseCache.has(a.key)) {
+          a.loader().then((exs: AreaExercise[]) => {
+            exerciseCache.set(a.key, exs);
+            setLoadedExercises(prev => ({ ...prev, [a.key]: exs }));
+          });
+        }
+      });
+    } else {
+      const areaObj = AREA_SOURCES.find(a => a.key === area);
+      if (areaObj && !exerciseCache.has(area)) {
+        areaObj.loader().then((exs: AreaExercise[]) => {
+          exerciseCache.set(area, exs);
+          setLoadedExercises(prev => ({ ...prev, [area]: exs }));
+        });
+      }
+    }
+  }, [area]);
+
+  // Flatten loaded exercises for filtering
+  const allLoadedExercises = area === "ALLE"
+    ? AREA_SOURCES.flatMap(a => exerciseCache.get(a.key) ?? [])
+    : (exerciseCache.get(area) ?? []);
 
   const filtered = useMemo(() => {
     const seen   = new Set<string>();
     const result: { ex: AreaExercise; areaColor: string }[] = [];
-    for (const src of AREA_SOURCES) {
-      if (area !== "ALLE" && src.key !== area) continue;
-      for (const ex of src.exercises) {
+    const sources = area === "ALLE" ? AREA_SOURCES : AREA_SOURCES.filter(s => s.key === area);
+    for (const src of sources) {
+      const exercises = exerciseCache.get(src.key) ?? [];
+      for (const ex of exercises) {
         if (seen.has(ex.name)) continue;
         seen.add(ex.name);
         if (level !== "ALLE" && ex.experience_level && ex.experience_level !== level) continue;
@@ -74,10 +99,10 @@ export const ExercisePickerModal = memo(function ExercisePickerModal({
       }
     }
     return result;
-  }, [search, area, level]);
+  }, [search, area, level, loadedExercises]);
 
   const LEVELS = ["ALLE", "Anfänger", "Fortgeschritten", "Alle Level"];
-  const AREAS  = ["ALLE", ...AREA_SOURCES.map(a => a.key)];
+  const AREA_TABS = ["ALLE", ...AREA_SOURCES.map(a => a.key)];
 
   return (
     <div className="fixed inset-0 z-[60] flex flex-col" style={{ background: "rgba(0,0,0,0.97)" }}>
@@ -99,7 +124,7 @@ export const ExercisePickerModal = memo(function ExercisePickerModal({
 
       {/* Bereich-Filter */}
       <div className="flex gap-2 px-4 py-2.5 overflow-x-auto border-b" style={{ borderColor:"#1e1e1e" }}>
-        {AREAS.map(a => {
+        {AREA_TABS.map(a => {
           const src    = AREA_SOURCES.find(s => s.key === a);
           const active = area === a;
           const color  = src?.color ?? ORANGE;

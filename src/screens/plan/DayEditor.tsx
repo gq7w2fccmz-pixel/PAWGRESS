@@ -7,14 +7,8 @@ import { useState, memo } from "react";
 import type { CustomWorkoutDay } from "../../stores/planStore";
 import type { PlanExercise }     from "../../data/plan_2er_split";
 import { ExercisePickerModal }   from "./ExercisePicker";
+import { F, ORANGE, COPPER, COPPER_L, COPPER_G, SURF, SURF2, BORDER, CARD, CARD2, BORDER2, GREEN, RED, BG } from "../../styles/tokens";
 
-const F      = "'Barlow Condensed', sans-serif";
-const ORANGE = "#f97316";
-const COPPER   = "#cd7f32";
-const COPPER_L = "#e8a050";
-const SURF     = "#131008";
-const SURF2    = "#1a1610";
-const BORDER   = "rgba(205,127,50,0.18)";
 
 // ── Einzelne Übungszeile mit aufklappbarer Satz-Konfiguration ─────────────────
 function ExerciseRow({

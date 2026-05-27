@@ -5,9 +5,8 @@
 
 import { useState } from "react";
 import { useAuthStore } from "../stores/authStore";
+import { F, ORANGE, COPPER, COPPER_L, COPPER_G, SURF, SURF2, BORDER, CARD, CARD2, BORDER2, GREEN, RED, BG } from "../styles/tokens";
 
-const F      = "'Barlow Condensed', sans-serif";
-const ORANGE = "#f97316";
 
 type Mode = "login" | "register" | "forgot";
 

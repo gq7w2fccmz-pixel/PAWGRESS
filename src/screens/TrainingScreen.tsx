@@ -8,15 +8,8 @@ import { useStatsStore }    from "../stores/statsStore";
 import { usePlanStore }     from "../stores/planStore";
 import type { CustomWorkoutDay } from "../stores/planStore";
 import type { AreaName } from "../types";
+import { F, ORANGE, COPPER, COPPER_L, COPPER_G, SURF, SURF2, BORDER, CARD, CARD2, BORDER2, GREEN, RED, BG } from "../styles/tokens";
 
-const F = "'Barlow Condensed', sans-serif";
-const ORANGE = "#f97316";
-const COPPER   = "#cd7f32";
-const COPPER_L = "#e8a050";
-const COPPER_G = "rgba(180,100,20,0.22)";
-const SURF     = "#131008";
-const SURF2    = "#1a1610";
-const BORDER   = "rgba(205,127,50,0.18)";
 
 // ── Gym areas config ──────────────────────────────────────────────────────────
 const AREAS: { key: AreaName; label: string; img: string }[] = [

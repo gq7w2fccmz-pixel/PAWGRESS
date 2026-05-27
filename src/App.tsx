@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { NavBar }         from "./components/NavBar";
 import { useAuthStore }   from "./stores/authStore";
+import { useStatsStore }   from "./stores/statsStore";
 
 // ── Lazy Loading – alle Screens werden erst bei Bedarf geladen ────────────────
 // Reduziert den initialen Bundle von ~786KB auf ~300KB
@@ -74,19 +75,31 @@ export default function App() {
   // Flush beim App-Backgrounding (Tab verlassen / Gerät sperren)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === "hidden") flushAllPending();
+      if (document.visibilityState === "hidden") {
+        flushAllPending().catch(() => {});
+      } else if (document.visibilityState === "visible") {
+        // Re-check streak/weekly on app focus (handles midnight crossings)
+        useStatsStore.getState().checkStreakDecay();
+      }
     };
+    const handleBeforeUnload = () => { flushAllPending().catch(() => {}); };
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
   }, []);
 
   useEffect(() => {
-    const seen = sessionStorage.getItem("splashSeen");
-    if (seen) setShowSplash(false);
+    try {
+      const seen = typeof window !== "undefined" && sessionStorage.getItem("splashSeen");
+      if (seen) setShowSplash(false);
+    } catch { /* SSR / private mode */ }
   }, []);
 
   const handleSplashDone = () => {
-    sessionStorage.setItem("splashSeen", "1");
+    try { sessionStorage.setItem("splashSeen", "1"); } catch { /* ignore */ }
     setShowSplash(false);
   };
 
@@ -99,14 +112,17 @@ export default function App() {
     );
   }
 
-  // Nicht eingeloggt → Login
+  // Nicht eingeloggt → Login (reset-password muss auch ohne Login erreichbar sein)
   if (!user) {
     return (
       <BrowserRouter>
         <ErrorBoundary>
           <div className="max-w-[430px] mx-auto min-h-screen bg-[#0a0a0a]">
             <Suspense fallback={<ScreenLoader />}>
-              <LoginScreen />
+              <Routes>
+                <Route path="/reset-password" element={<ResetPasswordScreen />} />
+                <Route path="*" element={<LoginScreen />} />
+              </Routes>
             </Suspense>
           </div>
         </ErrorBoundary>

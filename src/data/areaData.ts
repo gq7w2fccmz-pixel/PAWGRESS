@@ -727,7 +727,7 @@ export const AREA_DATA: Record<AreaName, AreaData> = {
         breathing: "Mit der Einatmung Länge in der Wirbelsäule schaffen. Mit der Ausatmung die Rotation kontrolliert vertiefen.",
         safety_note: "Die Bewegung zuerst über Länge in der Wirbelsäule aufbauen und erst danach rotieren. Bei empfindlichen Hamstrings oder unterem Rücken kontrolliert arbeiten und keine erzwungene Endposition einnehmen.",
       },
-    ] as any[])),
+    ] as import("../types").AreaExercise[])),
     tips: ["Stretching am besten nach dem Training oder an Ruhetagen.", "Halte jede Dehnung 20–30 Sekunden.", "Atme tief und gleichmäßig – nie den Atem anhalten.", "Höre auf deinen Körper und dehne dich sanft, nie schmerzhaft.", "Regelmäßigkeit ist der Schlüssel zu mehr Beweglichkeit!"],
   },
 };

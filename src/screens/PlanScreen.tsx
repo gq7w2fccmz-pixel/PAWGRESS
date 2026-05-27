@@ -18,17 +18,8 @@ import {
   DayDetailScreen,
 } from "./plan/PlanSubScreens";
 import { CoachPlanWizard } from "./CoachPlanWizard";
+import { F, ORANGE, COPPER, COPPER_L, COPPER_G, SURF, SURF2, BORDER, CARD, CARD2, BORDER2, GREEN, RED, BG, BLUE } from "../styles/tokens";
 
-const F        = "'Barlow Condensed', sans-serif";
-const ORANGE   = "#f97316";
-const BLUE     = "#3b82f6";
-const GREEN    = "#22c55e";
-const COPPER   = "#cd7f32";
-const COPPER_L = "#e8a050";
-const COPPER_G = "rgba(180,100,20,0.22)";
-const SURF     = "#131008";
-const SURF2    = "#1a1610";
-const BORDER   = "rgba(205,127,50,0.18)";
 
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
 function IconTarget({ color = ORANGE }: { color?: string }) {
@@ -236,16 +227,16 @@ export function PlanScreen() {
   const [showCoachWizard, setShowCoachWizard] = useState(false);
 
   // Sub-Screen routing
-  if (sub === "createPlan")    return <PlanCreatorScreen   onBack={() => setSub(null)} />;
-  if (sub === "createWorkout") return <WorkoutCreatorScreen onBack={() => setSub(null)} onSaved={() => goTo("allPlans")} />;
+  if (sub === "createPlan")    return <PlanCreatorScreen   onBack={() => goTo(null)} />;
+  if (sub === "createWorkout") return <WorkoutCreatorScreen onBack={() => goTo(null)} onSaved={() => goTo("allPlans")} />;
   if (sub === "editWorkout" && editWOId)
-    return <WorkoutCreatorScreen onBack={() => setSub(null)} existingId={editWOId} />;
+    return <WorkoutCreatorScreen onBack={() => goTo(null)} existingId={editWOId} />;
   if (sub === "allPlans")
-    return <AllPlansScreen onBack={() => setSub(null)}
-      onEditWorkout={id => { setEditWOId(id); setSub("editWorkout"); }}
+    return <AllPlansScreen onBack={() => goTo(null)}
+      onEditWorkout={id => { setEditWOId(id); goTo("editWorkout"); }}
       initialTab={prevSub.current === "createWorkout" ? "workouts" : "pläne"} />;
-  if (sub === "selfCreate")    return <SelfCreateScreen    onBack={() => setSub(null)}
-    onCreatePlan={() => setSub("createPlan")}
+  if (sub === "selfCreate")    return <SelfCreateScreen    onBack={() => goTo(null)}
+    onCreatePlan={() => goTo("createPlan")}
     onCreateWorkout={() => goTo("createWorkout")}
     onAllPlans={() => goTo("allPlans")} />;
   if (dayDetail)
@@ -344,7 +335,7 @@ export function PlanScreen() {
           btnLabel="SELBST ERSTELLEN"
           btnBg={GREEN}
           btnColor="#fff"
-          onPress={() => setSub("selfCreate")}
+          onPress={() => goTo("selfCreate")}
           footerIcon={
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path d="M13 4L16 7L7 16L3 17L4 13L13 4Z" stroke="#fff" strokeWidth="1.5" strokeLinejoin="round"/>

@@ -85,7 +85,7 @@ export async function loadStats() {
   const { data, error } = await supabase
     .from("user_stats")
     .select("stats, week_days, weekly_goal")
-    .single();
+    .maybeSingle();
   if (error || !data) return null;
   return {
     stats:       data.stats       as Stats,
@@ -109,7 +109,7 @@ export async function loadProfile() {
   const { data, error } = await supabase
     .from("user_profile")
     .select("profile")
-    .single();
+    .maybeSingle();
   if (error || !data) return null;
   return data.profile as UserProfile;
 }
@@ -133,7 +133,7 @@ export async function loadCoaches() {
   const { data, error } = await supabase
     .from("user_coaches")
     .select("selected_coach, coach_progress")
-    .single();
+    .maybeSingle();
   if (error || !data) return null;
   return {
     selectedCoach:  data.selected_coach  as string,
@@ -160,7 +160,7 @@ export async function loadHistory() {
   const { data, error } = await supabase
     .from("user_history")
     .select("workouts, personal_records")
-    .single();
+    .maybeSingle();
   if (error || !data) return null;
   return {
     workouts:        data.workouts         as WorkoutRecord[],
@@ -189,7 +189,7 @@ export async function loadPlans() {
   const { data, error } = await supabase
     .from("user_plans")
     .select("plans, workouts, active_plan_id")
-    .single();
+    .maybeSingle();
   if (error || !data) return null;
   return {
     plans:        data.plans          as CustomPlan[],
