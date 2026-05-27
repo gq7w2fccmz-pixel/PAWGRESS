@@ -34,6 +34,17 @@ export function WorkoutDone() {
 
   const newPRs = topExercises.filter(e => e.isPR).length;
 
+  // Volumen vs. vorheriges gleichtägiges Workout
+  const allWorkouts = useHistoryStore(s => s.workouts);
+  const prevSameType = lastWorkout
+    ? allWorkouts
+        .filter(w => w.dayTag === lastWorkout.dayTag && w.id !== lastWorkout.id)
+        .sort((a, b) => b.date.localeCompare(a.date))[0]
+    : null;
+  const volDiff = lastWorkout && prevSameType
+    ? Math.round(((lastWorkout.totalVolume - prevSameType.totalVolume) / Math.max(prevSameType.totalVolume, 1)) * 100)
+    : null;
+
   function fmt(n: number) {
     return n >= 1000 ? `${(n/1000).toFixed(1).replace(".",",")}k` : String(Math.round(n));
   }
@@ -64,7 +75,11 @@ export function WorkoutDone() {
         <div className="grid grid-cols-2 gap-3">
           {[
             { icon: "⏱", label: "ZEIT",           value: `${durationMin}:${String(durationSecs).padStart(2,"0")}`, sub: "Minuten", color: "#f97316" },
-            { icon: "🏋️", label: "VOLUMEN",        value: totalVolume > 0 ? fmt(totalVolume) : "–",                  sub: "kg gesamt", color: "#22c55e" },
+            { icon: "🏋️", label: "VOLUMEN",
+              value: totalVolume > 0 ? fmt(totalVolume) : "–",
+              sub: volDiff !== null ? `${volDiff >= 0 ? "+" : ""}${volDiff}% vs. letztes Mal` : "kg gesamt",
+              color: volDiff !== null && volDiff > 0 ? "#22c55e" : volDiff !== null && volDiff < 0 ? "#ef4444" : "#22c55e"
+            },
             { icon: "🐾", label: "SÄTZE",          value: String(totalSets),                                         sub: "Erledigt",  color: "#3b82f6" },
             { icon: "✅", label: "WIEDERHOLUNGEN", value: totalReps > 0 ? String(totalReps) : "–",                   sub: "Gesamt",    color: "#a855f7" },
           ].map(s => (
@@ -140,10 +155,10 @@ export function WorkoutDone() {
           style={{ background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`, border: "none", fontFamily: F, boxShadow: `0 0 24px rgba(180,100,20,0.55), inset 0 1px 0 rgba(255,255,255,0.15)` }}>
           ZURÜCK ZUM PLAN
         </button>
-        <button onClick={() => navigate("/profil")}
+        <button onClick={() => navigate("/progress")}
           className="w-full py-3.5 rounded-2xl font-black text-base text-white"
           style={{ background: "transparent", border: `1px solid ${BORDER}`, fontFamily: F }}>
-          ZUSAMMENFASSUNG ANSEHEN ›
+          FORTSCHRITT ANSEHEN ›
         </button>
       </div>
     </div>

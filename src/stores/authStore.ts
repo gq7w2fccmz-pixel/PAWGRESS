@@ -7,6 +7,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { User, Session } from "@supabase/supabase-js";
 import { supabase }        from "../lib/supabase";
+import { toast }           from "../lib/toast";
 import { loadAllUserData } from "../lib/syncService";
 import { useStatsStore }   from "./statsStore";
 import { useProfileStore } from "./profileStore";
@@ -78,6 +79,7 @@ async function syncFromSupabase() {
     });
   } catch (e) {
     console.warn("[auth] syncFromSupabase fehlgeschlagen (lokale Daten werden verwendet):", e);
+    // Don't toast on sync failure - app works offline
   } finally {
     useAuthStore.setState({ syncing: false, lastSyncedAt: Date.now() });
   }
@@ -127,6 +129,7 @@ export const useAuthStore = create<AuthStore>()(
           });
         } catch (e) {
           set({ authError: "Verbindungsfehler. Bitte nochmal versuchen." });
+          toast.error("Verbindungsfehler. Prüfe deine Internetverbindung.");
         }
       },
 
@@ -147,6 +150,7 @@ export const useAuthStore = create<AuthStore>()(
           }
         } catch (e) {
           set({ authError: "Verbindungsfehler. Bitte nochmal versuchen." });
+          toast.error("Verbindungsfehler. Prüfe deine Internetverbindung.");
         }
       },
 

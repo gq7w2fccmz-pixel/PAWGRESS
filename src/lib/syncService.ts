@@ -10,6 +10,7 @@
  */
 
 import { supabase } from "./supabase";
+import { withRetry } from "./retry";
 import type { Stats }         from "../stores/statsStore";
 import type { CoachProgress } from "../stores/coachStore";
 import type { UserProfile }   from "../stores/profileStore";
@@ -52,7 +53,10 @@ export async function flushAllPending() {
     const payload = pending.get(table);
     pending.delete(table);
     if (payload) {
-      const { error } = await supabase.from(table).upsert(payload);
+      const { error } = await withRetry(
+        async () => supabase.from(table).upsert(payload),
+        { attempts: 2, baseDelay: 500 }
+      );
       if (error) console.error(`[sync:flush] ${table}:`, error.message);
     }
   }
@@ -60,7 +64,10 @@ export async function flushAllPending() {
 
 // ── Hilfsfunktion ─────────────────────────────────────────────────────────────
 async function upsert(table: string, data: Record<string, unknown>) {
-  const { error } = await supabase.from(table).upsert(data);
+  const { error } = await withRetry(
+    async () => supabase.from(table).upsert(data),
+    { attempts: 3, baseDelay: 800 }
+  );
   if (error) console.error(`[sync] ${table}:`, error.message);
 }
 

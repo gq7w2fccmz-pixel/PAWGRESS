@@ -4,6 +4,7 @@ import { useHistoryStore } from "../../stores/historyStore";
 import { useStatsStore } from "../../stores/statsStore";
 import type { WorkoutRecord, ExerciseRecord } from "../../stores/historyStore";
 import { fmtVolume, fmtDuration } from "../../lib/format";
+import { saveHistory } from "../../lib/syncService";
 
 export function WorkoutDetailModal({ workout, onClose }: {
   workout: WorkoutRecord;
@@ -21,18 +22,33 @@ export function WorkoutDetailModal({ workout, onClose }: {
 
   function handleDelete() {
     deleteWorkout(workout.id);
+    // Sync deletion to Supabase
+    const h = useHistoryStore.getState();
+    saveHistory(h.workouts, h.personalRecords).catch(e =>
+      console.warn("[WorkoutDetailModal] saveHistory fehlgeschlagen:", e)
+    );
     onClose();
   }
 
   function handleSaveLabel() {
     if (editLabelDraft.trim()) {
       updateWorkoutLabel(workout.id, editLabelDraft.trim());
+      // Sync label update to Supabase
+      const h = useHistoryStore.getState();
+      saveHistory(h.workouts, h.personalRecords).catch(e =>
+        console.warn("[WorkoutDetailModal] saveHistory fehlgeschlagen:", e)
+      );
     }
     setShowEditLabel(false);
   }
 
   function handleSaveExercises() {
     updateWorkoutExercises(workout.id, editedExercises);
+    // Sync exercise edits to Supabase
+    const h = useHistoryStore.getState();
+    saveHistory(h.workouts, h.personalRecords).catch(e =>
+      console.warn("[WorkoutDetailModal] saveHistory fehlgeschlagen:", e)
+    );
     setEditMode(false);
   }
 

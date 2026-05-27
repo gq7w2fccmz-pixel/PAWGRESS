@@ -1,12 +1,18 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+export interface BodyweightEntry {
+  date: string;
+  kg: number;
+}
+
 export interface Stats {
   totalWorkouts: number;
   totalVolume: number;
   weeklyWorkouts: number;
   weeklyVolume: number;
   lastWorkoutDate: string | null;
+  bodyweightLog: BodyweightEntry[];
 }
 
 interface StatsStore {
@@ -18,6 +24,7 @@ interface StatsStore {
   addVolume: (kg: number) => void;
   finishWorkoutStats: () => void;
   checkStreakDecay: () => void;
+  addBodyweight: (kg: number) => void;
   resetWeekly: () => void;
 }
 
@@ -27,6 +34,7 @@ const DEFAULT_STATS: Stats = {
   weeklyWorkouts: 0,
   weeklyVolume: 0,
   lastWorkoutDate: null,
+  bodyweightLog: [],
 };
 
 export const useStatsStore = create<StatsStore>()(
@@ -47,6 +55,15 @@ export const useStatsStore = create<StatsStore>()(
             totalVolume: stats.totalVolume + kg,
           },
         });
+      },
+
+      addBodyweight: (kg: number) => {
+        const { stats } = get();
+        const today = new Date().toISOString().slice(0, 10);
+        const log = stats.bodyweightLog ?? [];
+        // Replace today's entry if exists
+        const filtered = log.filter(e => e.date !== today);
+        set({ stats: { ...stats, bodyweightLog: [...filtered, { date: today, kg }].slice(-365) } });
       },
 
       checkStreakDecay: () => {

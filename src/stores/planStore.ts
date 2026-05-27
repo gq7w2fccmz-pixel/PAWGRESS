@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { PLAN_2ER_SPLIT } from "../data/plan_2er_split";
 import type { PlanExercise } from "../data/plan_2er_split";
+import { savePlans } from "../lib/syncService";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export interface CustomWorkoutDay {
@@ -71,6 +72,13 @@ const DEFAULT_PLAN: CustomPlan = {
   })),
 };
 
+// ── Helper: sync to Supabase after any mutation ───────────────────────────────
+function syncPlans(plans: CustomPlan[], workouts: StandaloneWorkout[], activePlanId: string) {
+  savePlans(plans, workouts, activePlanId).catch(e =>
+    console.warn("[planStore] savePlans fehlgeschlagen:", e)
+  );
+}
+
 // ── Store ─────────────────────────────────────────────────────────────────────
 export const usePlanStore = create<PlanStore>()(
   persist(
@@ -81,45 +89,74 @@ export const usePlanStore = create<PlanStore>()(
 
       createPlan: (plan) => {
         const id = `plan-${Date.now()}`;
-        set(s => ({ plans: [...s.plans, { ...plan, id, isActive: false, createdAt: new Date().toISOString() }] }));
+        set(s => {
+          const plans = [...s.plans, { ...plan, id, isActive: false, createdAt: new Date().toISOString() }];
+          syncPlans(plans, s.workouts, s.activePlanId);
+          return { plans };
+        });
         return id;
       },
 
       updatePlan: (id, updates) => {
-        set(s => ({ plans: s.plans.map(p => p.id === id ? { ...p, ...updates } : p) }));
+        set(s => {
+          const plans = s.plans.map(p => p.id === id ? { ...p, ...updates } : p);
+          syncPlans(plans, s.workouts, s.activePlanId);
+          return { plans };
+        });
       },
 
       deletePlan: (id) => {
         if (id === DEFAULT_PLAN_ID) return; // protect default
-        set(s => ({ plans: s.plans.filter(p => p.id !== id) }));
+        set(s => {
+          const plans = s.plans.filter(p => p.id !== id);
+          syncPlans(plans, s.workouts, s.activePlanId);
+          return { plans };
+        });
       },
 
       duplicatePlan: (id) => {
         const src = get().plans.find(p => p.id === id);
         if (!src) return;
         const newId = `plan-${Date.now()}`;
-        set(s => ({ plans: [...s.plans, { ...src, id: newId, name: `${src.name} (Kopie)`, isActive: false, createdAt: new Date().toISOString() }] }));
+        set(s => {
+          const plans = [...s.plans, { ...src, id: newId, name: `${src.name} (Kopie)`, isActive: false, createdAt: new Date().toISOString() }];
+          syncPlans(plans, s.workouts, s.activePlanId);
+          return { plans };
+        });
       },
 
       setActivePlan: (id) => {
-        set(s => ({
-          activePlanId: id,
-          plans: s.plans.map(p => ({ ...p, isActive: p.id === id })),
-        }));
+        set(s => {
+          const plans = s.plans.map(p => ({ ...p, isActive: p.id === id }));
+          syncPlans(plans, s.workouts, id);
+          return { activePlanId: id, plans };
+        });
       },
 
       createWorkout: (w) => {
         const id = `workout-${Date.now()}`;
-        set(s => ({ workouts: [...s.workouts, { ...w, id, createdAt: new Date().toISOString() }] }));
+        set(s => {
+          const workouts = [...s.workouts, { ...w, id, createdAt: new Date().toISOString() }];
+          syncPlans(s.plans, workouts, s.activePlanId);
+          return { workouts };
+        });
         return id;
       },
 
       updateWorkout: (id, updates) => {
-        set(s => ({ workouts: s.workouts.map(w => w.id === id ? { ...w, ...updates } : w) }));
+        set(s => {
+          const workouts = s.workouts.map(w => w.id === id ? { ...w, ...updates } : w);
+          syncPlans(s.plans, workouts, s.activePlanId);
+          return { workouts };
+        });
       },
 
       deleteWorkout: (id) => {
-        set(s => ({ workouts: s.workouts.filter(w => w.id !== id) }));
+        set(s => {
+          const workouts = s.workouts.filter(w => w.id !== id);
+          syncPlans(s.plans, workouts, s.activePlanId);
+          return { workouts };
+        });
       },
 
       getActivePlan: () => {

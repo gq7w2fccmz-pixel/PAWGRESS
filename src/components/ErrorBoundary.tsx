@@ -86,7 +86,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
           {/* Buttons */}
           <div className="w-full flex flex-col gap-3 mt-2">
-            <button onClick={() => { this.setState({ hasError: false, error: null }); window.location.href = "/"; }}
+            <button onClick={() => { this.setState({ hasError: false, error: null }); window.location.reload(); }}
               className="w-full py-4 rounded-2xl font-black text-xl text-white"
               style={{
                 background: `linear-gradient(135deg, #b8660a 0%, #e8a050 40%, #cd7f32 100%)`,

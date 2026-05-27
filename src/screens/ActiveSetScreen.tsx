@@ -219,6 +219,28 @@ export function ActiveSetScreen() {
     return () => clearInterval(id);
   }, [session]);
 
+  // Request notification permission on mount
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission().catch(() => {});
+    }
+  }, []);
+
+  // Rest timer notification when countdown hits 0
+  useEffect(() => {
+    if (timerSec === 0 && timerRunning === false && timerTotal > 0) {
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("Pawgress – Pause vorbei! 🐾", {
+          body: `${planEx?.name ?? "Übung"} – Nächster Satz bereit`,
+          icon: "/images/icon.webp",
+          silent: false,
+        });
+      }
+      // Vibration on mobile
+      if ("vibrate" in navigator) navigator.vibrate([200, 100, 200]);
+    }
+  }, [timerSec, timerRunning]);
+
   // Timer countdown
   useEffect(() => {
     if (!timerRunning) return;

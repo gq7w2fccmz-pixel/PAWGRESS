@@ -3,6 +3,9 @@ import { flushAllPending } from "./lib/syncService";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { NavBar }         from "./components/NavBar";
+import { ToastContainer } from "./components/ToastContainer";
+import { toast }          from "./lib/toast";
+import { onNetworkChange } from "./lib/retry";
 import { useAuthStore }   from "./stores/authStore";
 import { useStatsStore }   from "./stores/statsStore";
 
@@ -22,8 +25,9 @@ const ActiveSetScreen     = lazy(() => import("./screens/ActiveSetScreen").then(
 const WorkoutDone         = lazy(() => import("./screens/WorkoutDone").then(m => ({ default: m.WorkoutDone })));
 const ProfilScreen        = lazy(() => import("./screens/ProfilScreen").then(m => ({ default: m.ProfilScreen })));
 const GymAreaScreen       = lazy(() => import("./screens/GymAreaScreen").then(m => ({ default: m.GymAreaScreen })));
+const ProgressScreen      = lazy(() => import("./screens/ProgressScreen").then(m => ({ default: m.ProgressScreen })));
 
-const NO_NAV = ["/active-set", "/workout-done"];
+const NO_NAV = ["/active-set", "/workout-done", "/progress"];
 const F      = "'Barlow Condensed', sans-serif";
 const ORANGE = "#f97316";
 
@@ -43,6 +47,7 @@ function AppInner({ hideSplash }: { hideSplash: boolean }) {
 
   return (
     <div className="max-w-[430px] mx-auto min-h-screen relative overflow-x-hidden bg-[#0a0a0a] text-white">
+      <ToastContainer />
       <Suspense fallback={<ScreenLoader />}>
         <Routes>
           <Route path="/"                  element={<HomeScreen />} />
@@ -56,6 +61,7 @@ function AppInner({ hideSplash }: { hideSplash: boolean }) {
           <Route path="/gym/:area"         element={<GymAreaScreen />} />
           <Route path="/reset-password"      element={<ResetPasswordScreen />} />
           <Route path="/training/uebungen"   element={<UebungenScreen />} />
+          <Route path="/progress"            element={<ProgressScreen />} />
         </Routes>
       </Suspense>
       {showNav && <NavBar />}
@@ -78,16 +84,24 @@ export default function App() {
       if (document.visibilityState === "hidden") {
         flushAllPending().catch(() => {});
       } else if (document.visibilityState === "visible") {
-        // Re-check streak/weekly on app focus (handles midnight crossings)
         useStatsStore.getState().checkStreakDecay();
       }
     };
+    const cleanupNetwork = onNetworkChange(online => {
+      if (online) {
+        toast.success("Verbindung wiederhergestellt 🌐");
+        flushAllPending().catch(() => {});
+      } else {
+        toast.warning("Offline – Daten werden lokal gespeichert");
+      }
+    });
     const handleBeforeUnload = () => { flushAllPending().catch(() => {}); };
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("beforeunload", handleBeforeUnload);
+      cleanupNetwork();
     };
   }, []);
 
