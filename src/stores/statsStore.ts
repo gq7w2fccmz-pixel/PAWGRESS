@@ -69,18 +69,27 @@ export const useStatsStore = create<StatsStore>()(
       checkStreakDecay: () => {
         const { stats } = get();
         if (!stats.lastWorkoutDate) return;
-        const today = new Date().toISOString().split("T")[0];
+
+        const today = new Date();
         const last  = new Date(stats.lastWorkoutDate);
-        const now   = new Date(today);
-        const diffDays = Math.floor((now.getTime() - last.getTime()) / 86_400_000);
-        // If more than 1 day has passed without a workout, streak is broken
-        if (diffDays > 1) {
-          set({ stats: { ...stats } }); // streak tracking via coachStore separately
+
+        // Normalize both to midnight UTC to avoid timezone drift
+        today.setHours(0, 0, 0, 0);
+        last.setHours(0, 0, 0, 0);
+
+        const diffDays = Math.round((today.getTime() - last.getTime()) / 86_400_000);
+
+        // Get Monday-based ISO week number for both dates
+        function isoWeek(d: Date): number {
+          const tmp = new Date(d);
+          tmp.setHours(0, 0, 0, 0);
+          tmp.setDate(tmp.getDate() + 3 - ((tmp.getDay() + 6) % 7));
+          const week1 = new Date(tmp.getFullYear(), 0, 4);
+          return 1 + Math.round(((tmp.getTime() - week1.getTime()) / 86_400_000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
         }
-        // Reset weekly if new week started (Mon = 1)
-        const lastDay = last.getDay();
-        const todayDay = now.getDay();
-        if (diffDays >= 7 || (todayDay <= lastDay && diffDays > 0)) {
+
+        // Reset weekly stats if we've crossed into a new ISO week
+        if (diffDays > 0 && (isoWeek(today) !== isoWeek(last) || today.getFullYear() !== last.getFullYear())) {
           get().resetWeekly();
         }
       },
