@@ -82,7 +82,7 @@ export default function App() {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
-        flushAllPending().catch(() => {});
+        flushAllPending().catch((e) => console.warn("[sync] flush fehlgeschlagen:", e));
       } else if (document.visibilityState === "visible") {
         useStatsStore.getState().checkStreakDecay();
       }
@@ -90,12 +90,12 @@ export default function App() {
     const cleanupNetwork = onNetworkChange(online => {
       if (online) {
         toast.success("Verbindung wiederhergestellt 🌐");
-        flushAllPending().catch(() => {});
+        flushAllPending().catch((e) => console.warn("[sync] flush fehlgeschlagen:", e));
       } else {
         toast.warning("Offline – Daten werden lokal gespeichert");
       }
     });
-    const handleBeforeUnload = () => { flushAllPending().catch(() => {}); };
+    const handleBeforeUnload = () => { flushAllPending().catch((e) => console.warn("[sync] flush fehlgeschlagen:", e)); };
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {

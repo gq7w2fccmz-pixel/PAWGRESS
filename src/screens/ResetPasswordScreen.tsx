@@ -20,15 +20,14 @@ export function ResetPasswordScreen() {
 
   useEffect(() => {
     // Supabase setzt beim Klick auf Reset-Link eine Session
-    supabase.auth.onAuthStateChange((event) => {
+    supabase.auth.onAuthStateChange((event: string) => {
       if (event === "PASSWORD_RECOVERY") {
         setValidLink(true);
       }
     });
 
-    // Prüfen ob bereits eine Recovery-Session aktiv ist
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setValidLink(true);
+    supabase.auth.getSession().then(({ data }: { data: { session: { user: unknown } | null } }) => {
+      if (data.session) setValidLink(true);
     });
   }, []);
 

@@ -6,23 +6,25 @@ import { getBestSplit, calcVolume, SPLIT_LABELS } from "./scorer";
 import { filterExercises } from "./constraints";
 import type { AreaExercise } from "../types";
 
-// Lazy imports der Übungsdaten
-import { BRUST_EXERCISES }    from "../data/exercises_brust";
-import { RUECKEN_EXERCISES }  from "../data/exercises_ruecken";
-import { BEINE_EXERCISES }    from "../data/exercises_beine";
-import { SCHULTERN_EXERCISES } from "../data/exercises_schultern";
-import { ARME_EXERCISES }     from "../data/exercises_arme";
-import { CORE_EXERCISES }     from "../data/exercises_core";
-
-// ── Übungspool pro Muskelgruppe ───────────────────────────────────────────────
-const EXERCISE_POOL: Record<string, AreaExercise[]> = {
-  Brust:     BRUST_EXERCISES,
-  Rücken:    RUECKEN_EXERCISES,
-  Beine:     BEINE_EXERCISES,
-  Schultern: SCHULTERN_EXERCISES,
-  Arme:      ARME_EXERCISES,
-  Bauch:     CORE_EXERCISES,
-};
+// Übungsdaten werden dynamisch geladen → eigene Chunks, nicht im PlanScreen-Bundle
+async function loadExercisePool(): Promise<Record<string, AreaExercise[]>> {
+  const [brust, ruecken, beine, schultern, arme, core] = await Promise.all([
+    import("../data/exercises_brust").then(m => m.BRUST_EXERCISES),
+    import("../data/exercises_ruecken").then(m => m.RUECKEN_EXERCISES),
+    import("../data/exercises_beine").then(m => m.BEINE_EXERCISES),
+    import("../data/exercises_schultern").then(m => m.SCHULTERN_EXERCISES),
+    import("../data/exercises_arme").then(m => m.ARME_EXERCISES),
+    import("../data/exercises_core").then(m => m.CORE_EXERCISES),
+  ]);
+  return {
+    Brust:     brust,
+    Rücken:    ruecken,
+    Beine:     beine,
+    Schultern: schultern,
+    Arme:      arme,
+    Bauch:     core,
+  };
+}
 
 // ── Split-Tagesstruktur ───────────────────────────────────────────────────────
 const SPLIT_STRUCTURE: Record<SplitType, { label: string; muscles: string[] }[][]> = {
@@ -114,6 +116,7 @@ function pickExercisesForDay(
   input: UserInput,
   volumeMap: Record<string, number>,
   usedNames: Set<string>,
+  EXERCISE_POOL: Record<string, AreaExercise[]>,
 ): PlannedExercise[] {
   const exercises: PlannedExercise[] = [];
 
@@ -186,7 +189,10 @@ function getProgression(input: UserInput): { progression: string; rir: string } 
 }
 
 // ── Hauptfunktion ─────────────────────────────────────────────────────────────
-export function generatePlan(input: UserInput): GeneratedPlan {
+export async function generatePlan(input: UserInput): Promise<GeneratedPlan> {
+  // 0. Übungsdaten laden (dynamisch → eigene Chunks)
+  const EXERCISE_POOL = await loadExercisePool();
+
   // 1. Besten Split ermitteln
   const bestSplit = getBestSplit(input);
 
@@ -213,7 +219,7 @@ export function generatePlan(input: UserInput): GeneratedPlan {
     // Aber innerhalb eines Tages keine Duplikate
     const dayUsedNames = new Set<string>();
 
-    const exercises = pickExercisesForDay(template.muscles, input, volumeMap, dayUsedNames);
+    const exercises = pickExercisesForDay(template.muscles, input, volumeMap, dayUsedNames, EXERCISE_POOL);
     const totalSets = exercises.reduce((s, e) => s + e.sets, 0);
     const estimatedMinutes = Math.min(input.minutesPerSession, totalSets * 12 + 10);
 

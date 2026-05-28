@@ -167,7 +167,7 @@ export const ExercisePickerModal = memo(function ExercisePickerModal({
       <div className="flex-1 overflow-y-auto px-4 pb-10">
         {filtered.length === 0 ? (
           <p className="text-gray-600 text-sm text-center mt-10">Keine Übungen gefunden</p>
-        ) : filtered.map(({ ex, areaColor }) => {
+        ) : filtered.map(({ ex, areaColor }: { ex: AreaExercise; areaColor: string }) => {
           const isOpen = expanded === ex.name;
           return (
             <div key={ex.name} className="border-b" style={{ borderColor:"#1a1a1a" }}>

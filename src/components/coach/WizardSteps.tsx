@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { F, ORANGE, COPPER, COPPER_L, SURF, SURF2, BORDER, BORDER2, CARD, CARD2 } from "../../styles/tokens";
 import type { UserInput, GeneratedPlan, SplitType, Goal, FocusArea, TrainingFocus, Intensity, TrainingStyle, Equipment, TimeSlot, TrainingDay } from "../../engine/types";
 
@@ -93,9 +93,9 @@ function Step1({ input, update }: { input: Partial<UserInput>; update: (v: Parti
       </div>
       <div className="flex flex-col gap-2">
         {goals.map(g => (
-          <OptionCard key={g.id} icon={g.icon} label={g.label} sub={g.sub}
+          <Fragment key={g.id}><OptionCard icon={g.icon} label={g.label} sub={g.sub}
             active={input.goal === g.id}
-            onClick={() => update({ goal: g.id })} />
+            onClick={() => update({ goal: g.id })} /></Fragment>
         ))}
       </div>
       <div>
@@ -103,7 +103,7 @@ function Step1({ input, update }: { input: Partial<UserInput>; update: (v: Parti
         <p className="text-xs text-gray-500 mb-3">Wähle bis zu 2 Bereiche aus</p>
         <div className="flex flex-wrap gap-2">
           {focuses.map(f => (
-            <Pill key={f} label={f} active={(input.focusAreas ?? []).includes(f)} onClick={() => toggleFocus(f)} />
+            <Fragment key={f}><Pill label={f} active={(input.focusAreas ?? []).includes(f)} onClick={() => toggleFocus(f)} /></Fragment>
           ))}
         </div>
       </div>
@@ -146,10 +146,10 @@ function Step2({ input, update, recommendedSplit }: { input: Partial<UserInput>;
         <p className="text-xs text-gray-500 mb-2">Empfohlene Strukturen für {input.daysPerWeek} Tage</p>
         <div className="flex flex-col gap-2">
           {splits.map(s => (
-            <OptionCard key={s.id} icon={s.icon} label={s.label} sub={s.sub}
+            <Fragment key={s.id}><OptionCard icon={s.icon} label={s.label} sub={s.sub}
               active={input.split === s.id}
               recommended={s.id === recommendedSplit}
-              onClick={() => update({ split: s.id })} />
+              onClick={() => update({ split: s.id })} /></Fragment>
           ))}
         </div>
       </div>
@@ -217,9 +217,9 @@ function Step3B({ input, update }: { input: Partial<UserInput>; update: (v: Part
       </div>
       <div className="flex flex-col gap-2">
         {intensities.map(o => (
-          <OptionCard key={o.id} icon={o.icon} label={o.label} sub={o.sub}
+          <Fragment key={o.id}><OptionCard icon={o.icon} label={o.label} sub={o.sub}
             active={input.intensity === o.id}
-            onClick={() => update({ intensity: o.id })} />
+            onClick={() => update({ intensity: o.id })} /></Fragment>
         ))}
       </div>
       <div>
@@ -260,9 +260,9 @@ function Step4({ input, update }: { input: Partial<UserInput>; update: (v: Parti
       </div>
       <div className="flex flex-col gap-2">
         {equipments.map(e => (
-          <OptionCard key={e.id} icon={e.icon} label={e.label} sub={e.sub}
+          <Fragment key={e.id}><OptionCard icon={e.icon} label={e.label} sub={e.sub}
             active={input.equipment === e.id}
-            onClick={() => update({ equipment: e.id })} />
+            onClick={() => update({ equipment: e.id })} /></Fragment>
         ))}
       </div>
       <div>

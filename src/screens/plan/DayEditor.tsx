@@ -200,13 +200,14 @@ export const DayEditor = memo(function DayEditor({
 
       {/* Übungsliste */}
       {day.exercises.map((ex, i) => (
+        <div key={i}>
         <ExerciseRow
-          key={i}
           ex={ex}
           index={i}
           onChange={updated => updateExercise(i, updated)}
           onDelete={() => deleteExercise(i)}
         />
+        </div>
       ))}
 
       <button

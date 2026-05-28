@@ -89,8 +89,8 @@ export function CoachPlanWizard({ onClose }: { onClose: () => void }) {
     if (wizardStep < 5) { setWizardStep(w => w + 1); return; }
     // Step 5 → Plan erstellen
     setScreen("loading");
-    setTimeout(() => {
-      const generated = generatePlan(input as UserInput);
+    setTimeout(async () => {
+      const generated = await generatePlan(input as UserInput);
       setPlan(generated);
       saveGeneratedPlan(generated);  // Sofort speichern & aktivieren
       setScreen("result");

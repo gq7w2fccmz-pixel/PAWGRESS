@@ -222,7 +222,7 @@ export function ActiveSetScreen() {
   // Request notification permission on mount
   useEffect(() => {
     if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission().catch(() => {});
+      Notification.requestPermission().catch((e) => console.warn("[notifications] requestPermission fehlgeschlagen:", e));
     }
   }, []);
 

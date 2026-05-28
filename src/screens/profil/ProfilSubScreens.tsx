@@ -220,7 +220,7 @@ export function DatenschutzScreen({ onBack }: { onBack: () => void }) {
           { iconEl:<IconLock color="#888"/>, label:"Konto",         desc:"Kommt bald – derzeit ohne Verwendung" },
           { iconEl:<IconBars color="#888" size={18}/>, label:"Meine Daten", desc:"Trainings- und Verlaufsdaten" },
           { iconEl:<IconLock color="#888"/>, label:"Datensicherheit", desc:"Verschlüsselung & Datenschutz" },
-        ].map((r, i, arr) => <SettingRow key={i} {...r} last={i===arr.length-1} />)}
+        ].map((r, i, arr) => <div key={i}><SettingRow {...r} last={i===arr.length-1} /></div>)}
       </div>
     </div>
   );
@@ -239,7 +239,7 @@ export function UeberScreen({ onBack }: { onBack: () => void }) {
           { iconEl:<IconInfo color="#888"/>, label:"Impressum",      desc:"Rechtliche Angaben" },
           { iconEl:<IconInfo color="#888"/>, label:"App Info",       desc:"Version, Lizenz & Changelog" },
           { iconEl:<IconInfo color="#888"/>, label:"Hilfe & Support", desc:"FAQ, Kontakt & Feedback" },
-        ].map((r, i, arr) => <SettingRow key={i} {...r} last={i===arr.length-1} />)}
+        ].map((r, i, arr) => <div key={i}><SettingRow {...r} last={i===arr.length-1} /></div>)}
       </div>
       <div className="flex flex-col items-center mt-8 gap-1">
         <img src="/images/paw.webp" alt="" className="w-10 h-10 object-contain opacity-30" />
