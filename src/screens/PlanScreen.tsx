@@ -34,6 +34,10 @@ const HypertrophieUebungScreen     = lazy(() => import("./BertlHypertrophieScree
 const KraftausdauerDetailScreen    = lazy(() => import("./BertlKraftausdauerScreens").then(m => ({ default: m.KraftausdauerDetailScreen })));
 const KraftausdauerPeriodisierungScreen = lazy(() => import("./BertlKraftausdauerScreens").then(m => ({ default: m.KraftausdauerPeriodisierungScreen })));
 const KraftausdauerSplitScreen     = lazy(() => import("./BertlKraftausdauerScreens").then(m => ({ default: m.KraftausdauerSplitScreen })));
+// Lazy-load Intensiv/1RM screens (~58KB) — erst bei Antippen geladen
+const IntensivoScreen = lazy(() => import("./BertlExtraScreens").then(m => ({ default: m.IntensivoScreen })));
+const OneRMScreen     = lazy(() => import("./BertlExtraScreens").then(m => ({ default: m.OneRMScreen })));
+
 
 function BertlLoading() {
   return (
@@ -513,10 +517,14 @@ function BertlTippsScreen({ onBack }: { onBack: () => void }) {
   const [showKraft, setShowKraft] = useState(false);
   const [showHypertrophie, setShowHypertrophie] = useState(false);
   const [showKraftausdauer, setShowKraftausdauer] = useState(false);
+  const [showIntensiv, setShowIntensiv] = useState(false);
+  const [show1RM, setShow1RM] = useState(false);
 
   if (showKraft) return <Suspense fallback={<BertlLoading />}><KraftDetailScreen onBack={() => setShowKraft(false)} /></Suspense>;
   if (showHypertrophie) return <Suspense fallback={<BertlLoading />}><HypertrophieDetailScreen onBack={() => setShowHypertrophie(false)} /></Suspense>;
   if (showKraftausdauer) return <Suspense fallback={<BertlLoading />}><KraftausdauerDetailScreen onBack={() => setShowKraftausdauer(false)} /></Suspense>;
+  if (showIntensiv) return <Suspense fallback={<BertlLoading />}><IntensivoScreen onBack={() => setShowIntensiv(false)} /></Suspense>;
+  if (show1RM) return <Suspense fallback={<BertlLoading />}><OneRMScreen onBack={() => setShow1RM(false)} /></Suspense>;
 
   const tips = [
     {
@@ -545,6 +553,24 @@ function BertlTippsScreen({ onBack }: { onBack: () => void }) {
       subtitle: "20+ Wdh · sehr leicht · 30–60 sek Pause",
       desc: "Trainiert die Fähigkeit, Kraft über längere Zeit aufrechtzuerhalten – ideal für Ausdauer und Fettabbau.",
       onClick: () => setShowKraftausdauer(true),
+    },
+    {
+      key: "intensiv",
+      title: "Intensivtechniken",
+      emoji: "🔥",
+      color: "#ef4444",
+      subtitle: "Dropsets · Supersätze · Rest-Pause · ...",
+      desc: "Fortgeschrittene Methoden um über das normale Muskelversagen hinaus zu trainieren und neue Wachstumsreize zu setzen.",
+      onClick: () => setShowIntensiv(true),
+    },
+    {
+      key: "1rm",
+      title: "Ermittlung des 1RM",
+      emoji: "🎯",
+      color: "#a855f7",
+      subtitle: "Direkter Test · Epley-Formel · Relative Kraft",
+      desc: "Das Einwiederholungsmaximum bestimmen — praktisch oder per Formel — und die eigene Kraftleistung einordnen.",
+      onClick: () => setShow1RM(true),
     },
   ];
 
@@ -615,4 +641,3 @@ function BertlTippsScreen({ onBack }: { onBack: () => void }) {
   );
 }
 
-// ── KraftDetailScreen ──────────────────────────────────────────────────────────
