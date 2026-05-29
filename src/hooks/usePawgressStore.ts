@@ -15,6 +15,8 @@ import {
   saveStats,
   saveCoaches,
   saveHistory,
+  saveWorkoutEntry,
+  savePersonalRecords,
 } from "../lib/syncService";
 
 export function usePawgressStore() {
@@ -158,10 +160,13 @@ export function usePawgressStore() {
         const s = useStatsStore.getState();
         const c = useCoachStore.getState();
         const h = useHistoryStore.getState();
+        // Nur den neuesten Eintrag + PRs speichern (nicht alle Workouts neu schreiben)
+        const latest = h.workouts[h.workouts.length - 1];
         await Promise.all([
           saveStats(s.stats, s.weekDays, s.weeklyGoal),
           saveCoaches(c.selectedCoach, c.coachProgress),
-          saveHistory(h.workouts, h.personalRecords),
+          ...(latest ? [saveWorkoutEntry(latest)] : []),
+          savePersonalRecords(h.personalRecords),
         ]);
       }, 300);
     },

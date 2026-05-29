@@ -66,6 +66,7 @@ export interface GeneratedPlan {
   volumeBreakdown: VolumeBreakdown[];
   progression: string;
   rir: string;
+  kadenz: string;
   weeklyFrequency: string;
   totalWeeklyVolume: number;
   userInput: UserInput;

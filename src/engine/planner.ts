@@ -181,11 +181,31 @@ function pickExercisesForDay(
 }
 
 // ── Progression & RIR ────────────────────────────────────────────────────────
-function getProgression(input: UserInput): { progression: string; rir: string } {
-  if (input.goal === "strength") return { progression: "Linear Progression", rir: "0-1" };
-  if (input.trainingStyle === "powerbuilding") return { progression: "Double Progression + 1RM", rir: "1-2" };
-  if (input.intensity === "very_intense") return { progression: "RPE-basiert", rir: "0-1" };
-  return { progression: "Double Progression", rir: "1-2" };
+function getProgression(input: UserInput): { progression: string; rir: string; kadenz: string } {
+  // Buch: Wenn Fortschritt stoppt → 5-Stufen-Modell
+  // Kadenz: 2-0-X-0 (kein Zeitlupentraining)
+  const kadenz = "Exzentrik 2–3 Sek. · Konzentrik kontrolliert & kraftvoll (2-0-X-0)";
+
+  if (input.goal === "strength") return {
+    progression: "Lineare Progression → bei Stagnation: Regeneration → Deload → Frequenz ↑",
+    rir: "0–2",
+    kadenz,
+  };
+  if (input.goal === "hypertrophy" && input.trainingFocus === "volume") return {
+    progression: "Double Progression (Wdh. ↑, dann Gewicht ↑) → Wochenvolumen ÷ Frequenz verteilen",
+    rir: "1–3",
+    kadenz,
+  };
+  if (input.intensity === "very_intense") return {
+    progression: "RPE-basiert (RPE 8–10) → Deload alle 3–4 Wochen",
+    rir: "0–2",
+    kadenz,
+  };
+  return {
+    progression: "Double Progression → bei Plateau: Frequenz ↑ vor Volumen ↑",
+    rir: "1–3",
+    kadenz,
+  };
 }
 
 // ── Hauptfunktion ─────────────────────────────────────────────────────────────
@@ -233,7 +253,7 @@ export async function generatePlan(input: UserInput): Promise<GeneratedPlan> {
     };
   });
 
-  const { progression, rir } = getProgression(input);
+  const { progression, rir, kadenz } = getProgression(input);
   const totalWeeklyVolume = days.reduce((s, d) => s + d.totalSets, 0);
 
   return {
@@ -245,6 +265,7 @@ export async function generatePlan(input: UserInput): Promise<GeneratedPlan> {
     volumeBreakdown,
     progression,
     rir,
+    kadenz,
     weeklyFrequency: `${input.daysPerWeek}x pro Woche`,
     totalWeeklyVolume,
     userInput: input,

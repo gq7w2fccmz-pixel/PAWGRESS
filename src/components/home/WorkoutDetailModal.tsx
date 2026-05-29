@@ -4,7 +4,7 @@ import { useHistoryStore } from "../../stores/historyStore";
 import { useStatsStore } from "../../stores/statsStore";
 import type { WorkoutRecord, ExerciseRecord } from "../../stores/historyStore";
 import { fmtVolume, fmtDuration } from "../../lib/format";
-import { saveHistory } from "../../lib/syncService";
+import { saveWorkoutEntry, deleteWorkoutEntry } from "../../lib/syncService";
 
 export function WorkoutDetailModal({ workout, onClose }: {
   workout: WorkoutRecord;
@@ -22,10 +22,8 @@ export function WorkoutDetailModal({ workout, onClose }: {
 
   function handleDelete() {
     deleteWorkout(workout.id);
-    // Sync deletion to Supabase
-    const h = useHistoryStore.getState();
-    saveHistory(h.workouts, h.personalRecords).catch(e =>
-      console.warn("[WorkoutDetailModal] saveHistory fehlgeschlagen:", e)
+    deleteWorkoutEntry(workout.id).catch(e =>
+      console.warn("[WorkoutDetailModal] deleteWorkoutEntry fehlgeschlagen:", e)
     );
     onClose();
   }
@@ -33,10 +31,9 @@ export function WorkoutDetailModal({ workout, onClose }: {
   function handleSaveLabel() {
     if (editLabelDraft.trim()) {
       updateWorkoutLabel(workout.id, editLabelDraft.trim());
-      // Sync label update to Supabase
-      const h = useHistoryStore.getState();
-      saveHistory(h.workouts, h.personalRecords).catch(e =>
-        console.warn("[WorkoutDetailModal] saveHistory fehlgeschlagen:", e)
+      const updated = { ...workout, dayLabel: editLabelDraft.trim() };
+      saveWorkoutEntry(updated).catch(e =>
+        console.warn("[WorkoutDetailModal] saveWorkoutEntry fehlgeschlagen:", e)
       );
     }
     setShowEditLabel(false);
@@ -44,10 +41,9 @@ export function WorkoutDetailModal({ workout, onClose }: {
 
   function handleSaveExercises() {
     updateWorkoutExercises(workout.id, editedExercises);
-    // Sync exercise edits to Supabase
-    const h = useHistoryStore.getState();
-    saveHistory(h.workouts, h.personalRecords).catch(e =>
-      console.warn("[WorkoutDetailModal] saveHistory fehlgeschlagen:", e)
+    const updated = { ...workout, exercises: editedExercises };
+    saveWorkoutEntry(updated).catch(e =>
+      console.warn("[WorkoutDetailModal] saveWorkoutEntry fehlgeschlagen:", e)
     );
     setEditMode(false);
   }

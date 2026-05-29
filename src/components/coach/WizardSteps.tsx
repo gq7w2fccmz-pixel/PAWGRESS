@@ -453,8 +453,8 @@ function ResultScreen({ plan, isSaved, onView, onAdjust }: { plan: GeneratedPlan
       {/* Stats Grid */}
       <div className="grid grid-cols-3 gap-2">
         {[
-          { label: "Volumen", value: `${Math.min(plan.volumeBreakdown.find(v => v.muscleGroup === "Brust")?.setsPerWeek ?? 12, 18)}–${Math.max(plan.volumeBreakdown.find(v => v.muscleGroup === "Brust")?.setsPerWeek ?? 12, 18)} Sätze`, sub: "pro Muskel/Woche" },
-          { label: "Trainingszeit", value: `${plan.userInput.minutesPerSession === 45 ? "≤45" : plan.userInput.minutesPerSession}–${plan.userInput.minutesPerSession} Min.`, sub: "pro Einheit" },
+          { label: "Volumen", value: `${plan.volumeBreakdown.find(v => v.muscleGroup === "Brust")?.setsPerWeek ?? 15} Sätze`, sub: "Brust/Woche (Optimal)" },
+          { label: "Trainingszeit", value: `${plan.userInput.minutesPerSession} Min.`, sub: "pro Einheit" },
           { label: "Fokus", value: plan.userInput.focusAreas.join(", ") || "Ausgewogen", sub: plan.userInput.trainingFocus === "balanced" ? "Ausgewogen" : "Priorisiert" },
         ].map((s, i) => (
           <div key={i} className="rounded-xl p-3 text-center" style={{ background: CARD2, border: `1px solid ${BORDER}` }}>
@@ -471,6 +471,7 @@ function ResultScreen({ plan, isSaved, onView, onAdjust }: { plan: GeneratedPlan
         <div>
           <p className="text-xs font-bold text-white" style={{ fontFamily: F }}>Progression</p>
           <p className="text-xs text-gray-400">{plan.progression} · RIR {plan.rir}</p>
+          <p className="text-xs text-gray-500 mt-0.5">Kadenz: {plan.kadenz}</p>
         </div>
       </div>
 
@@ -513,7 +514,7 @@ function PlanOverviewScreen({ plan, onStart, onDayClick }: { plan: GeneratedPlan
       <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${BORDER}` }}>
         {[
           { icon: "🔄", label: "Trainingsfrequenz",  value: `${Math.ceil(plan.days.length / 2)}x pro Muskel/Woche` },
-          { icon: "📊", label: "Gesamtvolumen",      value: `${plan.volumeBreakdown[0]?.setsPerWeek ?? 12}–${(plan.volumeBreakdown[0]?.setsPerWeek ?? 12) + 6} Sätze pro Muskel/Woche` },
+          { icon: "📊", label: "Gesamtvolumen", value: `${Math.min(...plan.volumeBreakdown.map(v => v.setsPerWeek))}–${Math.max(...plan.volumeBreakdown.map(v => v.setsPerWeek))} Sätze pro Muskel/Woche` },
           { icon: "💚", label: "Regeneration",       value: "Ausgewogen eingeplant" },
         ].map((r, i) => (
           <div key={i} className="flex items-center gap-3 px-4 py-3"

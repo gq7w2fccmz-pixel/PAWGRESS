@@ -883,6 +883,9 @@ export function HypertrophieUebungScreen({ onBack }: { onBack: () => void }) {
   const TABS = ["GK", "2er", "3er", "4er", "5er"] as const;
   type Tab = typeof TABS[number];
   const [activeTab, setActiveTab] = useState<Tab>("GK");
+  const [showWeiter, setShowWeiter] = useState(false);
+
+  if (showWeiter) return <SatzvolumenScreen onBack={() => setShowWeiter(false)} />;
 
   function Bullet({ text }: { text: string }) {
     return (
@@ -1076,6 +1079,290 @@ export function HypertrophieUebungScreen({ onBack }: { onBack: () => void }) {
         {current.muscles.map((m, i) => (
           <div key={i}><MuscleCard {...m} /></div>
         ))}
+        <button onClick={() => setShowWeiter(true)}
+          className="w-full mt-4 mb-6 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2"
+          style={{ background: COLOR, color: "#000", fontFamily: F, border: "none" }}>
+          WEITER → SATZVOLUMEN & PROGRESSION
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── SatzvolumenScreen ──────────────────────────────────────────────────────────
+function SatzvolumenScreen({ onBack }: { onBack: () => void }) {
+  const COLOR = GREEN;
+
+  // Volume Load Rechner
+  const [sets, setSets] = useState<{ weight: string; reps: string }[]>([
+    { weight: "", reps: "" },
+    { weight: "", reps: "" },
+  ]);
+  const totalVolumeLoad = sets.reduce((sum, s) => {
+    const w = Number(s.weight) || 0;
+    const r = Number(s.reps) || 0;
+    return sum + w * r;
+  }, 0);
+
+  // Wochenvolumen Rechner
+  const [weeklyVol, setWeeklyVol] = useState("");
+  const [freq, setFreq] = useState("");
+  const setsPerSession = weeklyVol && freq && Number(freq) > 0
+    ? Math.round(Number(weeklyVol) / Number(freq))
+    : null;
+
+  function Bullet({ text }: { text: string }) {
+    return (
+      <div className="flex items-start gap-2 mb-1.5">
+        <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: COLOR }} />
+        <p className="text-sm text-gray-300 leading-relaxed">{text}</p>
+      </div>
+    );
+  }
+
+  function Section({ title }: { title: string }) {
+    return (
+      <p className="font-black text-sm mt-5 mb-3" style={{ fontFamily: F, color: COLOR }}>
+        {title.toUpperCase()}
+      </p>
+    );
+  }
+
+  function Card({ children }: { children: React.ReactNode }) {
+    return (
+      <div className="rounded-2xl px-4 py-4 mb-3" style={{ background: "#111", border: `1px solid ${COLOR}22` }}>
+        {children}
+      </div>
+    );
+  }
+
+  function InputRow({ label, value, onChange, unit = "kg", placeholder = "0" }: {
+    label: string; value: string; onChange: (v: string) => void; unit?: string; placeholder?: string;
+  }) {
+    return (
+      <div className="flex items-center gap-3 mb-3">
+        <p className="text-sm text-gray-400 flex-1">{label}</p>
+        <div className="flex items-center gap-1">
+          <input type="number" value={value} onChange={e => onChange(e.target.value)}
+            placeholder={placeholder}
+            className="w-20 text-right text-white text-sm font-bold rounded-xl px-3 py-2 outline-none"
+            style={{ background: "#1e1e1e", border: `1px solid ${COLOR}44` }} />
+          <p className="text-xs text-gray-500 w-8">{unit}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const satzEmpfehlungen = [
+    { mg: "Brust",        min: "8–10",  opt: "12–18", hoch: "20+" },
+    { mg: "Rücken",       min: "8–10",  opt: "12–18", hoch: "20+" },
+    { mg: "Quads",        min: "8–10",  opt: "12–18", hoch: "20+" },
+    { mg: "Beinbeuger",   min: "6–8",   opt: "10–15", hoch: "18+" },
+    { mg: "Schultern",    min: "8–12",  opt: "12–18", hoch: "20+" },
+    { mg: "Bizeps",       min: "6–8",   opt: "8–15",  hoch: "18+" },
+    { mg: "Trizeps",      min: "6–8",   opt: "8–15",  hoch: "18+" },
+    { mg: "Waden",        min: "6–10",  opt: "10–20", hoch: "25+" },
+  ];
+
+  const splitHierarchie = [
+    { level: "Anfänger",              split: "Ganzkörper",  freq: "2–4×/Woche" },
+    { level: "Fortg. Anfänger",       split: "2er-Split A/B", freq: "Frequenz 2" },
+    { level: "Fortgeschrittene",      split: "3er-Split A/B/C", freq: "Frequenz 2" },
+    { level: "Sehr Fortgeschrittene", split: "4er-Split",   freq: "sehr hohes Volumen" },
+  ];
+
+  return (
+    <div className="min-h-screen pb-28" style={{ background: "#080808", color: "#fff" }}>
+      <div className="px-5 pt-12 pb-4 flex items-center gap-3">
+        <button onClick={onBack} className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{ background: "#111", border: "none" }}>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M11 4L6 9L11 14" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+        <div>
+          <p className="font-black italic text-2xl leading-none" style={{ fontFamily: F, color: COLOR }}>
+            💪 SATZVOLUMEN & PROGRESSION
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">Buchempfehlungen · Rechner · Kadenz</p>
+        </div>
+      </div>
+
+      <div className="px-4">
+
+        {/* Satzempfehlungen Tabelle */}
+        <Section title="Satzempfehlungen pro Muskelgruppe / Woche" />
+        <div className="rounded-xl overflow-hidden mb-3" style={{ border: "1px solid #1e1e1e" }}>
+          <div className="flex px-3 py-2" style={{ background: "#1a1a1a", borderBottom: "1px solid #1e1e1e" }}>
+            <p className="text-[11px] font-bold text-gray-400 flex-1">Muskelgruppe</p>
+            <p className="text-[11px] font-bold text-gray-400 w-14 text-center">Minimum</p>
+            <p className="text-[11px] font-bold text-gray-400 w-14 text-center" style={{ color: COLOR }}>Optimal</p>
+            <p className="text-[11px] font-bold text-gray-400 w-10 text-right">Hoch</p>
+          </div>
+          {satzEmpfehlungen.map((r, i, arr) => (
+            <div key={i} className="flex px-3 py-2.5 items-center"
+              style={{ borderBottom: i < arr.length-1 ? "1px solid #1e1e1e" : "none", background: "#111" }}>
+              <p className="text-xs text-gray-300 flex-1">{r.mg}</p>
+              <p className="text-xs text-gray-400 w-14 text-center">{r.min}</p>
+              <p className="text-xs font-bold w-14 text-center" style={{ color: COLOR }}>{r.opt}</p>
+              <p className="text-xs text-gray-500 w-10 text-right">{r.hoch}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Kernaussage */}
+        <Section title="Kernaussage: Volumen ÷ Frequenz" />
+        <Card>
+          <p className="text-sm text-gray-300 leading-relaxed mb-3">
+            Das Wochenvolumen wird auf die Trainingsfrequenz verteilt. Der Autor argumentiert: nach ca. 6–10 Sätzen pro Muskelgruppe pro Einheit nimmt der Grenznutzen stark ab.
+          </p>
+          <div className="rounded-xl px-4 py-3 mb-3 text-center" style={{ background: "#1a1a1a" }}>
+            <p className="text-sm font-bold text-white">Wochenvolumen ÷ Frequenz = Sätze pro Einheit</p>
+          </div>
+          <p className="text-xs font-bold text-white mb-2">Beispiel: 15 Sätze Brust / Woche</p>
+          {[["Frequenz 1","15 Sätze Mo"],["Frequenz 2","8 Mo + 7 Do"],["Frequenz 3","5 Mo + 5 Mi + 5 Fr"]].map(([f, v], i) => (
+            <div key={i} className="flex items-center gap-2 mb-1.5">
+              <div className="w-20 flex-shrink-0">
+                <p className="text-xs font-black" style={{ color: COLOR, fontFamily: F }}>{f}</p>
+              </div>
+              <p className="text-xs text-gray-300">{v}</p>
+            </div>
+          ))}
+          <p className="text-xs text-gray-500 mt-3 italic">„3×5 Sätze sind oft besser als 1×15 Sätze."</p>
+        </Card>
+
+        {/* Wochenvolumen Rechner */}
+        <Section title="Rechner: Sätze pro Einheit" />
+        <Card>
+          <InputRow label="Wochenvolumen (Sätze)" value={weeklyVol} onChange={setWeeklyVol} unit="Sätze" placeholder="15" />
+          <InputRow label="Trainingsfrequenz" value={freq} onChange={setFreq} unit="×/Wo" placeholder="3" />
+          <div className="rounded-xl px-4 py-3 mt-2 text-center"
+            style={{ background: setsPerSession ? `${COLOR}20` : "#1a1a1a", border: `1px solid ${setsPerSession ? COLOR : "#2a2a2a"}` }}>
+            {setsPerSession ? (
+              <>
+                <p className="text-xs text-gray-400 mb-1">Sätze pro Einheit</p>
+                <p className="text-3xl font-black" style={{ color: COLOR, fontFamily: F }}>{setsPerSession}</p>
+                <p className="text-xs text-gray-500 mt-1">{weeklyVol} ÷ {freq} = {setsPerSession}</p>
+              </>
+            ) : (
+              <p className="text-xs text-gray-600">Wochenvolumen und Frequenz eingeben</p>
+            )}
+          </div>
+        </Card>
+
+        {/* Volume Load Rechner */}
+        <Section title="Rechner: Volume Load (Trainingsvolumen)" />
+        <Card>
+          <p className="text-xs text-gray-400 mb-3">Gewicht × Wiederholungen pro Satz — Summe = Volume Load</p>
+          {sets.map((s, i) => (
+            <div key={i} className="flex items-center gap-2 mb-2">
+              <p className="text-xs text-gray-500 w-12">Satz {i + 1}</p>
+              <input type="number" value={s.weight}
+                onChange={e => setSets(prev => prev.map((x, j) => j === i ? { ...x, weight: e.target.value } : x))}
+                placeholder="kg" className="flex-1 text-center text-white text-sm font-bold rounded-xl px-2 py-2 outline-none"
+                style={{ background: "#1e1e1e", border: `1px solid ${COLOR}44` }} />
+              <p className="text-xs text-gray-600">×</p>
+              <input type="number" value={s.reps}
+                onChange={e => setSets(prev => prev.map((x, j) => j === i ? { ...x, reps: e.target.value } : x))}
+                placeholder="Wdh" className="flex-1 text-center text-white text-sm font-bold rounded-xl px-2 py-2 outline-none"
+                style={{ background: "#1e1e1e", border: `1px solid ${COLOR}44` }} />
+              <p className="text-xs text-gray-400 w-20 text-right">
+                {s.weight && s.reps ? `${Number(s.weight) * Number(s.reps)} kg` : "–"}
+              </p>
+            </div>
+          ))}
+          <div className="flex gap-2 mt-3">
+            <button onClick={() => setSets(p => [...p, { weight: "", reps: "" }])}
+              className="flex-1 py-2 rounded-xl text-xs font-bold"
+              style={{ background: "#1e1e1e", color: COLOR, border: `1px solid ${COLOR}44` }}>
+              + Satz
+            </button>
+            {sets.length > 1 && (
+              <button onClick={() => setSets(p => p.slice(0, -1))}
+                className="flex-1 py-2 rounded-xl text-xs font-bold"
+                style={{ background: "#1e1e1e", color: "#888", border: "1px solid #2a2a2a" }}>
+                – Satz
+              </button>
+            )}
+          </div>
+          <div className="rounded-xl px-4 py-3 mt-3 text-center"
+            style={{ background: totalVolumeLoad > 0 ? `${COLOR}20` : "#1a1a1a", border: `1px solid ${totalVolumeLoad > 0 ? COLOR : "#2a2a2a"}` }}>
+            {totalVolumeLoad > 0 ? (
+              <>
+                <p className="text-xs text-gray-400 mb-1">Volume Load gesamt</p>
+                <p className="text-3xl font-black" style={{ color: COLOR, fontFamily: F }}>{totalVolumeLoad.toLocaleString("de-DE")} kg</p>
+              </>
+            ) : (
+              <p className="text-xs text-gray-600">Sätze eingeben</p>
+            )}
+          </div>
+        </Card>
+
+        {/* Split-Hierarchie */}
+        <Section title="Split-Hierarchie des Buches" />
+        <div className="rounded-xl overflow-hidden mb-3" style={{ border: "1px solid #1e1e1e" }}>
+          {splitHierarchie.map((r, i, arr) => (
+            <div key={i} className="px-4 py-3"
+              style={{ borderBottom: i < arr.length-1 ? "1px solid #1e1e1e" : "none", background: "#111" }}>
+              <div className="flex items-center gap-2 mb-0.5">
+                <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: COLOR }} />
+                <p className="text-xs font-black" style={{ color: COLOR, fontFamily: F }}>{r.level}</p>
+              </div>
+              <p className="text-sm text-white ml-4">{r.split}</p>
+              <p className="text-xs text-gray-500 ml-4">{r.freq}</p>
+            </div>
+          ))}
+        </div>
+        <div className="rounded-xl px-4 py-3 mb-3" style={{ background: `${COLOR}15`, border: `1px solid ${COLOR}33` }}>
+          <p className="text-xs font-bold mb-1" style={{ color: COLOR }}>Interessant</p>
+          <p className="text-sm text-gray-300">Der Autor bevorzugt klar Frequenz 2–3 gegenüber dem klassischen Bro-Split (Frequenz 1).</p>
+        </div>
+
+        {/* Optimale Woche */}
+        <Section title="Rekonstruktion der optimalen Trainingswoche" />
+        <Card>
+          <div className="grid grid-cols-2 gap-2 mb-2">
+            {[["Mo","Push"],["Di","Pull"],["Mi","Legs"],["Do","Frei"],["Fr","Push"],["Sa","Pull"],["So","Legs"]]
+              .map(([tag, inhalt]) => (
+                <div key={tag} className="rounded-xl px-3 py-2" style={{ background: inhalt === "Frei" ? "#1a1a1a" : `${COLOR}15` }}>
+                  <p className="text-[10px] text-gray-500">{tag}</p>
+                  <p className="text-sm font-bold" style={{ color: inhalt === "Frei" ? "#555" : COLOR }}>{inhalt}</p>
+                </div>
+              ))}
+          </div>
+        </Card>
+
+        {/* Kadenz */}
+        <Section title="Kadenz — Nicht der Schlüssel" />
+        <Card>
+          <p className="text-sm text-gray-300 leading-relaxed mb-3">
+            Der Autor lehnt Slow-Motion-Techniken weitgehend ab: langsamere Kadenz → weniger Last → weniger Volumen → weniger mechanische Spannung.
+          </p>
+          <p className="text-xs font-bold text-white mb-2">Empfehlung</p>
+          <Bullet text="Exzentrik: 1–3 Sekunden" />
+          <Bullet text="Konzentrik: kontrolliert und kraftvoll" />
+          <Bullet text="Kein bewusstes Zeitlupentraining" />
+          <div className="rounded-xl px-3 py-2 mt-3" style={{ background: "#1a1a1a" }}>
+            <p className="text-xs text-gray-400">Kadenz 2-0-X-0: 2 Sek. exzentrisch · keine Pause unten · explosive Konzentrik · keine Pause oben</p>
+          </div>
+        </Card>
+
+        {/* Progression */}
+        <Section title="Progression — Das eigentliche Herzstück" />
+        <Card>
+          <p className="text-sm text-gray-300 leading-relaxed mb-3">
+            Das Buch ist weniger ein Split-Buch — es ist ein Progressions-Buch. Leistung ↑ → Volumen ↑ → Muskelmasse ↑.
+          </p>
+          <p className="text-xs font-bold text-white mb-2">Wenn Fortschritt stoppt:</p>
+          {["Regeneration prüfen","Deload","Volumen anpassen","Frequenz erhöhen","Erst danach mehr Volumen"].map((t, i) => (
+            <div key={i} className="flex items-center gap-3 mb-1.5">
+              <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-black"
+                style={{ background: COLOR, color: "#000", fontFamily: F }}>{i+1}</div>
+              <p className="text-sm text-gray-300">{t}</p>
+            </div>
+          ))}
+        </Card>
+
         <div className="mb-6" />
       </div>
     </div>

@@ -1,8 +1,10 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { F, ORANGE, GREEN, BLUE } from "../styles/tokens";
-import { HypertrophieSplitScreen } from "./BertlHypertrophieScreens";
-import { KraftausdauerSplitScreen } from "./BertlKraftausdauerScreens";
+import { lazy, Suspense } from "react";
+// Cross-chunk lazy imports — vermeidet React #300 beim Lazy-Loading
+const HypertrophieSplitScreen  = lazy(() => import("./BertlHypertrophieScreens").then(m => ({ default: m.HypertrophieSplitScreen })));
+const KraftausdauerSplitScreen = lazy(() => import("./BertlKraftausdauerScreens").then(m => ({ default: m.KraftausdauerSplitScreen })));
 
 export function KraftDetailScreen({ onBack }: { onBack: () => void }) {
   const COLOR = "#e8a050";
@@ -897,7 +899,7 @@ export function HypertrophiePeriodisierungScreen({ onBack }: { onBack: () => voi
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
   const [showWeiter, setShowWeiter] = useState(false);
 
-  if (showWeiter) return <HypertrophieSplitScreen onBack={() => setShowWeiter(false)} />;
+  if (showWeiter) return <Suspense fallback={null}><HypertrophieSplitScreen onBack={() => setShowWeiter(false)} /></Suspense>;
 
   function toggle(key: string) { setOpenAccordion(o => o === key ? null : key); }
 
@@ -1361,7 +1363,7 @@ export function KraftausdauerPeriodisierungScreen({ onBack }: { onBack: () => vo
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
   const [showWeiter, setShowWeiter] = useState(false);
 
-  if (showWeiter) return <KraftausdauerSplitScreen onBack={() => setShowWeiter(false)} />;
+  if (showWeiter) return <Suspense fallback={null}><KraftausdauerSplitScreen onBack={() => setShowWeiter(false)} /></Suspense>;
 
 
   function Section({ num, title }: { num: number; title: string }) {
@@ -2105,5 +2107,3 @@ export function KraftSplitScreen({ onBack }: { onBack: () => void }) {
     </div>
   );
 }
-
-// ── HypertrophieSplitScreen ────────────────────────────────────────────────────
