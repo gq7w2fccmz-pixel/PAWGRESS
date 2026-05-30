@@ -1,6 +1,7 @@
 export interface PlanExercise {
   name: string;
   sets: { reps: number }[];
+  primary_muscles?: string[];
 }
 
 export interface PlanDay {

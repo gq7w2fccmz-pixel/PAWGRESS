@@ -71,8 +71,7 @@ function Step1({ input, update }: { input: Partial<UserInput>; update: (v: Parti
   const goals: { id: Goal; icon: string; label: string; sub: string }[] = [
     { id: "hypertrophy", icon: "💪", label: "Muskelaufbau", sub: "Hypertrophie & mehr Muskelmasse" },
     { id: "strength",    icon: "🏋️", label: "Kraftaufbau",  sub: "Mehr Maximalkraft" },
-    { id: "fat_loss",    icon: "🔥", label: "Fettabbau",    sub: "Körperfett reduzieren" },
-    { id: "fitness",     icon: "⚡", label: "Allgemeine Fitness", sub: "Gesundheit & Wohlbefinden" },
+    { id: "strength_endurance", icon: "⚡", label: "Kraftausdauer", sub: "Ausdauer & Ermüdungsresistenz" },
   ];
   const focuses: FocusArea[] = ["Brust", "Rücken", "Beine", "Schultern", "Arme", "Bauch"];
 
@@ -161,7 +160,7 @@ function Step2({ input, update, recommendedSplit }: { input: Partial<UserInput>;
 function Step3A({ input, update }: { input: Partial<UserInput>; update: (v: Partial<UserInput>) => void }) {
   const options: { id: TrainingFocus; icon: string; label: string; sub: string }[] = [
     { id: "balanced",  icon: "⚖️",  label: "Ausgewogen",      sub: "Balance aus Volumen und Intensität" },
-    { id: "volume",    icon: "📊",  label: "Volumenfokus",     sub: "Mehr Sätze für max. Wachstum" },
+    { id: "balanced",    icon: "📊",  label: "Volumenfokus",     sub: "Mehr Sätze für max. Wachstum" },
     { id: "intensity", icon: "🎯",  label: "Intensitätsfokus", sub: "Höhere Intensität & schwere Sätze" },
   ];
 
@@ -287,7 +286,7 @@ function Step4({ input, update }: { input: Partial<UserInput>; update: (v: Parti
 // ── Step 5: Check & Anpassen ──────────────────────────────────────────────────
 function Step5({ input, onEdit }: { input: Partial<UserInput>; onEdit: (step: number) => void }) {
   const goalLabels: Record<Goal, string> = {
-    hypertrophy: "Muskelaufbau", strength: "Kraftaufbau", fat_loss: "Fettabbau", fitness: "Allgemeine Fitness"
+    hypertrophy: "Muskelaufbau", strength: "Maximalkraft", strength_endurance: "Kraftausdauer"
   };
   const splitLabels: Record<SplitType, string> = {
     upper_lower: "Upper / Lower", push_pull_legs: "Push / Pull / Legs",
@@ -342,7 +341,7 @@ function Step5({ input, onEdit }: { input: Partial<UserInput>; onEdit: (step: nu
 }
 
 // ── Loading Screen ─────────────────────────────────────────────────────────────
-function LoadingScreen({ onDone }: { onDone: (plan: GeneratedPlan) => void }) {
+function LoadingScreen({ onDone }: { onDone: () => void }) {
   const [step, setStep] = useState(0);
   const steps = [
     { label: "Datenanalyse",    sub: "Deine Angaben werden analysiert" },

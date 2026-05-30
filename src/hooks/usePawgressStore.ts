@@ -8,9 +8,11 @@ import { useStatsStore }  from "../stores/statsStore";
 import { useCoachStore, categorizeExercises } from "../stores/coachStore";
 import { useWorkoutStore } from "../stores/workoutStore";
 import { useHistoryStore } from "../stores/historyStore";
+import { usePlanStore }    from "../stores/planStore";
 import type { AreaName }  from "../types";
-import { PLAN_2ER_SPLIT } from "../data/plan_2er_split";
 import type { WorkoutInput } from "../stores/historyStore";
+import { countPlanWorkouts } from "../lib/planDayResolver";
+import { getTodayLocal } from "../lib/dateUtils";
 import {
   saveStats,
   saveCoaches,
@@ -121,6 +123,8 @@ export function usePawgressStore() {
       exerciseCategories: string[],
       benchPressWeight?: number,
       startTime?: number,
+      // Fix #2 + #5: Label und Plan-Info vom aktiven Workout
+      workoutMeta?: { label: string; planId?: string; isFreestyle?: boolean },
     ) => {
       const cats     = categorizeExercises(exerciseCategories);
       const newTotal = stats.totalWorkouts + 1;
@@ -129,8 +133,6 @@ export function usePawgressStore() {
 
       const records = buildExerciseRecords();
       if (records.length > 0) {
-        const dayIndex    = stats.totalWorkouts % 4;
-        const day         = PLAN_2ER_SPLIT[dayIndex];
         const totalVolume = records.reduce((a, e) => a + e.volume, 0);
         const totalSets   = records.reduce((a, e) => a + e.sets.length, 0);
         const totalReps   = records.reduce((a, e) =>
@@ -139,15 +141,22 @@ export function usePawgressStore() {
           ? Math.floor((Date.now() - startTime) / 1000)
           : 0;
 
+        // Fix #2 + #5: Label und Tag aus dem tatsächlichen Workout, nicht aus PLAN_2ER_SPLIT
+        const label    = workoutMeta?.label ?? "Training";
+        const isFreestyle = workoutMeta?.isFreestyle ?? false;
+        const planId   = workoutMeta?.planId;
+
         const workoutInput: WorkoutInput = {
-          date: new Date().toISOString().split("T")[0],
-          dayLabel: day.label,
-          dayTag: day.tag as "PUSH" | "PULL",
+          date:           getTodayLocal(),
+          dayLabel:       label,
+          dayTag:         isFreestyle ? "FREE" : "PUSH", // Tag aus Metadaten (wird in TrainingScreen gesetzt)
+          planId,
+          isFreestyle,
           durationSeconds: durationSec,
           totalVolume,
           totalSets,
           totalReps,
-          exercises: records as WorkoutInput["exercises"],
+          exercises:      records as WorkoutInput["exercises"],
         };
         saveWorkout(workoutInput);
       }

@@ -56,7 +56,7 @@ export function CoachPlanWizard({ onClose }: { onClose: () => void }) {
 
     const goalLabels: Record<string, string> = {
       hypertrophy: "Muskelaufbau", strength: "Kraftaufbau",
-      fat_loss: "Fettabbau", fitness: "Allgemeine Fitness",
+      strength_endurance: "Kraftausdauer",
     };
 
     const planId = createPlan({
@@ -111,7 +111,7 @@ export function CoachPlanWizard({ onClose }: { onClose: () => void }) {
     return (
       <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(0,0,0,0.85)", paddingBottom: 80 }}>
         <div className="w-full max-w-[430px] rounded-t-3xl overflow-hidden" style={{ background: BG }}>
-          <LoadingScreen onDone={(p) => { setPlan(p); setScreen("result"); }} />
+          <LoadingScreen onDone={() => setScreen("result")} />
         </div>
       </div>
     );

@@ -8,6 +8,7 @@ import { useAuthStore }    from "../stores/authStore";
 import { saveProfile }     from "../lib/syncService";
 import { ALL_AVATARS }     from "./profil/ProfilSubScreens";
 import { F, ORANGE, COPPER, COPPER_L, COPPER_G, SURF, SURF2, BORDER, CARD, CARD2, BORDER2, GREEN, RED, BG } from "../styles/tokens";
+import { getTodayLocal, getYesterdayLocal } from "../lib/dateUtils";
 
 
 const GENDERS = [
@@ -34,7 +35,7 @@ export function OnboardingScreen() {
     const updates = {
       name:        name.trim() || "Champion",
       avatarImg:   avatar,
-      memberSince: new Date().toISOString().split("T")[0],
+      memberSince: getTodayLocal(),
     };
     updateProfile(updates);
 
@@ -97,7 +98,7 @@ export function OnboardingScreen() {
           <div>
             <p className="text-xs text-gray-500 tracking-widest mb-2 font-bold">GEBURTSDATUM</p>
             <input type="date" value={dob} onChange={e => setDob(e.target.value)}
-              max={new Date().toISOString().split("T")[0]}
+              max={getTodayLocal()}
               className="w-full px-4 py-3.5 rounded-2xl text-white outline-none text-base"
               style={{ background: "#111", border: `1px solid ${dob ? COPPER_L : BORDER}`, colorScheme: "dark" }} />
           </div>

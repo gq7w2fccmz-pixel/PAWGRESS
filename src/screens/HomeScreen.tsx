@@ -277,7 +277,7 @@ export function HomeScreen() {
               // Datum dieses Wochentags berechnen
               const dayDate = new Date();
               dayDate.setDate(dayDate.getDate() + (i - mondayIdx));
-              const dayStr = dayDate.toISOString().slice(0, 10);
+              const dayStr = dayDate.toLocaleDateString("en-CA");
               // Alle Workouts dieses Tages aus der echten History
               const thisDayWorkouts = recentWorkouts.filter(
                 (w: WorkoutRecord) => w.date === dayStr

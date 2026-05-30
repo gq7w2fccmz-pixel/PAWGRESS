@@ -4,6 +4,7 @@ import App from "./App";
 import "./index.css";
 import { useCoachStore } from "./stores/coachStore";
 import { useStatsStore }  from "./stores/statsStore";
+import { getTodayLocal, getYesterdayLocal } from "./lib/dateUtils";
 
 // ── Streak-Verfall beim App-Start (Offline / localStorage-Pfad) ──────────────
 // Läuft einmalig vor dem ersten Render. Stellt sicher dass ein abgelaufener
@@ -14,10 +15,8 @@ import { useStatsStore }  from "./stores/statsStore";
 
   if (!lastWorkoutDate || progress.currentStreak === 0) return;
 
-  const today     = new Date().toISOString().split("T")[0];
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yStr = yesterday.toISOString().split("T")[0];
+  const today     = getTodayLocal();
+  const yStr = getYesterdayLocal();
 
   const alive = lastWorkoutDate === today || lastWorkoutDate === yStr;
   if (!alive) {

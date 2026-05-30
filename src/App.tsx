@@ -71,12 +71,20 @@ function AppInner({ hideSplash }: { hideSplash: boolean }) {
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
+  // initialLoading: nur beim ersten App-Start true
+  // → verhindert BrowserRouter-Neustart bei onAuthStateChange (Display ein/aus)
+  const [initialLoading, setInitialLoading] = useState(true);
   const { user, loading, syncing, needsOnboarding, initAuth } = useAuthStore();
 
   useEffect(() => {
     const unsub = initAuth();
     return unsub;
   }, []);
+
+  // initialLoading erst nach dem ersten Auth-Check auf false setzen
+  useEffect(() => {
+    if (!loading) setInitialLoading(false);
+  }, [loading]);
 
   // Flush beim App-Backgrounding (Tab verlassen / Gerät sperren)
   useEffect(() => {
@@ -117,8 +125,8 @@ export default function App() {
     setShowSplash(false);
   };
 
-  // Session wird geprüft
-  if (loading) {
+  // Nur beim allerersten Start Ladebildschirm zeigen (nicht bei Display ein/aus)
+  if (initialLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
         <p className="font-black text-gray-600 text-lg" style={{ fontFamily: F }}>PAWGRESS …</p>
@@ -126,84 +134,40 @@ export default function App() {
     );
   }
 
-  // Nicht eingeloggt → Login (reset-password muss auch ohne Login erreichbar sein)
-  if (!user) {
-    return (
-      <BrowserRouter>
-        <ErrorBoundary>
-          <div className="max-w-[430px] mx-auto min-h-screen bg-[#0a0a0a]">
-            <Suspense fallback={<ScreenLoader />}>
-              <Routes>
-                <Route path="/reset-password" element={<ResetPasswordScreen />} />
-                <Route path="*" element={<LoginScreen />} />
-              </Routes>
-            </Suspense>
-          </div>
-        </ErrorBoundary>
-      </BrowserRouter>
-    );
-  }
-
-  // Neu registriert → Onboarding
-  if (needsOnboarding) {
-    return (
-      <BrowserRouter>
-        <ErrorBoundary>
-          <div className="max-w-[430px] mx-auto min-h-screen bg-[#0a0a0a]">
-            <Suspense fallback={<ScreenLoader />}>
-              <OnboardingScreen />
-            </Suspense>
-          </div>
-        </ErrorBoundary>
-      </BrowserRouter>
-    );
-  }
-
-  // Daten werden geladen
-  if (syncing) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-5"
-        style={{ background: "#0a0807" }}>
-        <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          {/* Ambient Glow */}
-          <div style={{
-            position: "absolute",
-            width: 140, height: 140,
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(205,127,50,0.25) 0%, transparent 70%)",
-            animation: "pulse 2s ease-in-out infinite",
-          }} />
-          {/* Icon mit Screen-Blend – entfernt schwarzen Hintergrund optisch */}
-          <img src="/images/nav_paw.webp" alt="Pawgress"
-            style={{
-              width: 96, height: 96,
-              objectFit: "contain",
-              mixBlendMode: "screen" as const,
-              filter: "drop-shadow(0 0 20px rgba(205,127,50,0.7))",
-            }} />
-        </div>
-        <p className="font-black text-sm tracking-widest"
-          style={{ fontFamily: F, color: "#cd7f32", letterSpacing: "0.15em" }}>
-          DATEN WERDEN GELADEN …
-        </p>
-        <style>{`
-          @keyframes pulse {
-            0%, 100% { opacity: 0.3; transform: scale(0.9); }
-            50%       { opacity: 1;   transform: scale(1.1); }
-          }
-        `}</style>
-      </div>
-    );
-  }
-
-  // Eingeloggt → App
+  // Einziger BrowserRouter – wird nie neu gemountet → Navigation bleibt erhalten
   return (
     <BrowserRouter>
       <ErrorBoundary>
         <Suspense fallback={<ScreenLoader />}>
-          {showSplash && <SplashScreen onDone={handleSplashDone} />}
+          {/* Nicht eingeloggt */}
+          {!user && (
+            <div className="max-w-[430px] mx-auto min-h-screen bg-[#0a0a0a]">
+              <Routes>
+                <Route path="/reset-password" element={<ResetPasswordScreen />} />
+                <Route path="*" element={<LoginScreen />} />
+              </Routes>
+            </div>
+          )}
+
+          {/* Onboarding */}
+          {user && needsOnboarding && (
+            <div className="max-w-[430px] mx-auto min-h-screen bg-[#0a0a0a]">
+              <OnboardingScreen />
+            </div>
+          )}
+
+          {/* Haupt-App — bleibt gemountet, Navigation wird nicht zurückgesetzt */}
+          {user && !needsOnboarding && (
+            <>
+              {showSplash && (
+                <div className="max-w-[430px] mx-auto min-h-screen bg-[#0a0a0a]">
+                  <SplashScreen onDone={handleSplashDone} />
+                </div>
+              )}
+              <AppInner hideSplash={!showSplash} />
+            </>
+          )}
         </Suspense>
-        <AppInner hideSplash={!showSplash} />
       </ErrorBoundary>
     </BrowserRouter>
   );
